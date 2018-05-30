@@ -24,7 +24,7 @@
         mode: 0755
         setype: cobbler_var_lib_t
         path: "{{ tftp_dir }}/uefi"
-      when: "'rhel' in kick_media or  'centos' in kick_media"
+      when: "'rhel' in os_name or  'centos' in os_name"
     
     - name: Place coreos pxe files
       copy:
@@ -34,7 +34,7 @@
       register: tftp
       with_items:
         - "{{ tftp_coreos }}"
-      when: "'coreos' in kick_media"
+      when: "'coreos' in os_name"
 
     - name: Place centos & rhel pxe files
       copy:
@@ -44,7 +44,7 @@
       register: tftp
       with_items:
         - "{{ tftp_pxe }}"
-      when: "'rhel' in kick_media or  'centos' in kick_media"
+      when: "'rhel' in os_name or  'centos' in os_name"
 
     - name: Place uefi pxe files
       copy:
@@ -54,7 +54,7 @@
       register: tftp
       with_items:
         - "{{ tftp_uefi }}"
-      when: "'rhel' in kick_media or  'centos' in kick_media"    
+      when: "'rhel' in os_name or  'centos' in os_name"    
 
     - name: Default pxe menu
       template:

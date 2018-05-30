@@ -3,14 +3,13 @@
 #
 package_list:
   - git
-  - ansible
 
 git_repos:
   rock:
     branch: devel
     dest: "{{ install_dir }}/tfplenum-rock"
-    url: https://github.com/tfplenum/rock.git
+    url: https://bitbucket.di2e.net/scm/thisiscvah/tfplenum.git
   deployer: 
-    branch: master
+    branch: devel
     dest: "{{ install_dir }}/tfplenum-deployer"
-    url: https://github.com/tfplenum/rock-deployer.git       
+    url: https://bitbucket.di2e.net/scm/thisiscvah/tfplenum-deployer.git

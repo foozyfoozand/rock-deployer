@@ -3,17 +3,17 @@ kick_cfg: ks.cfg
 tftp_dir: /var/lib/tftpboot
 web_root: /var/www/html
 
-coreos_version: 1688.5.3
+
 
 install_group: root
 rocknsm_dir: /opt
 rockoffline_dir: "{{ web_root }}/offlinerepo"
 install_dir: /opt/rock
+tfplenum_vars: "{{ install_dir }}/tfplenum/playbooks/group_vars/all/versions.yml"
 sysctl_file: /etc/sysctl.d/rock.conf
 fqdn: default.svc.cluster.local
 
 # Elasticsearch
-elastic_ver: '6.2.2'
 es_cluster_name: rock
 elastic_fqdn: "elasticsearch.{{ fqdn }}"
 elastic_port: 9200
@@ -30,7 +30,6 @@ kafka_port: 9092
 kafka_retention: 168
 
 rock_hostname: "ansiblecontroller"
-harbor_ver: '1.4.0'
 
 additional_repo_info:
   kube:

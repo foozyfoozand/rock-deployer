@@ -18,16 +18,16 @@ all:
     gateway: # Ip Address of Gateway
 
     pull_all_repos: false
-    pull_centos_repos: false
+    pull_centos_repos: true
     pull_rhel_repos: false
-    pull_additional_repos: false
+    pull_additional_repos: true
     
     # iso_path and kick media need to be changed based on the source iso used.
     iso_pth: # Path to iso /root/coreos_production_iso_image.iso
     iso_url: # Url to ISO ie: https://stable.release.core-os.net/amd64-usr/current/coreos_production_iso_image.iso
-    kick_media: # use one of the following: atomic, centos, coreos, or rhel
+    os_name: # use one of the following: atomic, centos, coreos, or rhel
     
-    kick_srvr: '{{ ansible_default_ipv4.address }}'
+    server_ip: '{{ ansible_default_ipv4.address }}'
     netmask: # Network Mask of Subnet
     root_password: #"password"
     timezone: #"America/Chicago"
@@ -44,3 +44,4 @@ all:
               ip: #192.168.122.10
               mac: #00:50:56:2C:4E:E0
               boot_drive: #sda
+              pxe_type: # bios or uefi

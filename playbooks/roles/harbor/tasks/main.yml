@@ -2,9 +2,13 @@
 ###################  Harbor Install ###################
 #######################################################
 ---
+- name: Import tfplenum variables
+  include_vars:
+    file: "{{ tfplenum_vars }}"
+
 - name: "Create directory for harbor"
   file:
-    path: "{{ rocknsm_dir }}harbor"
+    path: "{{ harbor_dir }}"
     state: directory
     mode: 0740
 
@@ -30,13 +34,13 @@
     - python-pip
 
 - name: "pip docker-py"
-  shell: "pip install --trusted-host reposerver --no-index --find-links=http://localhost/offlinerepo/ docker-py"
+  shell: "pip install --trusted-host {{ server_ip }} --no-index --find-links=http://{{ server_ip }}/offlinerepo/pip docker-py"
 
 - name: 'Insecured Registry'
   replace:
     path: /etc/docker/daemon.json
     regexp: '\{\}'
-    replace: '{\n\t"insecure-registries" : ["https://localhost:81","localhost:81"]\n}'
+    replace: '{\n\t"insecure-registries" : ["https://{{ server_ip }}:{{ harbor_firewall_port }}","{{ server_ip }}:{{ harbor_firewall_port }}"]\n}'
 
 - name: "Restart Docker"
   systemd:
@@ -44,16 +48,16 @@
     enabled: yes
     state: restarted
 
-- name: "Download Harbor {{ harbor_ver }} build"
+- name: "Download Harbor {{ harbor_version }} build"
   unarchive:
-    src: "http://localhost/offlinerepo/harbor-online-installer-v{{ harbor_ver }}.tgz"
-    dest: "{{ rocknsm_dir }}harbor"
+    src: "http://{{ server_ip }}/offlinerepo/harbor-online-installer-v{{ harbor_version }}.tgz"
+    dest: "/opt" # tar root dir is harbor so lets just put it in /opt to match the harbor_dir /opt/harbor
     mode: 0740
     remote_src: true
 
 - name: "Download docker-compose 1.21.0"
   get_url:
-    url: "http://localhost/offlinerepo/docker-compose-Linux-x86_64"
+    url: "http://{{ server_ip }}/offlinerepo/docker-compose-Linux-x86_64"
     dest: "/usr/bin/docker-compose"
     mode: 0740
 
@@ -61,38 +65,40 @@
   block:
    - name: 'Set up harbor.cfg'
      replace:
-        path: "{{ rocknsm_dir }}harbor/harbor/harbor.cfg"
+        path: "{{ harbor_dir }}/harbor.cfg"
         regexp: '(\s+)hostname = reg\.mydomain\.com(\s+.*)?$'
-        replace: '\1hostname = localhost:{{ harbor_firewall_port }}\2'
+        replace: '\1hostname = {{ server_ip }}:{{ harbor_firewall_port }}\2'
    - replace:
-        path: "{{ rocknsm_dir }}harbor/harbor/harbor.cfg"
+        path: "{{ harbor_dir }}/harbor.cfg"
         regexp: '(\s+)db_password = root123(\s+.*)?$'
         replace: '\1db_password = password\2'
    - replace:
-        path: "{{ rocknsm_dir }}harbor/harbor/harbor.cfg"
+        path: "{{ harbor_dir }}/harbor.cfg"
         regexp: '(\s+)harbor_admin_password = Harbor12345(\s+.*)?$'
         replace: '\1harbor_admin_password = password\2'
 
 - name: 'Fix Harbor docker-compose file'
   replace:
-    path: "{{ rocknsm_dir }}harbor/harbor/docker-compose.yml"
+    path: "{{ harbor_dir }}/docker-compose.yml"
     regexp: '80:80'
     replace: '{{ harbor_firewall_port }}:{{ harbor_port }}'
 
 # Depending on the OS there may already be a httpd running
 - name: 'Check if pre-existing httpd service exists'
-  stat: 'path=/etc/init.d/httpd'
+  stat: 
+    path: /etc/init.d/httpd
   register: 'service_status'
 
-#- name: 'Disable local http server'
-#  service:
-#    name: 'httpd'
-#    enabled: no
-#    state: 'stopped'
-#  when: 'service_status.stat.exists'
-
 - name: 'Install Harbor'
-  shell: "sh {{ rocknsm_dir }}harbor/harbor/install.sh"
+  shell: "sh {{ harbor_dir }}/install.sh"
+  register: harbor_install_result
+
+- name: "Open up port {{ harbor_firewall_port }} to allow access for harbor"
+  firewalld: 
+    port: "{{ harbor_firewall_port }}/tcp"
+    permanent: true
+    immediate: true
+    state: enabled
 
 - name: 'Install Harbor service file'
   template:
@@ -112,7 +118,7 @@
 
 - name: 'Wait for harbor to come up'
   uri:
-    url: http://localhost:81
+    url: http://{{ server_ip }}:{{ harbor_firewall_port }}
   register: harborwebresult
   until: harborwebresult.status == 200
   retries: 15
@@ -122,26 +128,26 @@
   docker_image:
     name: "{{item}}"
   with_items:
-    - "{{harbor_docker_images}}"
+    - "{{ kube_images }}"
 
 - name: 'Login to harbor'
   docker_login:
     username: admin
     password: password
-    registry_url: http://localhost:81
+    registry_url: http://{{ server_ip }}:{{ harbor_firewall_port }}
     timeout: 20
 
 - name: 'Tag local images for upload to harbor'
-  shell: "docker tag {{ item }} localhost:81/library/{{ item[item.rfind('/')+1:] }}"
+  shell: "docker tag {{ item }} {{ server_ip }}:{{ harbor_firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
   with_items:
-    - "{{harbor_docker_images}}"
+    - "{{ kube_images }}"
 
 - name: 'Upload local images to harbor'
   docker_image:
-    name: "localhost:81/library/{{ item[item.rfind('/')+1:] }}"
+    name: "{{ server_ip }}:{{ harbor_firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
     push: yes
     pull: no
   with_items:
-    - "{{harbor_docker_images}}"
+    - "{{ kube_images }}"
 
 ...

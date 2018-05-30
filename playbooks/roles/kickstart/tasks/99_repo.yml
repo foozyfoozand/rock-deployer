@@ -1,5 +1,5 @@
 ---
-- name: Download {{ kick_media }} ISO
+- name: Download {{ os_name }} ISO
   get_url:
     url: "{{ item }}" 
     dest: "{{ iso_pth }}"

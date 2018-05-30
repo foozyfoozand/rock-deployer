@@ -28,6 +28,6 @@ playbooks/roles/logstash/tasks/old-main\.yml
 playbooks/files/admin.conf
 playbooks/files/join-node.sh
 
-inventory/dev/*
-
+playbooks/inventory/dev/*
+playbooks/inventory.yml
 .remote-sync.json

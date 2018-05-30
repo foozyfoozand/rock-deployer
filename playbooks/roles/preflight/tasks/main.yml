@@ -1,0 +1,23 @@
+---
+- name: Check if tfplenum vars exists
+  stat:
+    path: "{{ tfplenum_vars }}"
+  register: vars_result
+
+# TODO: This will install tfplenum rpm when its ready
+# For now git clone the di2e repo to /opt/rock/tfplenum
+#- name: Install tfplenum rpm
+#  yum:
+#    name: tfplenum
+#    state: present
+#  when: vars_result.stat.exists == false
+
+#- name: Check if tfplenum vars exists again
+#  stat:
+#    path: "{{ install_dir }}/tfplenum/group_vars/all/versions.yml"
+#  register: vars_result
+
+- name: Missing tfplenum repo
+  fail:
+    msg: "Missing tfplenum repo.  Please run tag setup"
+  when: vars_result.stat.exists == false

@@ -8,46 +8,7 @@ epel_repo_url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ans
 epel_repo_gpg_key_url: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
 epel_repofile_path: "/etc/yum.repos.d/epel.repo"
 rock_hostname: "ansiblecontroller"
-rocknsm_dir: "/opt/rockdir/"
-kube_state_ver: "v1.3.0"
-harbor_ver: "1.4.0"
-kube_ver: "v1.9.3"
-metallb_ver: "v0.3.1"
-busybox_ver: "1.27.2"
-k8s_ver: "1.14.7"
+harbor_dir: /opt/harbor
+
 harbor_port: "80"
 harbor_firewall_port: "81"
-harbor_docker_images:
-  - tfplenum/bro:1.0
-  - docker.elastic.co/elasticsearch/elasticsearch:{{ elastic_ver }}
-  - docker.elastic.co/beats/filebeat:{{elastic_ver}}
-  - heketi/heketi
-  - portainer/portainer
-  - k8s.gcr.io/redis
-  - dwharve/scaleio:1.0
-  - prodian0013/tfplenum-kafka
-  - docker.elastic.co/kibana/kibana:{{ elastic_ver }}
-  - docker.elastic.co/logstash/logstash:{{ elastic_ver }}
-  - tfplenum/moloch
-  - tfplenum/suricata
-  - prodian0013/tfplenum-zookeeper
-  - tfplenum/kube-state-metrics-amd64:{{kube_state_ver}}
-  - tfplenum/kube-state-metrics:{{kube_state_ver}}
-  - docker.elastic.co/beats/metricbeat:6.2.3
-  - k8s.gcr.io/kubernetes-dashboard-amd64:v1.8.3
-  - gcr.io/google_containers/kube-apiserver-amd64:{{kube_ver}}
-  - gcr.io/google_containers/kube-scheduler-amd64:{{kube_ver}}
-  - gcr.io/google_containers/kube-proxy-amd64:{{kube_ver}}
-  - gcr.io/google_containers/kube-controller-manager-amd64:{{kube_ver}}
-  - quay.io/coreos/flannel:v0.10.0-amd64
-  - metallb/controller:{{metallb_ver}}
-  - metallb/speaker:{{metallb_ver}}
-  - gcr.io/google_containers/etcd-amd64:3.1.11
-  - busybox:{{busybox_ver}}
-  - gcr.io/google_containers/k8s-dns-sidecar-amd64:{{k8s_ver}}
-  - gcr.io/google_containers/k8s-dns-kube-dns-amd64:{{k8s_ver}}
-  - gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64:{{k8s_ver}}
-  - gcr.io/google_containers/pause-amd64:3.0
-  - docker.io/dwharve/elastichq
-  - quay.io/external_storage/rbd-provisioner
-  - k8s.gcr.io/addon-resizer:1.7

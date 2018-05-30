@@ -26,7 +26,7 @@ direct_download_package_names:
   - 'https://download.ceph.com/rpm-luminous/el7/noarch/ceph-deploy-1.5.39-0.noarch.rpm'
   - 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm'
   #- 'https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64'
-  - 'https://storage.googleapis.com/harbor-releases/release-{{ harbor_ver }}/harbor-online-installer-v{{ harbor_ver }}.tgz'
+  - 'https://storage.googleapis.com/harbor-releases/release-{{ harbor_version }}/harbor-online-installer-v{{ harbor_version }}.tgz'
   - 'https://github.com/docker/compose/releases/download/1.21.0/docker-compose-Linux-x86_64'
 
 pip_downloads:

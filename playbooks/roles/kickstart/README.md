@@ -17,7 +17,7 @@ The absolute path to the installation .iso file. ex: /root/rhel-7-server-x86_64.
 iso_path: 
 
 Define a short name for the kickstart media. ex: rhel7.4
-kick_media:
+os_name:
 
 Remove the iso from the system? Override to "true" to keep.
 keep_iso: false
@@ -28,7 +28,7 @@ keep_repo: false
 Keep iso mounted? Override to "true" to keep.
 keep_mnt: false
 ```
-If you would like to configure DHCP services, set this to "true"; Please note that the subnet used during DHCP scope creation is the default IPv4 address (eth0) of the target system. For example, if your eth0 network information is 192.168.124.200/24, DHCP will be configured for 192.168.124.0/255.255.255.0. To override you will need to update kick_srvr, dhcp_net and dhcp_mask variables.
+If you would like to configure DHCP services, set this to "true"; Please note that the subnet used during DHCP scope creation is the default IPv4 address (eth0) of the target system. For example, if your eth0 network information is 192.168.124.200/24, DHCP will be configured for 192.168.124.0/255.255.255.0. To override you will need to update server_ip, dhcp_net and dhcp_mask variables.
 ```
 dhcp: false
 

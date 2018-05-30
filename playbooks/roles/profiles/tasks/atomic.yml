@@ -11,5 +11,5 @@
         setype: httpd_sys_content_t
       with_items:
       - "{{ groups['servers'] }}"
-      when: "'atomic' in kick_media"
+      when: "'atomic' in os_name"
     

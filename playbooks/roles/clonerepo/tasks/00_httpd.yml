@@ -6,10 +6,13 @@
 
 - name: "Open up port 80 to allow access"
   firewalld: 
-    service: http
+    service: "{{ item }}"
     permanent: true
     immediate: true
     state: enabled
+  loop:
+  - "http"
+  - "https"
 
 - name: "Start httpd"
   service: 

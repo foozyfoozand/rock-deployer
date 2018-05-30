@@ -19,16 +19,16 @@ all:
     gateway: 192.168.122.2
 
     pull_all_repos: false
-    pull_centos_repos: false
+    pull_centos_repos: true
     pull_rhel_repos: false
-    pull_additional_repos: false
+    pull_additional_repos: true
     
     # iso_path and kick media need to be changed based on the source iso used.
     iso_pth: /root/coreos_production_iso_image.iso
     iso_url: https://stable.release.core-os.net/amd64-usr/current/coreos_production_iso_image.iso
-    kick_media: coreos # centos, rhel or atomic, coreos
+    os_name: coreos # centos, rhel or atomic, coreos
     
-    kick_srvr: '{{ ansible_default_ipv4.address }}'    
+    host_ip: '{{ ansible_default_ipv4.address }}'
     netmask: 255.255.255.0    
     root_password: "password"    
     timezone: "America/Chicago"
@@ -45,11 +45,14 @@ all:
               ip: 192.168.122.4
               mac: 00:0C:29:26:0B:33
               boot_drive: sda
+              pxe_type: uefi
             rockserver2.lan:
               ip: 192.168.122.5
               mac: 00:0c:29:61:ad:00
               boot_drive: sda
+              pxe_type: uefi
             rocksensor1.lan:
               ip: 192.168.122.6
               mac: 00:50:56:34:FB:53
               boot_drive: sda
+              pxe_type: bios

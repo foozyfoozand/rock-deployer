@@ -2,6 +2,11 @@
 ################## Predownload Repos ##################
 #######################################################
 ---
+
+- name: Import tfplenum variables
+  include_vars:
+    file: "{{ tfplenum_vars }}"
+
 - import_tasks: 00_httpd.yml
 - import_tasks: 05_setup.yml
 - import_tasks: 10_pip.yml

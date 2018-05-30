@@ -9,4 +9,4 @@ label coreos
   menu default
   kernel coreos-vmlinuz
   initrd coreos-cpio.gz
-  append coreos.first_boot=1 coreos.config.url=http://{{ kick_srvr }}/ks/coreos-installer.json
+  append coreos.first_boot=1 coreos.config.url=http://{{ server_ip }}/ks/coreos-installer.json

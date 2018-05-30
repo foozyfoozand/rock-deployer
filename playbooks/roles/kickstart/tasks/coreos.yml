@@ -8,12 +8,12 @@
         group: root
         mode: 0755
         setype: httpd_sys_content_t
-        path: "{{ web_root }}/{{ kick_media }}/{{ coreos_version }}"
+        path: "{{ web_root }}/{{ os_name }}/{{ coreos_version }}"
 
     - name: "Download coreos files"
       get_url:
         url: "{{ item }}" 
-        dest: "{{ web_root }}/{{ kick_media }}/{{ coreos_version }}"
+        dest: "{{ web_root }}/{{ os_name }}/{{ coreos_version }}"
       with_items:
         - "{{ coreos_deps }}"
-  when: "'coreos' in kick_media"
+  when: "'coreos' in os_name"

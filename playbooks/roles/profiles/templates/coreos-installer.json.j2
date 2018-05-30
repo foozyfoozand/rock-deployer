@@ -25,7 +25,7 @@
                 "filesystem": "root",
                 "path": "/opt/installer",
                 "contents": {
-                    "source": "data:,%23!%2Fbin%2Fbash%20-ex%0Acurl%20http%3A%2F%2F{{ kick_srvr }}%2Fks%2Fcoreos-config.json%20-o%20ignition.json%0Acoreos-install%20-d%20%2Fdev%2F{{ boot_drive }}%20-V%20{{ coreos_version }}%20-i%20ignition.json%20http%3A%2F%2F{{ kick_srvr }}%2Fcoreos%0Audevadm%20settle%0Asystemctl%20reboot%0A",
+                    "source": "data:,%23!%2Fbin%2Fbash%20-ex%0Acurl%20http%3A%2F%2F{{ server_ip }}%2Fks%2Fcoreos-config.json%20-o%20ignition.json%0Acoreos-install%20-d%20%2Fdev%2F{{ boot_drive }}%20-V%20{{ coreos_version }}%20-i%20ignition.json%20http%3A%2F%2F{{ server_ip }}%2Fcoreos%0Audevadm%20settle%0Asystemctl%20reboot%0A",
                     "verification": {}
                 },
                 "mode": 320

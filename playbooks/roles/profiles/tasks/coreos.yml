@@ -47,4 +47,4 @@
       register: tftp
       with_items:
       - "{{ groups['servers'] }}"
-  when: "'coreos' in kick_media"
+  when: "'coreos' in os_name"

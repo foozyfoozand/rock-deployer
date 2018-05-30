@@ -6,7 +6,7 @@
         name: "{{ apache }}"
         state: latest
     
-    - name: Create directory for {{ kick_media }}
+    - name: Create directory for {{ os_name }}
       file:
         state: directory
         owner: root
@@ -15,17 +15,22 @@
         setype: httpd_sys_content_t
         path: "{{ item }}"
       with_items:
-      - "{{ web_root }}/{{ kick_media }}"
+      - "{{ web_root }}/{{ os_name }}"
 
-    - name: Copy content to {{ web_root }}/{{ kick_media }}
+    - name: Copy content to {{ web_root }}/{{ os_name }}
       delegate_to: "{{ inventory_hostname }}"
       synchronize:
         dest: "{{ item }}"
         src:  "{{ mnt_pth }}/"
         recursive: yes
       with_items: 
-      - "{{ web_root }}/{{ kick_media }}/"  
+      - "{{ web_root }}/{{ os_name }}/"
     
+    - name: Remove apache welcome page
+      file:        
+        path: /etc/httpd/conf.d/welcome.conf
+        state: absent
+       
     - name: Start the {{ apache }} service
       service:
         name: "{{ apache }}"
@@ -34,9 +39,12 @@
 
     - name: Configure the firewall
       firewalld:
-        service: http
+        service: "{{ item }}"
         immediate: yes
         permanent: yes
         state: enabled
+      loop:
+      - "http"
+      - "https"
   when:
-  - kick_media != ""
+  - os_name != ""

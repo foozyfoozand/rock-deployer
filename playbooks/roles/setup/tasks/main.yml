@@ -13,15 +13,3 @@
     state: latest
   with_items:
     - "{{ package_list }}"
-
-# Does not work with DI2E right now
-- name: Pull git repos
-  git:
-    repo: "{{ item.value.url }}"
-    dest: "{{ item.value.dest }}"
-#    version: "{{ item.value.branch }}"
-    accept_hostkey: yes    
-  loop: "{{ lookup('dict', git_repos) }}"
-
-- name: Checkout branch
-  command: "git --git-dir={{ item.value.dest }}/.git checkout {{ item.value.branch }}"

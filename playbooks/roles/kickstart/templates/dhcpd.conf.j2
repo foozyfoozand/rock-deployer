@@ -14,7 +14,7 @@ subnet {{ dhcp_net }} netmask {{ dhcp_mask }} {
 
 {% for host in groups['servers'] %}
 host {{ hostvars[host].inventory_hostname_short }} { 
-  hardware ethernet  {{ hostvars[host].mac | lower }};
+  hardware ethernet {{ hostvars[host].mac | lower }};
   filename {% if hostvars[host].pxe_type == 'uefi' %}"uefi/BOOTX64.EFI";{% else %}"pxelinux.0";{% endif %} 
 }
 {% endfor %}

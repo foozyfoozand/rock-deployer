@@ -30,6 +30,12 @@
     or (pull_additional_repos is defined and pull_additional_repos) 
   loop: "{{ lookup('dict', additional_repo_info) }}"
 
+- name: setup repo list
+  set_fact:
+    repos: "{{ repos }} + [ 'epel' ]"
+  when: (pull_all_repos is defined and pull_all_repos) 
+    or (pull_additional_repos is defined and pull_additional_repos)
+
 - name: Remove Repodata
   file:
     path: "{{ rockoffline_dir }}/repodata"

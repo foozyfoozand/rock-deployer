@@ -47,13 +47,6 @@ additional_repo_info:
     gpgkeyname: "pubkey.gpg"
     description: "rocknsm repo"
     download_path: "{{ rockoffline_dir }}"
-  epel:
-    name: "epel"
-    baseurl: "http://download.fedoraproject.org/pub/epel/7/$basearch"
-    gpgkeyurl: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
-    gpgkeyname: "RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
-    description: "epel repo"
-    download_path: "{{ rockoffline_dir }}"
   ceph_base:
     name: "ceph_base"
     baseurl: "https://download.ceph.com/rpm-luminous/el7/$basearch"
@@ -74,6 +67,16 @@ additional_repo_info:
     gpgkeyurl: "https://download.ceph.com/keys/release.asc"
     gpgkeyname: "release.asc"
     description: "ceph srpms repo"
+    download_path: "{{ rockoffline_dir }}"
+
+epel_repo:
+    metalink: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"
+    gpgkeyurl: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
+    gpgkey:  "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7"
+    gpgcheck: true
+    name: "epel"
+    description: "epel repo"
+    failovermethod: "priority"
     download_path: "{{ rockoffline_dir }}"
 
 bootstrap_package_names:

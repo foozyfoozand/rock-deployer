@@ -1,6 +1,16 @@
 ---
 - name: Additional Repos
   block:
+    - name: "Configure epel repo"
+      yum_repository:    
+        name: "{{ epel_repo.name }}"
+        description: "{{ epel_repo.name }} repo"
+        failovermethod: "{{ epel_repo.failovermethod }}"
+        metalink: "{{ epel_repo.metalink }}"
+        enabled: true 
+        gpgcheck: "{{ epel_repo.gpgcheck}}"
+        gpgkey: "{{ epel_repo.gpgkey}}"
+
     - name: Setup Repos
       yum_repository:
         baseurl: "{{ item.value.baseurl }}"
@@ -13,6 +23,9 @@
     - name: "Mirror Additional repositories"
       shell: "reposync --repoid={{ item.value.name }} --download_path={{ item.value.download_path }} --download-metadata --downloadcomps"
       loop: "{{ lookup('dict', additional_repo_info) }}"
+    
+    - name: "Mirror Epel repositories"
+      shell: "reposync --repoid={{ epel_repo.name }} --download_path={{ epel_repo.download_path }} --download-metadata --downloadcomps"
 
     - name: move pool to kubernetes dir
       file:
@@ -32,6 +45,12 @@
         dest: "{{ rockoffline_dir }}/{{ item.value.name }}"
         mode: 0644
       loop: "{{ lookup('dict', additional_repo_info) }}"
+    
+    - name: get epel gpgkeys
+      get_url:
+        url: "{{ epel_repo.gpgkeyurl }}"
+        dest: "{{ rockoffline_dir }}/{{ epel_repo.name }}"
+        mode: 0644
 
   when: (pull_all_repos is defined and pull_all_repos) 
     or (pull_additional_repos is defined and pull_additional_repos)

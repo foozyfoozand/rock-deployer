@@ -70,8 +70,8 @@ additional_repo_info:
     download_path: "{{ rockoffline_dir }}"
 
 epel_repo:
-    metalink: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"
-    gpgkeyurl: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
+    metalink: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"    
+    gpgkeyurl: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7"
     gpgkey:  "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7"
     gpgcheck: true
     name: "epel"

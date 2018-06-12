@@ -10,6 +10,7 @@
 - import_tasks: 00_httpd.yml
 - import_tasks: 05_setup.yml
 - import_tasks: 10_pip.yml
+  tags: pip
 - import_tasks: 15_direct.yml
   tags: direct
 - import_tasks: 20_centos.yml

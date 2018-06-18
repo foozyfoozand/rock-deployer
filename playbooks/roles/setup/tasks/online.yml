@@ -1,0 +1,70 @@
+#######################################################
+################## Setup Yum Repos ####################
+#######################################################
+---
+
+- name: Setup CentOS Repos
+  block:
+    - name: Check presence of fastestmirror.conf
+      stat:
+        path: /etc/yum/pluginconf.d/fastestmirror.conf
+      register: fastestmirror
+
+    # fastestmirror plugin actually slows down Ansible deployments
+    - name: Disable fastestmirror plugin
+      lineinfile:
+        dest: /etc/yum/pluginconf.d/fastestmirror.conf
+        regexp: "^enabled=.*"
+        line: "enabled=0"
+        state: present
+      when: fastestmirror.stat.exists
+
+    - name: "Configure default CentOS online repos"
+      yum_repository:
+        description: "CentOS-$releasever - {{ item.name | title }}"
+        enabled: "true"
+        file: CentOS-Base
+        mirrorlist: "{{ item.mirror }}"
+        name: "{{ item.name }}"
+        gpgcheck: true
+        gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
+      with_items:
+      - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
+      - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
+      - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
+  when: "ansible_distribution == 'CentOS'"
+
+- name: Setup RHEL Repos
+  block:
+    - name: Check to see if controller is subscribed
+      shell: "subscription-manager status | grep -i 'overall status' | awk '{ print $3 }'"
+      register: sub_status
+
+    - name: Errr
+      fail:
+        msg: "ansible controller is not subscribed.  Include rhel_activation_key and rhel_org_id to subscribe."
+      when: "'Current' not in sub_status.stdout and (rhel_activation_key is not defined or rhel_org_id is not defined)"
+
+    - name: Setup rhel sub
+      redhat_subscription:
+        state: present
+        activationkey: "{{ rhel_activation_key }}"
+        org_id: "{{ rhel_org_id }}"
+      when: "'Current' not in sub_status.stdout"
+
+    - name: Enabling Red Hat repos...
+      rhsm_repository:
+        name: "{{ item }}"
+        state: enabled
+      with_items: "{{ rhel_repos }}"
+  when: "ansible_distribution == 'RedHat'"
+
+- name: install epel repo
+  yum:
+    name: epel-release
+    state: present
+
+- name: remove pip dir if its there
+  file:
+    path: "~/.pip"
+    state: absent

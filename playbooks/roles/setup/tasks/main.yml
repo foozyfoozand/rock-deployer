@@ -1,11 +1,13 @@
 ---
-- name: Validate epel is configured
+- name: "Configure epel repo"
   yum_repository:
-    baseurl: "{{ additional_repo_info['epel']['baseurl'] }}"
-    description: "{{ additional_repo_info['epel']['description'] }}"
-    gpgcheck: false
+    name: "{{ epel_repo.name }}"
+    description: "{{ epel_repo.name }}repo"
+    failovermethod: "{{ epel_repo.failovermethod }}"
+    metalink: "{{ epel_repo.metalink }}"
     enabled: true
-    name: "{{ additional_repo_info['epel']['name'] }}"
+    gpgcheck: "{{ epel_repo.gpgcheck }}"
+    gpgkey: "{{ epel_repo.gpgkey}}"
 
 - name: "Install required packages"
   yum:

@@ -14,6 +14,7 @@
         owner: root
         group: root
         mode: 0644
+      register: dhcp_config
 
     - name: Configure the firewall
       firewalld:
@@ -27,6 +28,13 @@
         name: dhcpd
         state: started
         enabled: yes
+
+    - name: Restart dhcp service
+      systemd:
+        name: dhcpd
+        enabled: yes
+        state: restarted
+      when: dhcp_config.changed
   when: 
     - dhcp
     - dhcp_start != ""

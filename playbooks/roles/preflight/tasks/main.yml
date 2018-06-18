@@ -29,13 +29,24 @@
 
 - name: offline and pull repos conflicting
   fail:
-    msg: "Verify offline variable and {{ item }}.  {{ item }} cannot be true when offline is true."
+    msg: "Verify offline variable and pull_all_repos variable.  pull_all_repos cannot be true when offline is true."
   when: offline is defined and offline 
-    and item is defined and item == true
-  with_items:
-    - "pull_all_repos"
-    - "pull_centos_repos"
-    - "pull_rhel_repos"
-    - "pull_additional_repos"
-  args:
-    warn: false
+    and pull_all_repos is defined and pull_all_repos == true
+
+- name: offline and pull repos conflicting
+  fail:
+    msg: "Verify offline variable and pull_additional_repos variable.  pull_additional_repos cannot be true when offline is true."
+  when: offline is defined and offline 
+    and pull_additional_repos is defined and pull_additional_repos == true
+
+- name: offline and pull repos conflicting
+  fail:
+    msg: "Verify offline variable and pull_rhel_repos variable.  pull_rhel_repos cannot be true when offline is true."
+  when: offline is defined and offline 
+    and pull_rhel_repos is defined and pull_rhel_repos == true
+
+- name: offline and pull repos conflicting
+  fail:
+    msg: "Verify offline variable and pull_centos_repos variable.  pull_centos_repos cannot be true when offline is true."
+  when: offline is defined and offline 
+    and pull_centos_repos is defined and pull_centos_repos == true

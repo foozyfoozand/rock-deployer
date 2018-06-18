@@ -13,10 +13,15 @@
   tags: pip
 - import_tasks: 15_direct.yml
   tags: direct
+  when: offline is defined and offline == false
 - import_tasks: 20_centos.yml
+  when: offline is defined and offline == false
 - import_tasks: 25_rhel.yml
+  when: offline is defined and offline == false
 - import_tasks: 30_additional.yml
   tags: additional
+  when: offline is defined and offline == false
 - import_tasks: 35_createrepo.yml
   tags: createrepo
+  when: offline is defined and offline == false
 ...

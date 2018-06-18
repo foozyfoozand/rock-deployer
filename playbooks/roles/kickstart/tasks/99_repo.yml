@@ -5,7 +5,7 @@
     dest: "{{ iso_pth }}"
   with_items:
     - "{{ iso_url }}"
-  when: iso_url != ""
+  when: iso_url != "" and offline is defined and offline == false
 
 - name: Mount content to {{ mnt_pth }}
   mount:

@@ -12,20 +12,21 @@
     state: directory
     mode: 0740
 
-- name: "Configure epel repo"
-  yum_repository:    
-    name: "{{ epel_repo.name }}"
-    description: "{{ epel_repo.name }} repo"
-    failovermethod: "{{ epel_repo.failovermethod }}"
-    metalink: "{{ epel_repo.metalink }}"
-    enabled: true 
-    gpgcheck: "{{ epel_repo.gpgcheck}}"
-    gpgkey: "{{ epel_repo.gpgkey}}"
+# - name: "Configure epel repo"
+#   yum_repository:    
+#     name: "{{ epel_repo.name }}"
+#     description: "{{ epel_repo.name }} repo"
+#     failovermethod: "{{ epel_repo.failovermethod }}"
+#     metalink: "{{ epel_repo.metalink }}"
+#     enabled: true 
+#     gpgcheck: "{{ epel_repo.gpgcheck}}"
+#     gpgkey: "{{ epel_repo.gpgkey}}"
 
-- name: "Import EPEL GPG key"
-  rpm_key:
-    key: "{{ epel_repo.gpgkeyurl }}"
-    state: present
+# - name: "Import EPEL GPG key"
+#   rpm_key:
+#     key: "{{ epel_repo.gpgkeyurl }}"
+#     state: present
+#   when: offline is defined and offline == false
 
 - name: "Install Docker"
   yum:
@@ -131,6 +132,7 @@
     name: "{{item}}"
   with_items:
     - "{{ kube_images }}"
+  when: offline is defined and offline == false
 
 - name: 'Login to harbor'
   docker_login:
@@ -143,6 +145,7 @@
   shell: "docker tag {{ item }} {{ server_ip }}:{{ harbor_firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
   with_items:
     - "{{ kube_images }}"
+  when: offline is defined and offline == false
 
 - name: 'Upload local images to harbor'
   docker_image:
@@ -151,5 +154,6 @@
     pull: no
   with_items:
     - "{{ kube_images }}"
+  when: offline is defined and offline == false
 
 ...

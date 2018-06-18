@@ -7,41 +7,106 @@
 
 all:
   vars:
-    default_boot_drive: # sda
+    # offline: This option should be false when initially setting up ansible controller.  
+    # After all the repos and dependencies are available on the ansible controller this option can be set to true.
+    # Tasks requiring an internet connection will not execute such as repo syncs or downloading additional dependencies from the internet.
+    # Default: true
+    offline: true
+    # default_boot_drive: This is the default drive used for operating system installation.
+    # Default: sda
+    default_boot_drive: sda
+    # dnsmasq: By default the ansible controller is used as the dns server during setup.
+    # Default: true
     dnsmasq: true
-    dhcp: # Set to "true" to enable DHCP.    
-    dhcp_start: #DHCP range start address    
-    dhcp_end: #DHCP range end address
+    # dhcp: a dhcp server is required to properly pxe machines.  By default the ansible controller will act as the dhcp server.
+    # If this is set to false then the proper options such must be configured on the external dhcp server.
+    # Default: true
+    dhcp: true   
+    # dhcp_start: This is the DHCP range starting ip address.
+    # Default: null
+    dhcp_start: #ie: 192.168.1.40
+    # dhcp_end: This is the DHCP range ending ip address.
+    # Default: null
+    dhcp_end: #ie: 192.168.1.50
+    # dhcp_mask: Subnet mask used for dhcp configuration.
+    # Default: The same subnet as the ansible controller.
     dhcp_mask: '{{ ansible_default_ipv4.netmask }}'
+    # dhcp_net: Network Ip address used for dhcp configuration (ie: 192.168.1.0).
+    # Default: The same network as the ansible controller.
     dhcp_net: '{{ ansible_default_ipv4.network }}'
-    dns: # Ip Address to DNS Server
-    gateway: # Ip Address of Gateway
+    # dns:  This is the ip address of the dns server.  By default we recommend using the ansible controller.
+    # Default: ansible controllers ip address
+    dns: '{{ ansible_default_ipv4.address }}'
+    # gateway: This is used to configure the nodes with a default gateway.
+    # Default: null
+    gateway: #ie: 255.255.255.0
 
+    # The following variables require internet connection.
+    # pull_all_repos: This pull down centos, rhel and additional yum repos such as epel, rocknsm.
+    # Default: false
     pull_all_repos: false
+    # pull_centos_repos: This pull down centos base, updates and extras repos.
+    # Default: true
     pull_centos_repos: true
+    # pull_rhel_repos: This pull down centos base, updates and extras yum repos.
+    # Default: false
     pull_rhel_repos: false
+    # pull_additional_repos: This pull down epel, rocknsm, and ceph yum repos.
+    # Default: true
     pull_additional_repos: true
     
-    # iso_path and kick media need to be changed based on the source iso used.
-    iso_pth: # Path to iso /root/coreos_production_iso_image.iso
-    iso_url: # Url to ISO ie: https://stable.release.core-os.net/amd64-usr/current/coreos_production_iso_image.iso
-    os_name: # use one of the following: atomic, centos, coreos, or rhel
-    
-    server_ip: '{{ ansible_default_ipv4.address }}'
-    netmask: # Network Mask of Subnet
-    root_password: #"password"
-    timezone: #"America/Chicago"
+  
+    # iso_pth: Path to operating system iso
+    # Default: null
+    iso_pth: #/root/CentOS-7-x86_64-Minimal-1804.iso
 
-    # COREOS VARS    
-    core_sshAuthorizedKeys: # ssh public key for core user
+    # iso_url: url to download operating system iso
+    # This will only work if the ansible controller has internet connection.
+    # Default: null
+    iso_url: #http://mirror.wdc1.us.leaseweb.net/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1804.iso
+
+    # os_name provide the kickstart installation with the operationg system name.
+    # Default: centos Available options: atomic, centos, coreos, or rhel
+    os_name: centos
+    
+    # server_ip: ansible controller ip address used to defined kickstart server
+    # Default: ansible controller ip address
+    server_ip: '{{ ansible_default_ipv4.address }}'
+
+    # netmask: This is used to define the subnet mask for the node static address.
+    # Default: null
+    netmask: # Network Mask of Subnet
+    # root_password: Sets root password for each node.
+    # Define: empty
+    root_password: ""
+    # timezone: Set the timezone for each node.
+    # Define: America/Chicago
+    timezone: "America/Chicago"
+
+    # COREOS VARS
+    # Only used if you are loading coreos
+    # This is the ssh public key for core user
+    # Define: null
+    core_sshAuthorizedKeys: #
 
   children:
     nodes:
       children:
         servers:
           hosts:
+            # Hostname for each node
             rockserver1.lan:
-              ip: #192.168.122.10
+              # ip: static ip address for node
+              ip: #ie: 192.168.1.20
+              # mac: mac address of nic
+              # this is required to properly pxe/kickstart node
               mac: #00:50:56:2C:4E:E0
+              # boot_drive: The operating system installation drive.
+              # DL160 will use sdb
+              # Supermicro will use sda
               boot_drive: #sda
+              # pxe_type: Defines the type of pxe used on the server.
+              # Default: bios Available options: bios or uefi
+              # DL160 will use uefi
+              # Supermicros will use bios
               pxe_type: # bios or uefi

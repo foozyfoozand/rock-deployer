@@ -1,13 +1,74 @@
 ---
-- name: "Configure epel repo"
+
+- name: CentOS
+  shell: |
+    rm -rf /etc/yum.repos.d/*
+  when: offline is defined and offline
+  args:
+    warn: false
+
+- name: "Configure CentOS offline repos"
   yum_repository:
-    name: "{{ epel_repo.name }}"
-    description: "{{ epel_repo.name }}repo"
-    failovermethod: "{{ epel_repo.failovermethod }}"
-    metalink: "{{ epel_repo.metalink }}"
-    enabled: true
-    gpgcheck: "{{ epel_repo.gpgcheck }}"
-    gpgkey: "{{ epel_repo.gpgkey}}"
+    name: "{{ item.value.name }}"
+    description: "{{ item.value.name }} repo"
+    baseurl: "{{ item.value.baseurl }}"
+    enabled: true 
+    gpgcheck: "{{ item.value.gpgcheck}}"
+    gpgkey: "{{ item.value.gpgkey}}"
+    file: "offline"
+  loop: "{{ lookup('dict', centos_offline_repos) }}"
+  when: "ansible_distribution == 'CentOS'  and offline is defined and offline"
+  register: yum_results
+
+- name: "Configure additional offline repos"
+  yum_repository:    
+    name: "{{ item.value.name }}"
+    description: "{{ item.value.name }} repo"
+    baseurl: "{{ item.value.baseurl }}"
+    enabled: true 
+    gpgcheck: "{{ item.value.gpgcheck}}"
+    gpgkey: "{{ item.value.gpgkey}}"
+    file: "offline"
+  loop: "{{ lookup('dict', additional_offline_repos) }}"
+  register: yum_results
+  when: offline is defined and offline
+
+- name: "Configure RHEL offline repos"
+  yum_repository:    
+    name: "{{ item.value.name }}"
+    description: "{{ item.value.name }} repo"
+    baseurl: "{{ item.value.baseurl }}"
+    enabled: true 
+    gpgcheck: "{{ item.value.gpgcheck}}"
+    gpgkey: "{{ item.value.gpgkey}}"
+    file: "offline"
+  loop: "{{ lookup('dict', rhel_offline_repos) }}" 
+  when: "ansible_distribution == 'RedHat' and offline is defined and offline"
+  register: yum_results
+
+- name: Clean repo cache
+  shell: yum clean all
+  when: yum_results.changed
+  args:
+    warn: false
+
+- name: remove pip dir if its there
+  file:
+    path: "~/.pip"
+    state: absent
+  when: offline is defined and offline == false
+
+- name: create pip dir
+  file:
+    path: "~/.pip"
+    state: directory
+  when: offline is defined and offline
+
+- name: Add pip config
+  template:
+    src: templates/pip.conf.j2
+    dest: "~/.pip/pip.conf"
+  when: offline is defined and offline
 
 - name: "Install required packages"
   yum:

@@ -16,4 +16,4 @@
         dest: "{{ web_root }}/{{ os_name }}/{{ coreos_version }}"
       with_items:
         - "{{ coreos_deps }}"
-  when: "'coreos' in os_name"
+  when: "'coreos' in os_name and offline is defined and offline == false"

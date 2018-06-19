@@ -12,12 +12,14 @@ all:
     # Tasks requiring an internet connection will not execute such as repo syncs or downloading additional dependencies from the internet.
     # Default: true
     offline: true
-    # default_boot_drive: This is the default drive used for operating system installation.
-    # Default: sda
-    default_boot_drive: sda
+
     # dnsmasq: By default the ansible controller is used as the dns server during setup.
+    # If this is set to false then the proper options such must be configured on the external dns server.
     # Default: true
     dnsmasq: true
+
+    # A DHCP server is required to pxe / kickstart the nodes.
+    # The following variables configure a dhcp server on the ansible controller.
     # dhcp: a dhcp server is required to properly pxe machines.  By default the ansible controller will act as the dhcp server.
     # If this is set to false then the proper options such must be configured on the external dhcp server.
     # Default: true
@@ -33,58 +35,65 @@ all:
     dhcp_mask: '{{ ansible_default_ipv4.netmask }}'
     # dhcp_net: Network Ip address used for dhcp configuration (ie: 192.168.1.0).
     # Default: The same network as the ansible controller.
-    dhcp_net: '{{ ansible_default_ipv4.network }}'
+    dhcp_net: '{{ ansible_default_ipv4.network }}' 
+       
+    
+    # Below are networking options for node static addressing.
     # dns:  This is the ip address of the dns server.  By default we recommend using the ansible controller.
     # Default: ansible controllers ip address
     dns: '{{ ansible_default_ipv4.address }}'
     # gateway: This is used to configure the nodes with a default gateway.
     # Default: null
     gateway: #ie: 255.255.255.0
+    # netmask: This is used to define the subnet mask for the node static address.
+    # Default: null
+    netmask: # Network Mask of Subnet
+
 
     # The following variables require internet connection.
     # pull_all_repos: This pull down centos, rhel and additional yum repos such as epel, rocknsm.
     # Default: false
     pull_all_repos: false
     # pull_centos_repos: This pull down centos base, updates and extras repos.
-    # Default: true
-    pull_centos_repos: true
+    # Default: false
+    pull_centos_repos: false
     # pull_rhel_repos: This pull down centos base, updates and extras yum repos.
     # Default: false
     pull_rhel_repos: false
     # pull_additional_repos: This pull down epel, rocknsm, and ceph yum repos.
-    # Default: true
-    pull_additional_repos: true
-    
+    # Default: false
+    pull_additional_repos: false   
+
   
+    # The following variables are used to setup the kickstart operating system:
     # iso_pth: Path to operating system iso
     # Default: null
     iso_pth: #/root/CentOS-7-x86_64-Minimal-1804.iso
-
     # iso_url: url to download operating system iso
     # This will only work if the ansible controller has internet connection.
     # Default: null
     iso_url: #http://mirror.wdc1.us.leaseweb.net/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1804.iso
-
     # os_name provide the kickstart installation with the operationg system name.
-    # Default: centos Available options: atomic, centos, coreos, or rhel
+    # Default: centos  /  Available options: atomic, centos, coreos, or rhel
     os_name: centos
-    
-    # server_ip: ansible controller ip address used to defined kickstart server
-    # Default: ansible controller ip address
-    server_ip: '{{ ansible_default_ipv4.address }}'
 
-    # netmask: This is used to define the subnet mask for the node static address.
-    # Default: null
-    netmask: # Network Mask of Subnet
+
+    # The following variables are used for kickstart options.
     # root_password: Sets root password for each node.
     # Define: empty
     root_password: ""
     # timezone: Set the timezone for each node.
     # Define: America/Chicago
     timezone: "America/Chicago"
+    # default_boot_drive: This is the default drive used for operating system installation.
+    # Default: sda
+    default_boot_drive: sda
+    # server_ip: ansible controller ip address used to defined kickstart server
+    # Default: ansible controller ip address
+    server_ip: '{{ ansible_default_ipv4.address }}'
 
     # COREOS VARS
-    # Only used if you are loading coreos
+    # Only used if you are loading coreos operating system
     # This is the ssh public key for core user
     # Define: null
     core_sshAuthorizedKeys: #

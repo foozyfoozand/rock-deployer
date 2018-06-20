@@ -3,6 +3,8 @@
 #
 package_list:
   - git
+  - nodejs
+  - npm
 
 git_repos:
   rock:

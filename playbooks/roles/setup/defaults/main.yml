@@ -5,16 +5,9 @@ package_list:
   - git
   - nodejs
   - npm
-
-git_repos:
-  rock:
-    branch: devel
-    dest: "{{ install_dir }}/tfplenum-rock"
-    url: https://bitbucket.di2e.net/scm/thisiscvah/tfplenum.git
-  deployer: 
-    branch: devel
-    dest: "{{ install_dir }}/tfplenum-deployer"
-    url: https://bitbucket.di2e.net/scm/thisiscvah/tfplenum-deployer.git
+  # - tfplenum
+  # - tfplenum-frontend
+  # - tfplenum-whatever
 
 ansible_controller_ip: "{{ server_ip }}"
 offline_repo_base: "http://{{ ansible_controller_ip }}/offlinerepo"

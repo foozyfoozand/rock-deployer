@@ -4,22 +4,9 @@
     path: "{{ tfplenum_vars }}"
   register: vars_result
 
-# TODO: This will install tfplenum rpm when its ready
-# For now git clone the di2e repo to /opt/rock/tfplenum
-#- name: Install tfplenum rpm
-#  yum:
-#    name: tfplenum
-#    state: present
-#  when: vars_result.stat.exists == false
-
-#- name: Check if tfplenum vars exists again
-#  stat:
-#    path: "{{ install_dir }}/tfplenum/group_vars/all/versions.yml"
-#  register: vars_result
-
 - name: Missing tfplenum repo
   fail:
-    msg: "Missing tfplenum repo.  Please run tag setup"
+    msg: "Unable to find versions.yml in {{ tfplenum_vars }}.  Verify tfplenum rpm is installed."
   when: vars_result.stat.exists == false
 
 - name: check for offline var
@@ -50,3 +37,24 @@
     msg: "Verify offline variable and pull_centos_repos variable.  pull_centos_repos cannot be true when offline is true."
   when: offline is defined and offline 
     and pull_centos_repos is defined and pull_centos_repos == true
+
+- name: dns variable is required
+  fail:
+    msg: "dns variable is not valid.  dns variable is required. Make sure it is defined in your inventory file."
+  when: dns == "" or dns is not defined or dns is none
+
+- name: gateway variable is required
+  fail:
+    msg: "gateway variable is not valid.  gateway variable is required. Make sure it is defined in your inventory file."
+  when: gateway == "" or gateway is not defined or gateway is none
+
+- name: netmask variable is required
+  fail:
+    msg: "netmask variable is not valid.  netmask variable is required. Make sure it is defined in your inventory file."
+  when: netmask == "" or netmask is not defined or netmask is none
+
+    
+
+    
+
+    

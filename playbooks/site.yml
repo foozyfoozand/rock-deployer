@@ -5,15 +5,15 @@
 # We follow the guidance to include naming conventions there.
 
 ---
-- name: Preflight
-  hosts: localhost
-  roles:
-    - { role: preflight, tags: preflight }
-
 - name: Setup Controller
   hosts: localhost
   roles:
     - { role: setup, tags: setup }
+
+- name: Preflight
+  hosts: localhost
+  roles:
+    - { role: preflight, tags: preflight }
 
 - name: Setup DNS Server
   hosts: localhost

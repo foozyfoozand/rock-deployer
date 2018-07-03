@@ -3,7 +3,7 @@ kick_cfg: ks.cfg
 tftp_dir: /var/lib/tftpboot
 web_root: /var/www/html
 
-
+flask_port: "5000/tcp"
 
 install_group: root
 rocknsm_dir: /opt

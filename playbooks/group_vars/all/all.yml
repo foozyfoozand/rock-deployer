@@ -8,8 +8,8 @@ flask_port: "5000/tcp"
 install_group: root
 rocknsm_dir: /opt
 rockoffline_dir: "{{ web_root }}/offlinerepo"
-install_dir: /opt/rock
-tfplenum_vars: "{{ install_dir }}/tfplenum/playbooks/group_vars/all/versions.yml"
+install_dir: /opt/tfplenum
+tfplenum_vars: "{{ install_dir }}/playbooks/group_vars/all/versions.yml"
 sysctl_file: /etc/sysctl.d/rock.conf
 fqdn: default.svc.cluster.local
 

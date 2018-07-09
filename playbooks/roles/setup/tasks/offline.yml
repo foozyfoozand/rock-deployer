@@ -1,5 +1,10 @@
 ---
 
+# This loops over a list of dictionaries called additional_offline_repos variable
+# item is the directionary
+# value.<key> gets the value of the key
+# The end result will create several entry in the /etc/yum.repos.d/offline.repo
+# for additional repos (epel, rocknsm, ceph and kubernetes)
 - name: "Configure additional offline repos"
   yum_repository:    
     name: "{{ item.value.name }}"
@@ -12,6 +17,11 @@
   loop: "{{ lookup('dict', additional_offline_repos) }}"
   register: yum_results
 
+# This loops over a list of dictionaries called rhel_offline_repos variable
+# item is the directionary
+# value.<key> gets the value of the key
+# The end result will create several entry in the /etc/yum.repos.d/offline.repo
+# for additional repos (rhel-7-server-rpms,rhel-7-server-extras-rpms,rhel-7-server-optional-rpms)
 - name: "Configure RHEL offline repos"
   yum_repository:    
     name: "{{ item.value.name }}"
@@ -24,7 +34,12 @@
   loop: "{{ lookup('dict', rhel_offline_repos) }}"
   when: "ansible_distribution == 'RedHat'"
   register: yum_results
-  
+
+# This loops over a list of dictionaries called centos_offline_repos variable
+# item is the directionary
+# value.<key> gets the value of the key
+# The end result will create several entry in the /etc/yum.repos.d/offline.repo
+# for additional repos (base,updates,extras)  
 - name: "Configure CentOS offline repos"
   yum_repository:
     name: "{{ item.value.name }}"

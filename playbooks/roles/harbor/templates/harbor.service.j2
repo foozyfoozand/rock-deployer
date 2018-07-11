@@ -1,8 +1,9 @@
 [Unit]
 Description = Harbor Container Service
 
-Wants    = network.target
+Wants = network.target
 Requires = docker.service
+After = docker.service
 
 [Service]
 Type = simple

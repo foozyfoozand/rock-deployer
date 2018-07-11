@@ -12,22 +12,6 @@
     state: directory
     mode: 0740
 
-# - name: "Configure epel repo"
-#   yum_repository:    
-#     name: "{{ epel_repo.name }}"
-#     description: "{{ epel_repo.name }} repo"
-#     failovermethod: "{{ epel_repo.failovermethod }}"
-#     metalink: "{{ epel_repo.metalink }}"
-#     enabled: true 
-#     gpgcheck: "{{ epel_repo.gpgcheck}}"
-#     gpgkey: "{{ epel_repo.gpgkey}}"
-
-# - name: "Import EPEL GPG key"
-#   rpm_key:
-#     key: "{{ epel_repo.gpgkeyurl }}"
-#     state: present
-#   when: offline is defined and offline == false
-
 - name: "Install Docker"
   yum:
     name: "{{item}}"
@@ -45,94 +29,111 @@
     regexp: '\{\}'
     replace: '{\n\t"insecure-registries" : ["https://{{ server_ip }}:{{ harbor_firewall_port }}","{{ server_ip }}:{{ harbor_firewall_port }}"]\n}'
 
-- name: "Restart Docker"
-  systemd:
-    name: docker
-    enabled: yes
-    state: restarted
-
-- name: "Download Harbor {{ harbor_version }} build"
-  unarchive:
-    src: "http://{{ server_ip }}/offlinerepo/harbor-online-installer-v{{ harbor_version }}.tgz"
-    dest: "/opt" # tar root dir is harbor so lets just put it in /opt to match the harbor_dir /opt/harbor
-    mode: 0740
-    remote_src: true
-
 - name: "Download docker-compose 1.21.0"
   get_url:
     url: "http://{{ server_ip }}/offlinerepo/docker-compose-Linux-x86_64"
     dest: "/usr/bin/docker-compose"
     mode: 0740
 
-- name: 'Fix Harbor config'
-  block:
-   - name: 'Set up harbor.cfg'
-     replace:
-        path: "{{ harbor_dir }}/harbor.cfg"
-        regexp: '(\s+)hostname = reg\.mydomain\.com(\s+.*)?$'
-        replace: '\1hostname = {{ server_ip }}:{{ harbor_firewall_port }}\2'
-   - replace:
-        path: "{{ harbor_dir }}/harbor.cfg"
-        regexp: '(\s+)db_password = root123(\s+.*)?$'
-        replace: '\1db_password = password\2'
-   - replace:
-        path: "{{ harbor_dir }}/harbor.cfg"
-        regexp: '(\s+)harbor_admin_password = Harbor12345(\s+.*)?$'
-        replace: '\1harbor_admin_password = password\2'
-
-- name: 'Fix Harbor docker-compose file'
-  replace:
-    path: "{{ harbor_dir }}/docker-compose.yml"
-    regexp: '80:80'
-    replace: '{{ harbor_firewall_port }}:{{ harbor_port }}'
-
-# Depending on the OS there may already be a httpd running
-- name: 'Check if pre-existing httpd service exists'
-  stat: 
-    path: /etc/init.d/httpd
-  register: 'service_status'
-
-- name: 'Install Harbor'
-  shell: "sh {{ harbor_dir }}/install.sh"
-  register: harbor_install_result
-
-- name: "Open up port {{ harbor_firewall_port }} to allow access for harbor"
-  firewalld: 
-    port: "{{ harbor_firewall_port }}/tcp"
-    permanent: true
-    immediate: true
-    state: enabled
-
-- name: 'Install Harbor service file'
-  template:
-    backup: yes
-    src: 'harbor.service.j2'
-    dest: '/etc/systemd/system/harbor.service'
-    owner: root
-    group: root
-    mode: 0644
-
-- name: 'Enable harbor service'
+- name: Ensure harbor service is started
   systemd:
-    name: 'harbor'
+    name: harbor
     enabled: yes
     state: started
-    daemon_reload: yes
+  register: harbor_service_result
+  ignore_errors: yes
 
-- name: 'Wait for harbor to come up'
+- name: Check Harbor Web Status
   uri:
     url: http://{{ server_ip }}:{{ harbor_firewall_port }}
-  register: harborwebresult
-  until: harborwebresult.status == 200
-  retries: 15
+  register: harbor_web_result
+  until: harbor_web_result.status == 200
+  retries: 10
   delay: 1
+  ignore_errors: yes
+  when: "harbor_service_result is defined 
+    and harbor_service_result.failed == false 
+    and 'running' in harbor_service_result.status.SubState 
+    and 'active' in harbor_service_result.status.ActiveState"
 
-- name: 'Download docker container images'
-  docker_image:
-    name: "{{item}}"
-  with_items:
-    - "{{ kube_images }}"
-  when: offline is defined and offline == false
+- name: Install harbor
+  block:
+    - name: "Restart Docker"
+      systemd:
+        name: docker
+        enabled: yes
+        state: restarted
+
+    - name: "Download Harbor {{ harbor_version }} build"
+      unarchive:
+        src: "http://{{ server_ip }}/offlinerepo/harbor-online-installer-v{{ harbor_version }}.tgz"
+        dest: "/opt" # tar root dir is harbor so lets just put it in /opt to match the harbor_dir /opt/harbor
+        mode: 0740
+        remote_src: true
+
+    - name: 'Fix Harbor config'
+      block:
+      - name: 'Set up harbor.cfg'
+        replace:
+            path: "{{ harbor_dir }}/harbor.cfg"
+            regexp: '(\s+)hostname = reg\.mydomain\.com(\s+.*)?$'
+            replace: '\1hostname = {{ server_ip }}:{{ harbor_firewall_port }}\2'
+      - replace:
+            path: "{{ harbor_dir }}/harbor.cfg"
+            regexp: '(\s+)db_password = root123(\s+.*)?$'
+            replace: '\1db_password = password\2'
+      - replace:
+            path: "{{ harbor_dir }}/harbor.cfg"
+            regexp: '(\s+)harbor_admin_password = Harbor12345(\s+.*)?$'
+            replace: '\1harbor_admin_password = password\2'
+
+    - name: 'Fix Harbor docker-compose file'
+      replace:
+        path: "{{ harbor_dir }}/docker-compose.yml"
+        regexp: '80:80'
+        replace: '{{ harbor_firewall_port }}:{{ harbor_port }}'
+
+    # Depending on the OS there may already be a httpd running
+    - name: 'Check if pre-existing httpd service exists'
+      stat: 
+        path: /etc/init.d/httpd
+      register: 'service_status'
+
+    - name: 'Install Harbor'
+      shell: "sh {{ harbor_dir }}/install.sh"
+      register: harbor_install_result
+
+    - name: "Open up port {{ harbor_firewall_port }} to allow access for harbor"
+      firewalld: 
+        port: "{{ harbor_firewall_port }}/tcp"
+        permanent: true
+        immediate: true
+        state: enabled
+
+    - name: 'Install Harbor service file'
+      template:
+        backup: yes
+        src: 'harbor.service.j2'
+        dest: '/etc/systemd/system/harbor.service'
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: 'Enable harbor service'
+      systemd:
+        name: harbor
+        enabled: yes
+        state: started
+        daemon_reload: yes
+    - name: 'Wait for harbor to come up'
+      uri:
+        url: http://{{ server_ip }}:{{ harbor_firewall_port }}
+      register: harborwebresult
+      until: harborwebresult.status == 200
+      retries: 15
+      delay: 1
+  when: (harbor_service_result is defined and harbor_service_result.failed == true) 
+    or (harbor_web_result is defined and harbor_web_result.status != 200)
 
 - name: 'Login to harbor'
   docker_login:
@@ -141,19 +142,26 @@
     registry_url: http://{{ server_ip }}:{{ harbor_firewall_port }}
     timeout: 20
 
-- name: 'Tag local images for upload to harbor'
-  shell: "docker tag {{ item }} {{ server_ip }}:{{ harbor_firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
-  with_items:
-    - "{{ kube_images }}"
-  when: offline is defined and offline == false
+- name: Get docker images from online
+  block:    
+    - name: 'Download docker container images'
+      docker_image:
+        name: "{{item}}"
+      with_items:
+        - "{{ kube_images }}"
 
-- name: 'Upload local images to harbor'
-  docker_image:
-    name: "{{ server_ip }}:{{ harbor_firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
-    push: yes
-    pull: no
-  with_items:
-    - "{{ kube_images }}"
+    - name: 'Tag local images for upload to harbor'
+      shell: "docker tag {{ item }} {{ server_ip }}:{{ harbor_firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
+      with_items:
+        - "{{ kube_images }}"
+
+    - name: 'Upload local images to harbor'
+      docker_image:
+        name: "{{ server_ip }}:{{ harbor_firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
+        push: yes
+        pull: no
+      with_items:
+        - "{{ kube_images }}"
   when: offline is defined and offline == false
 
 ...

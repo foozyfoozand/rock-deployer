@@ -132,8 +132,8 @@
       until: harborwebresult.status == 200
       retries: 15
       delay: 1
-  when: (harbor_service_result is defined and harbor_service_result.failed == true) 
-    or (harbor_web_result is defined and harbor_web_result.status != 200)
+  when: (harbor_service_result is defined and harbor_service_result.failed == true)
+    or (harbor_web_result is defined and harbor_web_result.status is defined and harbor_web_result.status != 200)
 
 - name: 'Login to harbor'
   docker_login:

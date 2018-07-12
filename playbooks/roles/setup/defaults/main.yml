@@ -11,14 +11,15 @@ package_list:
 
 ansible_controller_ip: "{{ server_ip }}"
 offline_repo_base: "http://{{ ansible_controller_ip }}/offlinerepo"
+
 CentOS_Repos:
-  - "Base"
-  - "CR"
-  - "Debuginfo"
-  - "fasttrack"
-  - "Media"
-  - "Sources"
-  - "Vault"
+  - "CentOS-Base"
+  - "CentOS-CR"
+  - "CentOS-Debuginfo"
+  - "CentOS-fasttrack"
+  - "CentOS-Media"
+  - "CentOS-Sources"
+  - "CentOS-Vault"
 
 additional_offline_repos:
   epel:

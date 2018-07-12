@@ -1,5 +1,24 @@
 ---
 
+- name: remove epel rpm
+  yum:
+    name: epel-release
+    state: absent
+
+- name:  Remove Repos
+  file:
+    path: "/etc/yum.repos.d/{{ item }}.repo"
+    state: absent
+  with_items:
+  - "{{ CentOS_Repos }}"
+  - epel
+  - epel-testing
+  - rocknsm
+  - ceph_base
+  - ceph_noarch
+  - ceph_srpms
+  - kubernetes
+
 # This loops over a list of dictionaries called additional_offline_repos variable
 # item is the directionary
 # value.<key> gets the value of the key

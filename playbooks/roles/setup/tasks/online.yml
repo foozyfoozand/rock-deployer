@@ -2,6 +2,12 @@
 ################## Setup Yum Repos ####################
 #######################################################
 ---
+- name: Remove Offline Repos
+  file:
+    path: "/etc/yum.repos.d/{{ item }}.repo"
+    state: absent
+  with_items:
+  - "offline"
 
 - name: Setup CentOS Repos
   block:

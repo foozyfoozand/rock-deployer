@@ -1,12 +1,5 @@
 ---
 
-- name: CentOS
-  shell: |
-    rm -rf /etc/yum.repos.d/*
-  when: offline is defined and offline
-  args:
-    warn: false
-
 - import_tasks: offline.yml
   when: offline is defined and offline
 

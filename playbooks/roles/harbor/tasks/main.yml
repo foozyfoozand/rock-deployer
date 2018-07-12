@@ -35,6 +35,10 @@
     dest: "/usr/bin/docker-compose"
     mode: 0740
 
+# Set variable to install harbor by default
+- set_fact:
+    install_harbor: true
+
 - name: Ensure harbor service is started
   systemd:
     name: harbor
@@ -51,10 +55,14 @@
   retries: 10
   delay: 1
   ignore_errors: yes
-  when: "harbor_service_result is defined 
-    and harbor_service_result.failed == false 
-    and 'running' in harbor_service_result.status.SubState 
-    and 'active' in harbor_service_result.status.ActiveState"
+
+# Dont install harbor if the service is running
+# and harbor web responds with code 200
+- set_fact:
+    install_harbor: false
+  when: harbor_web_result is defined 
+    and harbor_web_result.status is defined
+    and harbor_web_result.status == 200
 
 - name: Install harbor
   block:
@@ -132,8 +140,7 @@
       until: harborwebresult.status == 200
       retries: 15
       delay: 1
-  when: (harbor_service_result is defined and harbor_service_result.failed == true)
-    or (harbor_web_result is defined and harbor_web_result.status is defined and harbor_web_result.status != 200)
+  when: install_harbor == true
 
 - name: 'Login to harbor'
   docker_login:

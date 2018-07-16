@@ -36,6 +36,7 @@
         immediate: yes
         permanent: yes
         state: enabled
+      notify: "Restart Docker"
 
     - name: dhcp service
       service:

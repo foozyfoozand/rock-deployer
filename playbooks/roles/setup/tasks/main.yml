@@ -18,10 +18,3 @@
     name: "firewalld"
     state: started
     enabled: true
-
-- name: Allow flask port 5000
-  firewalld:
-    port: "{{ flask_port }}"
-    immediate: yes
-    permanent: yes
-    state: enabled

@@ -28,7 +28,8 @@
         service: dns
         state: enabled
         immediate: yes
-        permanent: yes        
+        permanent: yes     
+      notify: "Restart Docker"   
   when: dnsmasq is defined and dnsmasq
 
 

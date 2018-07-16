@@ -13,6 +13,7 @@
   loop:
   - "http"
   - "https"
+  notify: "Restart Docker"
 
 - name: "Start httpd"
   service: 

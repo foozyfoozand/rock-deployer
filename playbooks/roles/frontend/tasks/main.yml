@@ -1,0 +1,23 @@
+#######################################################
+###################  Frontend Install #################
+#######################################################
+---
+
+
+- name: "pip install flask"
+  shell: "pip install --trusted-host {{ server_ip }} --no-index --find-links=http://{{ server_ip }}/offlinerepo/pip flask"
+
+- name: "Open up port {{ flask_port }} to allow access for web frontend"
+  firewalld: 
+    port: "{{ flask_port }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  notify: "Restart Docker"
+
+#- name: Install frontend rpm
+#  yum:
+#    name: tfplenum-frontend
+#    state: present
+
+...

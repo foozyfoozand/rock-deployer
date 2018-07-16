@@ -46,5 +46,6 @@
       loop:
       - "http"
       - "https"
+      notify: "Restart Docker"
   when:
   - os_name != ""

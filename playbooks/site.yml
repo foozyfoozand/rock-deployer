@@ -8,39 +8,54 @@
 - name: Setup Controller
   hosts: localhost
   roles:
-    - { role: setup, tags: setup }
+    - setup
+  tags: setup
 
 - name: Preflight
   hosts: localhost
   roles:
-    - { role: preflight, tags: preflight }
+    - preflight
+  tags: preflight
 
 - name: Setup DNS Server
   hosts: localhost
   roles:
-    - { role: dnsmasq, tags: ['dnsmasq','dns'] }
+    - dnsmasq
+  tags: 
+    - dnsmasq
+    - dns
 
 - name: Setup Kickstart server
   hosts: localhost
   roles:
-    - { role: kickstart, tags: kickstart }
+    - kickstart
+  tags: kickstart
 
 - name: Generate Profiles
   hosts: localhost
   roles:
-    - { role: profiles, tags: ['profiles', 'profile'] }
+    - profiles
+  tags: 
+    - profiles
+    - profile
 
 - name: Clone and create repositories
   hosts: localhost
   roles:
-    - { role : clonerepo, tags: clonerepo }
+    - clonerepo
+  tags: clonerepo
 
 - name: Install and run Harbor
   hosts: localhost
   roles:
-    - { role: harbor, tags: harbor }
+    - harbor
+  tags: harbor
 
-
+- name: Setup frontend deps
+  hosts: localhost
+  roles:
+    - frontend
+  tags: frontend
 
 
 ...

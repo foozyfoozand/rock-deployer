@@ -84,3 +84,5 @@
         state: enabled
         immediate: yes
         permanent: yes
+      notify: "Restart Docker"
+      

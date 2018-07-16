@@ -41,6 +41,9 @@
     permanent: true
     immediate: true
     state: enabled
+  notify: "Restart Docker"
+
+- meta: flush_handlers
 
 # Set variable to install harbor by default
 - set_fact:

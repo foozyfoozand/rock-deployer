@@ -31,3 +31,4 @@ direct_download_package_names:
 
 pip_downloads:
   - docker-py
+  - flask

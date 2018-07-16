@@ -35,6 +35,13 @@
     dest: "/usr/bin/docker-compose"
     mode: 0740
 
+- name: "Open up port {{ harbor_firewall_port }} to allow access for harbor"
+  firewalld: 
+    port: "{{ harbor_firewall_port }}/tcp"
+    permanent: true
+    immediate: true
+    state: enabled
+
 # Set variable to install harbor by default
 - set_fact:
     install_harbor: true
@@ -83,20 +90,24 @@
       block:
       - name: 'Set up harbor.cfg'
         replace:
+            # Replace reg.domain.com with the controller ip and port 81
             path: "{{ harbor_dir }}/harbor.cfg"
             regexp: '(\s+)hostname = reg\.mydomain\.com(\s+.*)?$'
             replace: '\1hostname = {{ server_ip }}:{{ harbor_firewall_port }}\2'
       - replace:
+            # Replace root123 with password for the db_password in harbor.cfg
             path: "{{ harbor_dir }}/harbor.cfg"
             regexp: '(\s+)db_password = root123(\s+.*)?$'
             replace: '\1db_password = password\2'
       - replace:
+            # Replace Harbor12345 with password for the password in harbor.cfg
             path: "{{ harbor_dir }}/harbor.cfg"
             regexp: '(\s+)harbor_admin_password = Harbor12345(\s+.*)?$'
             replace: '\1harbor_admin_password = password\2'
 
     - name: 'Fix Harbor docker-compose file'
       replace:
+        # Replace 80:80 with 81:80 for the port in docker-compose.yml
         path: "{{ harbor_dir }}/docker-compose.yml"
         regexp: '80:80'
         replace: '{{ harbor_firewall_port }}:{{ harbor_port }}'
@@ -110,13 +121,6 @@
     - name: 'Install Harbor'
       shell: "sh {{ harbor_dir }}/install.sh"
       register: harbor_install_result
-
-    - name: "Open up port {{ harbor_firewall_port }} to allow access for harbor"
-      firewalld: 
-        port: "{{ harbor_firewall_port }}/tcp"
-        permanent: true
-        immediate: true
-        state: enabled
 
     - name: 'Install Harbor service file'
       template:

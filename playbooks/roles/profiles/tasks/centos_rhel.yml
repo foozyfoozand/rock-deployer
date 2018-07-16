@@ -74,6 +74,8 @@
     - name: Create {{ os_name }} bios pxe menu for each server
       template:
         src: "default.j2"
+        # This takes the mac address from the inventory file for each node.
+        # Replaces the colon with a dash and makes it lower case
         dest: "{{ tftp_dir }}/pxelinux.cfg/01-{{ hostvars[item].mac | regex_replace(':', '-') | lower }}"
         owner: root
         group: root
@@ -87,6 +89,8 @@
     - name: Create {{ os_name }} uefi pxe menu for each server
       template:
         src: "grub.cfg.j2"
+        # This takes the mac address from the inventory file for each node.
+        # Replaces the colon with a dash and makes it lower case
         dest: "{{ tftp_dir }}/uefi/grub.cfg-01-{{ hostvars[item].mac | regex_replace(':', '-') | lower }}"
         owner: root
         group: root

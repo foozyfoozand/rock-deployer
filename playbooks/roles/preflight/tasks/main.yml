@@ -14,28 +14,50 @@
     msg: "offline variable is missing.  Please review sample inventory."
   when: offline is not defined or offline is none
 
+- name: check if iso exists
+  stat:
+    path: "{{ iso_pth }}"
+    checksum_algorithm: sha256
+  register: iso_path_result    
+
+- name: Missing ISO
+  fail:
+    msg: "It appears you are trying to run offline mode without an existing iso at {{ iso_pth }}.  Download iso manually or update inventory to offline: false (this requires an internet connection)."
+  when: offline 
+    and iso_path_result.stat.exists == false
+
+- name: iso_checksum variable is required
+  fail:
+    msg: "iso_checksum variable is not valid.  iso_checksum variable is required. Make sure it is defined in your inventory file."
+  when: iso_checksum == "" or iso_checksum is not defined or iso_checksum is none
+
+- name: Verify ISO Checksum
+  fail:
+    msg: "It appears the iso checksum does not match.  Please redownload the iso from a known good source and verify the iso_checksum is correct in the invetory file."
+  when: iso_path_result.stat.exists and iso_path_result.stat.checksum != iso_checksum
+
 - name: offline and pull repos conflicting
   fail:
     msg: "Verify offline variable and pull_all_repos variable.  pull_all_repos cannot be true when offline is true."
-  when: offline is defined and offline 
+  when: offline 
     and pull_all_repos is defined and pull_all_repos == true
 
 - name: offline and pull repos conflicting
   fail:
     msg: "Verify offline variable and pull_additional_repos variable.  pull_additional_repos cannot be true when offline is true."
-  when: offline is defined and offline 
+  when: offline 
     and pull_additional_repos is defined and pull_additional_repos == true
 
 - name: offline and pull repos conflicting
   fail:
     msg: "Verify offline variable and pull_rhel_repos variable.  pull_rhel_repos cannot be true when offline is true."
-  when: offline is defined and offline 
+  when: offline 
     and pull_rhel_repos is defined and pull_rhel_repos == true
 
 - name: offline and pull repos conflicting
   fail:
     msg: "Verify offline variable and pull_centos_repos variable.  pull_centos_repos cannot be true when offline is true."
-  when: offline is defined and offline 
+  when: offline 
     and pull_centos_repos is defined and pull_centos_repos == true
 
 - name: dns variable is required

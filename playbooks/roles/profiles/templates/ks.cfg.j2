@@ -79,6 +79,8 @@ do
    sed -i 's/BOOTPROTO=dhcp/BOOTPROTO=autoip/g' /etc/sysconfig/network-scripts/ifcfg-$i
    # This updates the non management interfaces to ignore ipv6 by default
    sed -i 's/IPV6INIT=yes/IPV6INIT=no/g' /etc/sysconfig/network-scripts/ifcfg-$i
+   # This updates the non management interfaces to up on boot
+   sed -i 's/ONBOOT=no/ONBOOT=yes/g' /etc/sysconfig/network-scripts/ifcfg-$i
  fi
 done
 {% endif %}

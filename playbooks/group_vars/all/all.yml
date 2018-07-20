@@ -92,4 +92,5 @@ gpg_keys:
 pip_downloads:
   - docker-py
   - ipaddress
+  - flask
 ...

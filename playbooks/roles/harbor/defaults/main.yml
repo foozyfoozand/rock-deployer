@@ -12,3 +12,5 @@ harbor_dir: /opt/harbor
 
 harbor_port: "80"
 harbor_firewall_port: "81"
+db_password: password
+harbor_admin_password: password

@@ -1,5 +1,7 @@
 ---
+# These tasks recreate the repo data for each repo based off the inventory file
 
+# The follow builds a list of the repos and sets it to the variable "repo"
 - name: set repo list
   set_fact:
     repos: []
@@ -45,26 +47,19 @@
   include_tasks: include_repo.yml repo="{{ item }}"
   with_items: "{{ repos }}"
 
+
 - name: get list of directories with wrong permissions
   shell: |
-    find {{ rockoffline_dir }} -type d -not -perm 755
+    # change all directories permissions that are not 755 to 755
+    find {{ web_root }} -type d -not -perm 755 -exec chmod 755 {} \;
   register: dir_list
-
-- name: Update directory permissions
-  file:
-    path: "{{ item }}"   
-    mode: 0755
-    setype: httpd_sys_content_t
-    owner: root
-    group: root
-  with_items: "{{ dir_list.stdout }}"
-  when: dir_list.stdout != ""
 
 - name: fix files with wrong permissions
   shell: |
-    find {{ rockoffline_dir }} -type f -not -perm 644 -exec chmod 644 {} \;
+    find {{ web_root }} -type f -not -perm 644 -exec chmod 644 {} \;
   register: file_list
 
-- name: restorecon offlinerepo
+- name: restorecon for web root
   shell: |
-    restorecon -Rv {{ rockoffline_dir }}
+    restorecon -Rv {{ web_root }}
+    

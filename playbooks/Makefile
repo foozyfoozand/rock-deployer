@@ -36,9 +36,9 @@ generate-profiles:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,kickstart,profiles
 
 clonerepos-centos:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{ offline: false}' -e '{ pull_centos_repos: true }' -e '{ pull_additional_repos: true }' -t preflight,setup,clonerepo 
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{ offline: true }' -t preflight,setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{ offline: false}' -e '{ pull_centos_repos: true }' -e '{ pull_additional_repos: true }' -e '{ pull_rhel_repos: false }' -e '{ pull_all_repos: false }' -t preflight,setup,clonerepo 
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{ offline: true}' -e '{ pull_centos_repos: false }' -e '{ pull_additional_repos: false }' -e '{ pull_rhel_repos: false }' -e '{ pull_all_repos: false }' -t preflight,setup
 
 clonerepos-rhel:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{ offline: false}' -e '{ pull_rhel_repos: true }' -e '{ pull_additional_repos: true }' -t preflight,setup,clonerepo 
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{ offline: true }' -t preflight,setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{ offline: false}' -e '{ pull_centos_repos: false }' -e '{ pull_additional_repos: true }' -e '{ pull_rhel_repos: true }' -e '{ pull_all_repos: false }' -t preflight,setup,clonerepo 
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{ offline: true}' -e '{ pull_centos_repos: false }' -e '{ pull_additional_repos: false }' -e '{ pull_rhel_repos: false }' -e '{ pull_all_repos: false }' -t preflight,setup

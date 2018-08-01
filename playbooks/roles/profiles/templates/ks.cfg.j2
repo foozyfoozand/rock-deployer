@@ -87,7 +87,7 @@ do
    # Append ONBOOT option based on link status of yes or no
    echo 'ONBOOT='$link >> /etc/sysconfig/network-scripts/ifcfg-$i
    if [[ $link == 'no' ]]; then
-     sed -i '/^BOOTPROTO/ d' /etc/sysconfig/network-scripts/ifcfg-$i
+     sed -i 's/BOOTPROTO=dhcp/BOOTPROTO=none/g' /etc/sysconfig/network-scripts/ifcfg-$i
    fi
  fi
 done

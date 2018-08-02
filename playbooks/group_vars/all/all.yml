@@ -31,6 +31,11 @@ kafka_retention: 168
 
 rock_hostname: "ansiblecontroller"
 
+rhel_repos:
+  - rhel-7-server-rpms
+  - rhel-7-server-extras-rpms
+  - rhel-7-server-optional-rpms
+
 additional_repo_info:
   kube:
     name: "kubernetes"

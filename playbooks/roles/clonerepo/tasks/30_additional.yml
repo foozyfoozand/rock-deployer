@@ -19,9 +19,9 @@
         enabled: true
         name: "{{ item.value.name }}"        
       loop: "{{ lookup('dict', additional_repo_info) }}"
-    
+
     - name: "Mirror Additional repositories"
-      shell: "reposync --repoid={{ item.value.name }} --download_path={{ item.value.download_path }} --download-metadata --downloadcomps"
+      shell: "reposync --repoid={{ item.value.name }} --download_path={{ item.value.download_path }} --download-metadata --downloadcomps --allow-path-traversal"
       loop: "{{ lookup('dict', additional_repo_info) }}"
     
     - name: "Mirror Epel repositories"

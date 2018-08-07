@@ -9,7 +9,6 @@ url --url http://{{ server_ip }}/{{ os_name }}
 text
 # Run the Setup Agent on first boot
 firstboot --disable
-ignoredisk --only-use={{ boot_drive }}
 # Keyboard layouts
 keyboard --vckeymap=us --xlayouts='us'
 # System language
@@ -44,7 +43,7 @@ bootloader --append="rhgb quiet crashkernel=auto" --location=mbr --boot-drive={{
 
 # Partition clearing information
 zerombr
-clearpart --all --initlabel
+clearpart --all
 {% if uefi %}
 part /boot/efi --fstype=efi --grow --maxsize=200 --size=20
 {% endif %}
@@ -52,6 +51,15 @@ part /boot --fstype="xfs" --size=500
 part pv.01 --size=1 --grow --ondrive={{ boot_drive }}
 volgroup vg01 pv.01
 logvol /  --fstype="xfs" --size=1 --name=root --vgname=vg01 --grow
+
+%pre
+list-harddrives | awk '{ print $1 }' > /tmp/disks
+for disk in `cat /tmp/disks`;
+do
+echo 'wiping disk' $disk
+wipefs -a -f /dev/$disk
+done
+%end
 
 %packages
 @^minimal
@@ -78,16 +86,16 @@ do
    sed -i '/^DNS/ d' /etc/sysconfig/network-scripts/ifcfg-$i
    # This updates the non management interfaces to remove the NETBOOT line
    sed -i '/^NETBOOT/ d' /etc/sysconfig/network-scripts/ifcfg-$i
-   # This updates the non management interfaces to link-local
-   sed -i 's/BOOTPROTO=dhcp/BOOTPROTO=autoip/g' /etc/sysconfig/network-scripts/ifcfg-$i
-   # This updates the non management interfaces to ignore ipv6 by default
-   sed -i 's/IPV6INIT=yes/IPV6INIT=no/g' /etc/sysconfig/network-scripts/ifcfg-$i
+   # This updates the non management interfaces to link-local   
+   sed -i 's/^\(BOOTPROTO=\).*/\1autoip/g' /etc/sysconfig/network-scripts/ifcfg-$i
+   # This updates the non management interfaces to ignore ipv6 by default   
+   sed -i 's/^\(IPV6INIT=\).*/\1no/g' /etc/sysconfig/network-scripts/ifcfg-$i
    # Remove ONBOOT line from non management interface
    sed -i '/^ONBOOT/ d' /etc/sysconfig/network-scripts/ifcfg-$i
    # Append ONBOOT option based on link status of yes or no
    echo 'ONBOOT='$link >> /etc/sysconfig/network-scripts/ifcfg-$i
    if [[ $link == 'no' ]]; then
-     sed -i 's/BOOTPROTO=dhcp/BOOTPROTO=none/g' /etc/sysconfig/network-scripts/ifcfg-$i
+     sed -i 's/^\(BOOTPROTO=\).*/\1none/g' /etc/sysconfig/network-scripts/ifcfg-$i
    fi
  fi
 done

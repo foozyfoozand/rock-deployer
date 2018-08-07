@@ -18,3 +18,36 @@
     name: "firewalld"
     state: started
     enabled: true
+
+- name: Add assessor user
+  user:
+    name: assessor
+    shell: /bin/bash
+    groups: wheel
+    append: yes
+  register: assessor_user
+
+- name: Generate RootPw
+  command: "openssl passwd -1 {{ root_password }}"
+  register: rootpw
+  when: assessor_user.changed
+
+- name: Update assessor user password
+  user:
+    name: assessor
+    password: "{{ rootpw.stdout }}"
+  when: assessor_user.changed
+
+- name: update sshd_conf
+  template:
+    src: templates/sshd_config
+    dest: "/etc/ssh/sshd_config"
+  register: sshd_config
+
+- name: Bump sshd
+  systemd:
+    name: sshd
+    enabled: yes
+    state: restarted
+  when: sshd_config.changed
+  

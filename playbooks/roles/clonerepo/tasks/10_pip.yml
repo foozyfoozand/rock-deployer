@@ -8,6 +8,12 @@
   pip:
     name: pip2pi
 
+- name: remove pip dir if its there
+  file:
+    path: "~/.pip"
+    state: absent
+  when: offline is defined and offline == false
+
 - name: "Download pip packages to the custom install repo"
   shell: "pip download -d {{ rockoffline_dir }}/pip {{ item }}"
   with_items:

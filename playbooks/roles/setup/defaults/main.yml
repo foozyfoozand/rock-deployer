@@ -5,21 +5,13 @@ package_list:
   - git
   - nodejs
   - npm
+  - python-netaddr
   # - tfplenum
   # - tfplenum-frontend
   # - tfplenum-whatever
 
 ansible_controller_ip: "{{ server_ip }}"
 offline_repo_base: "http://{{ ansible_controller_ip }}/offlinerepo"
-
-CentOS_Repos:
-  - "CentOS-Base"
-  - "CentOS-CR"
-  - "CentOS-Debuginfo"
-  - "CentOS-fasttrack"
-  - "CentOS-Media"
-  - "CentOS-Sources"
-  - "CentOS-Vault"
 
 additional_offline_repos:
   epel:

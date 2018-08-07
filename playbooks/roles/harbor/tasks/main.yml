@@ -20,8 +20,8 @@
     - docker
     - python-pip
 
-- name: "pip docker-py"
-  shell: "pip install --trusted-host {{ server_ip }} --no-index --find-links=http://{{ server_ip }}/offlinerepo/pip docker-py"
+- name: "pip docker"
+  shell: "pip install --trusted-host {{ server_ip }} --no-index --find-links=http://{{ server_ip }}/offlinerepo/pip docker"
 
 - name: 'docker daemon conf'
   template:

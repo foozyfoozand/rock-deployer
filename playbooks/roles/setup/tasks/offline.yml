@@ -5,19 +5,25 @@
     name: epel-release
     state: absent
 
-- name:  Remove Repos
+- name: delete all repos matching the below regex
+  find:
+    paths: /etc/yum.repos.d
+    patterns: "^(CentOS|epel|rocknsm|ceph|kuber|ansible).*repo$"
+    use_regex: true
+  register: wildcard_files_to_delete
+
+- name: remove matched repos
   file:
-    path: "/etc/yum.repos.d/{{ item }}.repo"
+    path: "{{ item.path }}"
     state: absent
-  with_items:
-  - "{{ CentOS_Repos }}"
-  - epel
-  - epel-testing
-  - rocknsm
-  - ceph_base
-  - ceph_noarch
-  - ceph_srpms
-  - kubernetes
+  with_items: "{{ wildcard_files_to_delete.files }}"
+
+- name: Disable Red Hat repos...
+  rhsm_repository:
+    name: "{{ item }}"
+    state: disabled
+  with_items: "{{ rhel_repos }}"
+  when: "ansible_distribution == 'RedHat'"
 
 # This loops over a list of dictionaries called additional_offline_repos variable
 # item is the directionary

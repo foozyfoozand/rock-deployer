@@ -95,7 +95,7 @@ gpg_keys:
   - "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
 
 pip_downloads:
-  - docker
+  - docker-py
   - ipaddress
   - flask
 ...

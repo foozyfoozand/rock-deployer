@@ -20,9 +20,14 @@
     - docker
     - python-pip
 
-- name: install docker-py pip module
-  pip: 
-    name: docker-py
+- name: install docker-py pip module 
+  pip:  
+    name: "{{ item }}" 
+    state: forcereinstall 
+  with_items: 
+  - "requests"  
+  - "urllib3" 
+  - "docker-py"
 
 - name: 'docker daemon conf'
   template:

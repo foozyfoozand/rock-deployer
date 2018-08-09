@@ -98,4 +98,6 @@ pip_downloads:
   - docker-py
   - ipaddress
   - flask
+  - requests
+  - urllib3
 ...

@@ -20,6 +20,10 @@
     - docker
     - python-pip
 
+- name: Ensure Pip Version is 8.1.2
+  shell: |
+    pip install pip==8.1.2
+
 - name: install docker-py pip module 
   pip:  
     name: "{{ item }}" 

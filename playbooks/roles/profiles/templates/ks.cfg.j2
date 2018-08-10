@@ -58,6 +58,7 @@ for disk in `cat /tmp/disks`;
 do
 echo 'wiping disk' $disk
 wipefs -a -f /dev/$disk
+dd if=/dev/zero of=/dev/$disk bs=4096k count=100
 done
 %end
 

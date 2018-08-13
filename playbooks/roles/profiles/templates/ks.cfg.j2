@@ -24,7 +24,7 @@ reboot
 
 # Network information
 {% if item is defined %}
-network --device={{ hostvars[item].mac }} --bootproto=static --ip={{ hostvars[item].ip }} --netmask={{ netmask }} --gateway={{ gateway }} --nameserver={{ dns }} --noipv6 --activate
+network --device={{ hostvars[item].mac | lower }} --bootproto=static --ip={{ hostvars[item].ip }} --netmask={{ netmask }} --gateway={{ gateway }} --nameserver={{ dns }} --noipv6 --activate
 network  --hostname={{ item }}
 {% else %}
 network  --bootproto=dhcp --device=eth0 --noipv6 --activate
@@ -82,7 +82,7 @@ do
  # Get the link state using ethtool
  # The awk piece uses the colon delimiter and removes the leading space
  link=`ethtool $i | grep "Link detected" | awk -F ":" '{gsub(/ /,"",$2); print $2 }'`
- if [[ $mac != '{{ hostvars[item].mac }}' ]]; then
+ if [[ $mac != '{{ hostvars[item].mac | lower }}' ]]; then
    # This updates the non management interfaces to remove any DNS entries
    sed -i '/^DNS/ d' /etc/sysconfig/network-scripts/ifcfg-$i
    # This updates the non management interfaces to remove the NETBOOT line

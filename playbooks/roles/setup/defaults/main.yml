@@ -58,17 +58,17 @@ rhel_offline_repos:
     baseurl: "{{ offline_repo_base }}/rhel-7-server-rpms"
     gpgkey:  "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release"
     gpgcheck: true
-    name: "rhel-7-server-rpms"
-    description: "rhel-7-server-rpms repo"
+    name: "offline-rhel-7-server-rpms"
+    description: "offline rhel-7-server-rpms repo"
   rhel-7-server-extras-rpms:
     baseurl: "{{ offline_repo_base }}/rhel-7-server-extras-rpms"
     gpgkey:  "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release"
     gpgcheck: true
-    name: "rhel-7-server-extras-rpms"
-    description: "rhel-7-server-extras-rpms repo"
+    name: "offline-rhel-7-server-extras-rpms"
+    description: "offline rhel-7-server-extras-rpms repo"
   rhel-7-server-optional-rpms:
     baseurl: "{{ offline_repo_base }}/rhel-7-server-optional-rpms"
     gpgkey:  "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release"
     gpgcheck: true
-    name: "rhel-7-server-optional-rpms"
-    description: "rhel-7-server-optional-rpms repo"
+    name: "offline-rhel-7-server-optional-rpms"
+    description: "offline rhel-7-server-optional-rpms repo"

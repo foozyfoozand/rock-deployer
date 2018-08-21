@@ -50,4 +50,16 @@
     enabled: yes
     state: restarted
   when: sshd_config.changed
+
+- name: Disable RHEL License
+  replace:    
+    path: "/etc/yum/pluginconf.d/subscription-manager.conf"
+    regexp: 'enabled=1'
+    replace: 'enabled=0'
+  when: "ansible_distribution == 'RedHat'"
+
+- name: Clean repo cache
+  shell: yum clean all
+  args:
+    warn: false 
   

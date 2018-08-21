@@ -40,7 +40,6 @@
     gpgkey: "{{ item.value.gpgkey}}"
     file: "offline"
   loop: "{{ lookup('dict', additional_offline_repos) }}"
-  register: yum_results
 
 # This loops over a list of dictionaries called rhel_offline_repos variable
 # item is the directionary
@@ -58,7 +57,6 @@
     file: "offline"
   loop: "{{ lookup('dict', rhel_offline_repos) }}"
   when: "ansible_distribution == 'RedHat'"
-  register: yum_results
 
 # This loops over a list of dictionaries called centos_offline_repos variable
 # item is the directionary
@@ -76,13 +74,6 @@
     file: "offline"
   loop: "{{ lookup('dict', centos_offline_repos) }}"
   when: "ansible_distribution == 'CentOS'"
-  register: yum_results
-
-- name: Clean repo cache
-  shell: yum clean all
-  when: yum_results.changed
-  args:
-    warn: false
 
 - name: create pip dir
   file:

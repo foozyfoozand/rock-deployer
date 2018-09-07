@@ -73,6 +73,13 @@ additional_repo_info:
     gpgkeyname: "release.asc"
     description: "ceph srpms repo"
     download_path: "{{ rockoffline_dir }}"
+  mongo:
+    name: "mongodb-org-4.0"
+    baseurl: "https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.0/x86_64/"
+    gpgkeyurl: "https://www.mongodb.org/static/pgp/server-4.0.asc"
+    gpgkeyname: "server-4.0.asc"
+    description: "MongoDB Repository"
+    download_path: "{{ rockoffline_dir }}"
 
 epel_repo:
     metalink: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"    
@@ -83,6 +90,7 @@ epel_repo:
     description: "epel repo"
     failovermethod: "priority"
     download_path: "{{ rockoffline_dir }}"
+
 
 bootstrap_package_names:
   - yum-utils
@@ -100,4 +108,12 @@ pip_downloads:
   - flask
   - requests
   - urllib3
+
+
+iso_centos_pth: /root/CentOS-7-x86_64-Minimal-1804.iso
+iso_centos_checksum: 714acc0aefb32b7d51b515e25546835e55a90da9fb00417fbee2d03a62801efd
+iso_rhel_pth: /root/rhel-server-7.5-x86_64-dvd.iso
+iso_rhel_checksum: d0dd6ae5e001fb050dafefdfd871e7e648b147fb2d35f0e106e0b34a0163e8f5
+iso_url: http://mirrors.mit.edu/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1804.iso
+
 ...

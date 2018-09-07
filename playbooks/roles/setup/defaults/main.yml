@@ -1,11 +1,4 @@
 ---
 # defaults file for roles/kickstart
 #
-package_list:
-  - git
-  - nodejs
-  - npm
-  - python-netaddr
-  # - tfplenum
-  # - tfplenum-frontend
-  # - tfplenum-whatever
+ansible_controller_ip: "{{ server_ip }}"

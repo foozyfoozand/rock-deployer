@@ -1,0 +1,11 @@
+---
+- name: Download ISO
+  get_url:
+    checksum: "sha256:714acc0aefb32b7d51b515e25546835e55a90da9fb00417fbee2d03a62801efd"
+    url: "{{ item }}" 
+    dest: "{{ iso_centos_pth }}"
+  with_items:
+    - "{{ iso_url }}"
+  when: "ansible_distribution == 'CentOS'"
+
+# TODO we need a way to pull down RHEL ISO image.

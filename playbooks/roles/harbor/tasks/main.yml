@@ -96,6 +96,16 @@
     regexp: '80:80'
     replace: '{{ harbor_firewall_port }}:{{ harbor_port }}'
 
+- name: 'Fix Harbor docker-compose file'
+  lineinfile:
+    # Remove port 443 and port 4443    
+    path: "{{ harbor_dir }}/docker-compose.yml"
+    regexp: "{{ item }}"
+    state: absent    
+  with_items:
+    - '443:443'
+    - '4443:4443'
+
 # Depending on the OS there may already be a httpd running
 - name: 'Check if pre-existing httpd service exists'
   stat: 
@@ -156,7 +166,6 @@
         push: yes
         pull: no
       with_items:
-        - "{{ kube_images }}"
-  when: offline is defined and offline == false
+        - "{{ kube_images }}"  
 
 ...

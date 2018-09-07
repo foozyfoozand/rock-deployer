@@ -12,24 +12,12 @@ tftp_uefi:
  - /mnt/EFI/BOOT/BOOTX64.EFI
  - /mnt/EFI/BOOT/grubx64.efi
 
-tftp_coreos:
-  - vmlinuz
-  - cpio.gz
-
-coreos_deps:
-  - https://stable.release.core-os.net/amd64-usr/current/coreos_production_image.bin.bz2
-  - https://stable.release.core-os.net/amd64-usr/current/coreos_production_image.bin.bz2.sig
-
 apache: httpd
 reponame: localrepo
 
 #Settable variables
 #Path where iso is to be mounted ex: /mnt
 mnt_pth: /mnt
-
-#Absolute path to .iso file
-#iso_pth: /root/rhel-server-7.4-x86_64-dvd.iso
-iso_pth: /root/rhel.iso
 
 #Remove the iso from the system? Override to "true" to keep.
 keep_iso: true

@@ -7,24 +7,19 @@
   include_vars:
     file: "{{ tfplenum_vars }}"
 
+- import_tasks: 99_repo.yml
 - import_tasks: 00_httpd.yml
 - import_tasks: 05_setup.yml
 - import_tasks: 10_pip.yml
   tags: pip
-- import_tasks: 11_elasticdump.yml
-  when: not offline or (offline is defined and offline == false)
+- import_tasks: 11_elasticdump.yml  
   tags: elasticdump
 - import_tasks: 15_direct.yml
-  tags: direct
-  when: offline is defined and offline == false
+  tags: direct  
 - import_tasks: 20_centos.yml
-  when: offline is defined and offline == false
 - import_tasks: 25_rhel.yml
-  when: offline is defined and offline == false
 - import_tasks: 30_additional.yml
-  tags: additional
-  when: offline is defined and offline == false
+  tags: additional  
 - import_tasks: 35_createrepo.yml
   tags: createrepo
-  when: offline is defined and offline == false
 ...

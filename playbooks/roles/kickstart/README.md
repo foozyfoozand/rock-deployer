@@ -16,9 +16,6 @@ The settable variables for this role are in defaults/main.yml
 The absolute path to the installation .iso file. ex: /root/rhel-7-server-x86_64.iso
 iso_path: 
 
-Define a short name for the kickstart media. ex: rhel7.4
-os_name:
-
 Remove the iso from the system? Override to "true" to keep.
 keep_iso: false
 

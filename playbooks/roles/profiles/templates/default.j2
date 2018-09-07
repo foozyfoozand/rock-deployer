@@ -2,7 +2,7 @@ default vesamenu.c32
 timeout 1
 prompt 0 
 
-label {{ os_name }}
-  menu label {{ os_name }}
+label {{ ansible_distribution }}
+  menu label {{ ansible_distribution }}
   kernel vmlinuz
-  append initrd=initrd.img {% if 'atomic' in os_name %}inst.stage2=http://{{ server_ip }}/{{ os_name }}{% endif %} ks=http://{{ server_ip }}/ks/{% if item is defined %}{{ item }}.cfg{% else %}{{ kick_cfg }}{% endif %} 
+  append initrd=initrd.img ks=http://{{ server_ip }}/ks/{% if item is defined %}{{ item }}.cfg{% else %}{{ kick_cfg }}{% endif %} 

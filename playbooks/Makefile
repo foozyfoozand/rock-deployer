@@ -12,7 +12,7 @@ all:
 ifndef CHECK
 	$(error Ansible is not installed. Install Ansible with 'yum update -y && yum install -y ansible')
 endif
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY)
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,setup,dnsmasq,kickstart,profiles
 
 dnsmasq:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,dnsmasq
@@ -30,15 +30,15 @@ harbor:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,harbor
 
 harbor-online-sync:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{ offline: false }' -t preflight,harbor
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,harbor
 
 generate-profiles:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,kickstart,profiles
 
-clonerepos-centos:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{ offline: false}' -e '{ pull_centos_repos: true }' -e '{ pull_additional_repos: true }' -e '{ pull_rhel_repos: false }' -e '{ pull_all_repos: false }' -t preflight,setup,clonerepo 
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{ offline: true}' -e '{ pull_centos_repos: false }' -e '{ pull_additional_repos: false }' -e '{ pull_rhel_repos: false }' -e '{ pull_all_repos: false }' -t preflight,setup
+bootstrap:		
+	@echo $(TFPLENUM_OS_TYPE)
+	@echo $(TFPLENUM_REDHAT_SUBSCRIPTION)
 
-clonerepos-rhel:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{ offline: false}' -e '{ pull_centos_repos: false }' -e '{ pull_additional_repos: true }' -e '{ pull_rhel_repos: true }' -e '{ pull_all_repos: false }' -t preflight,setup,clonerepo 
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{ offline: true}' -e '{ pull_centos_repos: false }' -e '{ pull_additional_repos: false }' -e '{ pull_rhel_repos: false }' -e '{ pull_all_repos: false }' -t preflight,setup
+	$(if $(filter $(TFPLENUM_OS_TYPE),Centos),\
+	ansible-playbook $(PLAYBOOK) -i localhost -e '{ pull_centos_repos: true }' -e '{ pull_rhel_repos: false }' -e '{ server_ip: "127.0.0.1"}' -t bootstrap,\
+	ansible-playbook $(PLAYBOOK) -i localhost -e '{ pull_centos_repos: false }' -e '{ pull_rhel_repos: true }' -e '{ server_ip: "127.0.0.1"}' -t bootstrap)

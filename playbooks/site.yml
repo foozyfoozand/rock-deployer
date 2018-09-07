@@ -5,6 +5,13 @@
 # We follow the guidance to include naming conventions there.
 
 ---
+
+- name: Bootstrap Controller
+  hosts: localhost
+  roles:
+    - bootstrap
+  tags: bootstrap
+
 - name: Setup Controller
   hosts: localhost
   roles:
@@ -50,12 +57,5 @@
   roles:
     - harbor
   tags: harbor
-
-- name: Setup frontend deps
-  hosts: localhost
-  roles:
-    - frontend
-  tags: frontend
-
 
 ...

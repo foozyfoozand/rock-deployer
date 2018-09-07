@@ -23,4 +23,3 @@ direct_download_package_names:
   #- 'https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64'
   - 'https://storage.googleapis.com/harbor-releases/release-{{ harbor_version }}/harbor-online-installer-v{{ harbor_version }}.tgz'
   - 'https://github.com/docker/compose/releases/download/1.21.0/docker-compose-Linux-x86_64'
-

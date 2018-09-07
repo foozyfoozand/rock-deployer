@@ -9,9 +9,15 @@
 
     - name: remove iso
       file:
-        path: "{{ iso_pth }}"
+        path: "{{ iso_centos_pth }}"
         state: absent
-      when: keep_iso != true
+      when: keep_iso != true and "ansible_distribution == 'CentOS'"
+
+    - name: remove iso
+      file:
+        path: "{{ iso_rhel_pth }}"
+        state: absent
+      when: keep_iso != true and "ansible_distribution == 'RedHat'"
 
     - name: remove_repo
       file:

@@ -1,11 +1,4 @@
 ---
-- name: Download {{ os_name }} ISO
-  get_url:
-    url: "{{ item }}" 
-    dest: "{{ iso_pth }}"
-  with_items:
-    - "{{ iso_url }}"
-  when: iso_url != "" and offline is defined and offline == false and "ansible_distribution == 'CentOS'"
 
 - name: Mount content to {{ mnt_pth }}
   mount:
@@ -13,10 +6,22 @@
     state: mounted
     opts: loop
     path: "{{ mnt_pth }}"
-    src: "{{ iso_pth }}"
+    src: "{{ iso_centos_pth }}"
   when:
-    - mnt_pth != ""  
-    - iso_pth != ""  
+    - mnt_pth != ""
+    - "ansible_distribution == 'CentOS'"
+  register: mounted
+
+- name: Mount content to {{ mnt_pth }}
+  mount:
+    fstype: iso9660
+    state: mounted
+    opts: loop
+    path: "{{ mnt_pth }}"
+    src: "{{ iso_rhel_pth }}"
+  when:
+    - mnt_pth != ""
+    - "ansible_distribution == 'RedHat'"
   register: mounted
 
 - name: Create repo from local media

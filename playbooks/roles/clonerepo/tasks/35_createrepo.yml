@@ -13,30 +13,24 @@
 - name: setup repo list
   set_fact:
     repos: "{{ repos }} + [ '{{ item }}' ]" 
-  when: (pull_all_repos is defined and pull_all_repos) 
-    or (pull_rhel_repos is defined and pull_rhel_repos) 
+  when: (pull_rhel_repos is defined and pull_rhel_repos) 
   with_items: "{{ rhel_repos }}"
 
 - name: setup repo list
   set_fact:
     repos: "{{ repos }} + [ '{{ item }}' ]" 
-  when: (pull_all_repos is defined and pull_all_repos) 
-    or (pull_centos_repos is defined and pull_centos_repos) 
+  when: (pull_centos_repos is defined and pull_centos_repos) 
   with_items: 
   - "{{ centos_repos }}"
 
 - name: setup repo list
   set_fact:
-    repos: "{{ repos }} + [ '{{ item.value.name }}' ]" 
-  when: (pull_all_repos is defined and pull_all_repos) 
-    or (pull_additional_repos is defined and pull_additional_repos) 
+    repos: "{{ repos }} + [ '{{ item.value.name }}' ]"   
   loop: "{{ lookup('dict', additional_repo_info) }}"
 
 - name: setup repo list
   set_fact:
-    repos: "{{ repos }} + [ 'epel' ]"
-  when: (pull_all_repos is defined and pull_all_repos) 
-    or (pull_additional_repos is defined and pull_additional_repos)
+    repos: "{{ repos }} + [ 'epel' ]"  
 
 - name: Remove Repodata
   file:

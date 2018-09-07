@@ -3,5 +3,4 @@
   shell: "reposync --repoid={{ item }} --download_path={{ rockoffline_dir }} --download-metadata --downloadcomps"
   with_items:
     - "{{ centos_repos }}"
-  when: (pull_all_repos is defined and pull_all_repos) 
-    or (pull_centos_repos is defined and pull_centos_repos)
+  when: (pull_centos_repos is defined and pull_centos_repos)

@@ -9,56 +9,49 @@
     msg: "Unable to find versions.yml in {{ tfplenum_vars }}.  Verify tfplenum rpm is installed."
   when: vars_result.stat.exists == false
 
-- name: check for offline var
-  fail:
-    msg: "offline variable is missing.  Please review sample inventory."
-  when: offline is not defined or offline is none
-
-- name: check if iso exists
+- name: check if Centos iso exists
   stat:
-    path: "{{ iso_pth }}"
+    path: "{{ iso_centos_pth }}"
     checksum_algorithm: sha256
-  register: iso_path_result    
+  register: iso_path_result
+  when: "ansible_distribution == 'CentOS'"
 
-- name: Missing ISO
+- name: Missing Centos ISO
   fail:
-    msg: "It appears you are trying to run offline mode without an existing iso at {{ iso_pth }}.  Download iso manually or update inventory to offline: false (this requires an internet connection)."
-  when: offline 
-    and iso_path_result.stat.exists == false
+    msg: "It appears you are trying to run offline mode without an existing iso at {{ iso_centos_pth }}.  Download iso manually or update inventory to offline: false (this requires an internet connection)."
+  when: ansible_distribution == 'CentOS' and iso_path_result.stat.exists == false
 
-- name: iso_checksum variable is required
+- name: check if RHEL iso exists
+  stat:
+    path: "{{ iso_rhel_pth }}"
+    checksum_algorithm: sha256
+  register: iso_path_result2
+  when: "ansible_distribution == 'RedHat'"
+
+- name: Missing RHEL ISO
   fail:
-    msg: "iso_checksum variable is not valid.  iso_checksum variable is required. Make sure it is defined in your inventory file."
-  when: iso_checksum == "" or iso_checksum is not defined or iso_checksum is none
+    msg: "It appears you are trying to run offline mode without an existing iso at {{ iso_rhel_pth }}.  Download iso manually or update inventory to offline: false (this requires an internet connection)."
+  when: ansible_distribution == 'RedHat' and iso_path_result2.stat.exists == false
 
-- name: Verify ISO Checksum
+- name: iso_centos_checksum variable is required
+  fail:
+    msg: "iso_centos_checksum variable is not valid.  iso_centos_checksum variable is required. Make sure it is defined in your inventory file."
+  when: ansible_distribution == 'CentOS' and iso_centos_checksum == "" or iso_centos_checksum is not defined or iso_centos_checksum is none
+
+- name: iso_rhel_checksum variable is required
+  fail:
+    msg: "iso_rhel_checksum variable is not valid.  iso_rhel_checksum variable is required. Make sure it is defined in your inventory file."
+  when: ansible_distribution == 'RedHat' and iso_rhel_checksum == "" or iso_rhel_checksum is not defined or iso_rhel_checksum is none
+
+- name: Verify Centos ISO Checksum
   fail:
     msg: "It appears the iso checksum does not match.  Please redownload the iso from a known good source and verify the iso_checksum is correct in the invetory file."
-  when: iso_path_result.stat.exists and iso_path_result.stat.checksum != iso_checksum
+  when: ansible_distribution == 'CentOS' and iso_path_result.stat.exists and iso_path_result.stat.checksum != iso_centos_checksum
 
-- name: offline and pull repos conflicting
+- name: Verify Rhel ISO Checksum
   fail:
-    msg: "Verify offline variable and pull_all_repos variable.  pull_all_repos cannot be true when offline is true."
-  when: offline 
-    and pull_all_repos is defined and pull_all_repos == true
-
-- name: offline and pull repos conflicting
-  fail:
-    msg: "Verify offline variable and pull_additional_repos variable.  pull_additional_repos cannot be true when offline is true."
-  when: offline 
-    and pull_additional_repos is defined and pull_additional_repos == true
-
-- name: offline and pull repos conflicting
-  fail:
-    msg: "Verify offline variable and pull_rhel_repos variable.  pull_rhel_repos cannot be true when offline is true."
-  when: offline 
-    and pull_rhel_repos is defined and pull_rhel_repos == true
-
-- name: offline and pull repos conflicting
-  fail:
-    msg: "Verify offline variable and pull_centos_repos variable.  pull_centos_repos cannot be true when offline is true."
-  when: offline 
-    and pull_centos_repos is defined and pull_centos_repos == true
+    msg: "It appears the iso checksum does not match.  Please redownload the iso from a known good source and verify the iso_checksum is correct in the invetory file."
+  when: ansible_distribution == 'RedHat' and iso_path_result2.stat.exists and iso_path_result2.stat.checksum != iso_rhel_checksum
 
 - name: dns variable is required
   fail:
@@ -79,9 +72,3 @@
   fail:
     msg: "root_password variable is not valid.  root_password variable is required. Make sure it is defined in your inventory file."
   when: root_password == "" or root_password is not defined or root_password is none
-
-    
-
-    
-
-    

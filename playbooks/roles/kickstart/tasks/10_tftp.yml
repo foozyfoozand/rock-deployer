@@ -23,18 +23,7 @@
         group: root
         mode: 0755
         setype: cobbler_var_lib_t
-        path: "{{ tftp_dir }}/uefi"
-      when: "'rhel' in os_name or  'centos' in os_name"
-    
-    - name: Place coreos pxe files
-      copy:
-        src: "/mnt/coreos/{{ item }}"
-        dest: "{{ tftp_dir }}/coreos-{{ item }}"
-        setype: cobbler_var_lib_t
-      register: tftp
-      with_items:
-        - "{{ tftp_coreos }}"
-      when: "'coreos' in os_name"
+        path: "{{ tftp_dir }}/uefi"            
 
     - name: Place centos & rhel pxe files
       copy:
@@ -43,8 +32,7 @@
         setype: cobbler_var_lib_t
       register: tftp
       with_items:
-        - "{{ tftp_pxe }}"
-      when: "'rhel' in os_name or  'centos' in os_name"
+        - "{{ tftp_pxe }}"      
 
     - name: Place uefi pxe files
       copy:
@@ -53,8 +41,7 @@
         setype: cobbler_var_lib_t
       register: tftp
       with_items:
-        - "{{ tftp_uefi }}"
-      when: "'rhel' in os_name or  'centos' in os_name"    
+        - "{{ tftp_uefi }}"      
 
     - name: Default pxe menu
       template:

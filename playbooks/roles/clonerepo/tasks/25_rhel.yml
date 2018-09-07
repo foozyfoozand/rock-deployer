@@ -8,14 +8,7 @@
     - name: Errr
       fail:
         msg: "ansible controller is not subscribed.  Include rhel_activation_key and rhel_org_id to subscribe."
-      when: "'Current' not in sub_status.stdout and (rhel_activation_key is not defined or rhel_org_id is not defined)"
-
-    - name: Setup rhel sub
-      redhat_subscription:
-        state: present
-        activationkey: "{{ rhel_activation_key }}"
-        org_id: "{{ rhel_org_id }}"
-      when: "'Current' not in sub_status.stdout"
+      when: "'Current' not in sub_status.stdout and (rhel_activation_key is not defined or rhel_org_id is not defined)"    
 
     - name: Enable rhel repos
       rhsm_repository:
@@ -29,5 +22,4 @@
       with_items:
       - "{{ rhel_repos }}"
       
-  when: (pull_all_repos is defined and pull_all_repos) 
-    or (pull_rhel_repos is defined and pull_rhel_repos)
+  when: (pull_rhel_repos is defined and pull_rhel_repos)

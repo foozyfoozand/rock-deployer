@@ -6,7 +6,7 @@
         name: "{{ apache }}"
         state: latest
     
-    - name: Create directory for {{ os_name }}
+    - name: Create directory for {{ ansible_distribution }}
       file:
         state: directory
         owner: root
@@ -15,16 +15,16 @@
         setype: httpd_sys_content_t
         path: "{{ item }}"
       with_items:
-      - "{{ web_root }}/{{ os_name }}"
+      - "{{ web_root }}/{{ ansible_distribution }}"
 
-    - name: Copy content to {{ web_root }}/{{ os_name }}
+    - name: Copy content to {{ web_root }}/{{ ansible_distribution }}
       delegate_to: "{{ inventory_hostname }}"
       synchronize:
         dest: "{{ item }}"
         src:  "{{ mnt_pth }}/"
         recursive: yes
       with_items: 
-      - "{{ web_root }}/{{ os_name }}/"
+      - "{{ web_root }}/{{ ansible_distribution }}/"
     
     - name: Remove apache welcome page
       file:        
@@ -46,6 +46,4 @@
       loop:
       - "http"
       - "https"
-      notify: "Restart Docker"
-  when:
-  - os_name != ""
+      notify: "Restart Docker"  

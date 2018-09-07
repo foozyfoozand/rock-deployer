@@ -1,0 +1,20 @@
+---
+
+- import_tasks: online.yml
+
+- name: "Install required packages"
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - "{{ package_list }}"
+
+- name: Execute clone repo role.
+  include_role: 
+    name: clonerepo
+
+- name: Execute harbor role.  
+  include_role: 
+    name: harbor
+
+- import_tasks: offline.yml

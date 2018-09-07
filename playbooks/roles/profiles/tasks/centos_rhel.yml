@@ -1,7 +1,7 @@
 ---
-- name: "{{ os_name }} block"
+- name: "{{ ansible_distribution }} block"
   block:
-    - name: Make default bios {{ os_name }} {{ kick_cfg }} avail
+    - name: Make default bios {{ ansible_distribution }} {{ kick_cfg }} avail
       template:
         src: ks.cfg.j2
         dest: "{{ ks_template_dir }}/ks.cfg"
@@ -12,7 +12,7 @@
       vars:
         uefi: false
         
-    - name: Make default uefi {{ os_name }} {{ kick_cfg }} avail
+    - name: Make default uefi {{ ansible_distribution }} {{ kick_cfg }} avail
       template:
         src: ks.cfg.j2
         dest: "{{ ks_template_dir }}/uefi/ks.cfg"
@@ -23,7 +23,7 @@
       vars:
         uefi: true
     
-    - name: Create {{ os_name }} bios ks for each server
+    - name: Create {{ ansible_distribution }} bios ks for each server
       template:
         src: "ks.cfg.j2"
         dest: "{{ ks_template_dir }}/{{ item }}.cfg"
@@ -37,7 +37,7 @@
       vars:
         uefi: false
 
-    - name: Create {{ os_name }} uefi ks for each server
+    - name: Create {{ ansible_distribution }} uefi ks for each server
       template:
         src: "ks.cfg.j2"
         dest: "{{ ks_template_dir }}/uefi/{{ item }}.cfg"
@@ -51,7 +51,7 @@
       vars:
         uefi: true
 
-    - name: Default {{ os_name }} PXE Menus
+    - name: Default {{ ansible_distribution }} PXE Menus
       template:
         src: "default.j2"
         dest: "{{ tftp_dir }}/pxelinux.cfg/default"
@@ -61,7 +61,7 @@
         setype: "cobbler_var_lib_t"
       register: tftp
 
-    - name: UEFI {{ os_name }} PXE Menus
+    - name: UEFI {{ ansible_distribution }} PXE Menus
       template:
         src: "grub.cfg.j2"
         dest: "{{ tftp_dir }}/uefi/grub.cfg"
@@ -71,7 +71,7 @@
         setype: "cobbler_var_lib_t"
       register: tftp
 
-    - name: Create {{ os_name }} bios pxe menu for each server
+    - name: Create {{ ansible_distribution }} bios pxe menu for each server
       template:
         src: "default.j2"
         # This takes the mac address from the inventory file for each node.
@@ -86,7 +86,7 @@
       - "{{ groups['servers'] }}"
       when: hostvars[item].pxe_type == 'bios'
 
-    - name: Create {{ os_name }} uefi pxe menu for each server
+    - name: Create {{ ansible_distribution }} uefi pxe menu for each server
       template:
         src: "grub.cfg.j2"
         # This takes the mac address from the inventory file for each node.
@@ -99,6 +99,5 @@
       register: tftp
       with_items:
       - "{{ groups['servers'] }}"
-      when: hostvars[item].pxe_type == 'uefi'
-  when: "'rhel' in os_name or 'centos' in os_name"
+      when: hostvars[item].pxe_type == 'uefi'  
 

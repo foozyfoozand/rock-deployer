@@ -51,6 +51,3 @@
         url: "{{ epel_repo.gpgkeyurl }}"
         dest: "{{ rockoffline_dir }}/{{ epel_repo.name }}"
         mode: 0644
-
-  when: (pull_all_repos is defined and pull_all_repos) 
-    or (pull_additional_repos is defined and pull_additional_repos)

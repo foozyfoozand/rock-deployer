@@ -23,5 +23,3 @@
     path: "{{ ks_template_dir }}/uefi"
 
 - import_tasks: centos_rhel.yml
-- import_tasks: atomic.yml
-- import_tasks: coreos.yml

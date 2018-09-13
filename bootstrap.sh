@@ -32,8 +32,8 @@ if [ -z "$TFPLENUM_BOOTSTRAP_TYPE" ]; then
 fi
 
 if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
-    if [ -z "$USERNAME" ]; then
-        read -p "DI2E Username: "  USERNAME
+    if [ -z "$DIEUSERNAME" ]; then
+        read -p "DI2E Username: "  DIEUSERNAME
     fi
 
     if [ -z "$PASSWORD" ]; then
@@ -45,34 +45,36 @@ if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
             [ "$PASSWORD" = "$PASSWORD2" ] && break
             echo "The passwords do not match.  Please try again."
         done
-    fi    
-
-    if [ $BRANCH_NAME == 'custom' ]; then
-        echo "Please type the name of the custom branch exactly. It is important to note that this branch will 
-        be checked out accross all repos pulled so if the branch doe not exist in each repo pulled, 
-        boostraping the system will fail."
-
-        read -s -p "Branch Name: " BRANCH_NAME
-        export BRANCH_NAME=$BRANCH_NAME
-    fi
+    fi        
 fi
 
-if [ -z "$BRANCH_NAME" ]; then
-    echo "Which branch do you want to checkout for all repos?"
-    select cr in "Master" "Devel" "Custom"; do
-        case $cr in
-            Master ) export BRANCH_NAME=master; break;;
-            Devel ) export BRANCH_NAME=devel; break;;
-            Custom ) export BRANCH_NAME=custom; break;;
-        esac
-    done
+if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
+    if [ -z "$BRANCH_NAME" ]; then
+        echo "Which branch do you want to checkout for all repos?"
+        select cr in "Master" "Devel" "Custom"; do
+            case $cr in
+                Master ) export BRANCH_NAME=master; break;;
+                Devel ) export BRANCH_NAME=devel; break;;
+                Custom ) export BRANCH_NAME=custom; break;;
+            esac
+        done
+
+        if [ $BRANCH_NAME == 'custom' ]; then
+            echo "Please type the name of the custom branch exactly. It is important to note that this branch will 
+            be checked out accross all repos pulled so if the branch doe not exist in each repo pulled, 
+            boostraping the system will fail."
+
+            read -s -p "Branch Name: " BRANCH_NAME
+            export BRANCH_NAME=$BRANCH_NAME
+        fi
+    fi
 fi
 
 function clone_repos(){        
     for i in ${REPOS[@]}; do
         local directory="/opt/$i"
         if [ ! -d "$directory" ]; then
-            git clone https://$USERNAME:$PASSWORD@bitbucket.di2e.net/scm/thisiscvah/$i.git
+            git clone https://$DIEUSERNAME:$PASSWORD@bitbucket.di2e.net/scm/thisiscvah/$i.git
             pushd $directory > /dev/null
             git checkout $BRANCH_NAME
             popd > /dev/null

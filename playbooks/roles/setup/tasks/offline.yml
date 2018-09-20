@@ -25,54 +25,16 @@
   with_items: "{{ rhel_repos }}"
   when: "ansible_distribution == 'RedHat'"
 
-# This loops over a list of dictionaries called additional_offline_repos variable
-# item is the directionary
-# value.<key> gets the value of the key
-# The end result will create several entry in the /etc/yum.repos.d/offline.repo
-# for additional repos (epel, rocknsm, ceph and kubernetes)
-- name: "Configure additional offline repos"
-  yum_repository:    
-    name: "{{ item.value.name }}"
-    description: "{{ item.value.name }} repo"
-    baseurl: "{{ item.value.baseurl }}"
-    enabled: true 
-    gpgcheck: "{{ item.value.gpgcheck}}"
-    gpgkey: "{{ item.value.gpgkey}}"
-    file: "offline"
-  loop: "{{ lookup('dict', additional_offline_repos) }}"
-
-# This loops over a list of dictionaries called rhel_offline_repos variable
-# item is the directionary
-# value.<key> gets the value of the key
-# The end result will create several entry in the /etc/yum.repos.d/offline.repo
-# for additional repos (rhel-7-server-rpms,rhel-7-server-extras-rpms,rhel-7-server-optional-rpms)
-- name: "Configure RHEL offline repos"
-  yum_repository:    
-    name: "{{ item.value.name }}"
-    description: "{{ item.value.name }} repo"
-    baseurl: "{{ item.value.baseurl }}"
-    enabled: true 
-    gpgcheck: "{{ item.value.gpgcheck}}"
-    gpgkey: "{{ item.value.gpgkey}}"
-    file: "offline"
-  loop: "{{ lookup('dict', rhel_offline_repos) }}"
+- name: RedHat Yum Repos
+  template:
+    src: templates/rhel-offline.repo
+    dest: "/etc/yum.repos.d/offline.repo"
   when: "ansible_distribution == 'RedHat'"
 
-# This loops over a list of dictionaries called centos_offline_repos variable
-# item is the directionary
-# value.<key> gets the value of the key
-# The end result will create several entry in the /etc/yum.repos.d/offline.repo
-# for additional repos (base,updates,extras)  
-- name: "Configure CentOS offline repos"
-  yum_repository:
-    name: "{{ item.value.name }}"
-    description: "{{ item.value.name }} repo"
-    baseurl: "{{ item.value.baseurl }}"
-    enabled: true 
-    gpgcheck: "{{ item.value.gpgcheck}}"
-    gpgkey: "{{ item.value.gpgkey}}"
-    file: "offline"
-  loop: "{{ lookup('dict', centos_offline_repos) }}"
+- name: CentOS Yum Repos
+  template:
+    src: templates/centos-offline.repo
+    dest: "/etc/yum.repos.d/offline.repo"
   when: "ansible_distribution == 'CentOS'"
 
 - name: create pip dir

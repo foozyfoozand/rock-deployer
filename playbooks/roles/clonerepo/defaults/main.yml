@@ -19,7 +19,13 @@ gpg_keys:
 
 direct_download_package_names:
   - 'https://download.ceph.com/rpm-luminous/el7/noarch/ceph-deploy-1.5.39-0.noarch.rpm'
-  - 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm'
-  #- 'https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64'
+  - 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm'  
   - 'https://storage.googleapis.com/harbor-releases/release-{{ harbor_version }}/harbor-online-installer-v{{ harbor_version }}.tgz'
   - 'https://github.com/docker/compose/releases/download/1.21.0/docker-compose-Linux-x86_64'
+
+
+labrepo_direct_download_package_names:
+  - 'http://misc.labrepo.lan/ceph-deploy-1.5.39-0.noarch.rpm'
+  - 'http://misc.labrepo.lan/epel-release-latest-7.noarch.rpm' 
+  - 'http://misc.labrepo.lan/harbor-online-installer-v1.4.0.tgz'
+  - 'http://misc.labrepo.lan/docker-compose-Linux-x86_64'

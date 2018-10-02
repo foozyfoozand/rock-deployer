@@ -148,17 +148,32 @@
     timeout: 20
 
 - name: Get docker images from online
-  block:    
-    - name: 'Download docker container images'
-      docker_image:
-        name: "{{item}}"
-      with_items:
-        - "{{ kube_images }}"
+  block:
+    - block:
+      - name: 'Download docker container images from internet'
+        docker_image:
+          name: "{{item}}"
+        with_items:
+          - "{{ kube_images }}"
+        
+      - name: 'Tag local images for upload to harbor'
+        shell: "docker tag {{ item }} {{ server_ip }}:{{ harbor_firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
+        with_items:
+          - "{{ kube_images }}"
+      when: TFPLENUM_LABREPO == false
+    
+    - block:
+      - name: 'Download docker container images from labrepo'
+        docker_image:
+          name: "docker.labrepo.lan/{{ item }}"
+        with_items:
+          - "{{ kube_images }}"       
 
-    - name: 'Tag local images for upload to harbor'
-      shell: "docker tag {{ item }} {{ server_ip }}:{{ harbor_firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
-      with_items:
-        - "{{ kube_images }}"
+      - name: 'Tag local images for upload to harbor'
+        shell: "docker tag docker.labrepo.lan/{{ item }} {{ server_ip }}:{{ harbor_firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
+        with_items:
+          - "{{ kube_images }}"
+      when: TFPLENUM_LABREPO
 
     - name: 'Upload local images to harbor'
       docker_image:

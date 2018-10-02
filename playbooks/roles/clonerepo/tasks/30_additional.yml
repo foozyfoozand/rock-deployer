@@ -20,11 +20,11 @@
         name: "{{ item.value.name }}"        
       loop: "{{ lookup('dict', additional_repo_info) }}"
 
-    - name: "Mirror Additional repositories"
+    - name: "Mirror Additional repositories from internet"
       shell: "reposync --repoid={{ item.value.name }} --download_path={{ item.value.download_path }} --download-metadata --downloadcomps --allow-path-traversal"
       loop: "{{ lookup('dict', additional_repo_info) }}"
     
-    - name: "Mirror Epel repositories"
+    - name: "Mirror Epel repositories from internet"
       shell: "reposync --repoid={{ epel_repo.name }} --download_path={{ epel_repo.download_path }} --download-metadata --downloadcomps"
 
     - name: move pool to kubernetes dir
@@ -51,3 +51,34 @@
         url: "{{ epel_repo.gpgkeyurl }}"
         dest: "{{ rockoffline_dir }}/{{ epel_repo.name }}"
         mode: 0644
+  when: TFPLENUM_LABREPO == false
+
+- name: Additional Repos 
+  block:
+    - name: "Mirror Additional repositories from labrepo"
+      shell: "reposync --repoid={{ item.value.name }} --download_path={{ item.value.download_path }} --download-metadata --downloadcomps --allow-path-traversal"
+      loop: "{{ lookup('dict', additional_repo_info) }}"
+    
+    - name: "Mirror Epel repositories from labrepo"
+      shell: "reposync --repoid={{ epel_repo.name }} --download_path={{ epel_repo.download_path }} --download-metadata --downloadcomps"
+
+    - name: move pool to kubernetes dir
+      file:
+        path: "{{ rockoffline_dir }}/{{ additional_repo_info['kube']['name'] }}"
+        state: "absent"
+
+    - name: Force Symlink to k8s directory
+      file: 
+        path: "{{ rockoffline_dir }}/{{ additional_repo_info['kube']['name'] }}" 
+        src: "{{ rockoffline_dir }}/tmp/kubernetes"
+        state: link 
+        force: yes
+
+    # - name: get gpgkeys
+    #   get_url:
+    #     url: "{{ item.value.gpgkeyurl }}"
+    #     dest: "{{ rockoffline_dir }}/{{ item.value.name }}"
+    #     mode: 0644
+    #   loop: "{{ lookup('dict', labrepo_gpg_keys) }}"
+
+  when: TFPLENUM_LABREPO

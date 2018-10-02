@@ -91,6 +91,35 @@ epel_repo:
     failovermethod: "priority"
     download_path: "{{ rockoffline_dir }}"
 
+labrepo_gpg_keys: 
+  epel:  
+    name: "epel"    
+    gpgkeyurl: "http://yum.labrepo.lan/epel/RPM-GPG-KEY-EPEL-7"
+    gpgkeyname:  "RPM-GPG-KEY-EPEL-7"
+  kube:
+    name: "kubernetes"    
+    gpgkeyurl: "http://yum.labrepo.lan/kubernetes/yum-key.gpg"
+    gpgkeyname: "yum-key.gpg"    
+  rocknsm:
+    name: "rocknsm"    
+    gpgkeyurl: "http://yum.labrepo.lan/rocknsm/pubkey.gpg"
+    gpgkeyname: "pubkey.gpg"    
+  ceph_base:
+    name: "ceph_base"   
+    gpgkeyurl: "http://yum.labrepo.lan/ceph_base/release.asc"
+    gpgkeyname: "release.asc"    
+  ceph_noarch:
+    name: "ceph_noarch"    
+    gpgkeyurl: "http://yum.labrepo.lan/ceph_noarch/release.asc"
+    gpgkeyname: "release.asc"    
+  ceph_srpms:
+    name: "ceph_srpms"    
+    gpgkeyurl: "http://yum.labrepo.lan/ceph_srpms/release.asc"
+    gpgkeyname: "release.asc"    
+  mongo:
+    name: "mongodb-org-4.0"    
+    gpgkeyurl: "http://yum.labrepo.lan/mongodb-org-4.0/server-4.0.asc"
+    gpgkeyname: "server-4.0.asc"
 
 bootstrap_package_names:
   - yum-utils
@@ -115,5 +144,10 @@ iso_centos_checksum: 714acc0aefb32b7d51b515e25546835e55a90da9fb00417fbee2d03a628
 iso_rhel_pth: /root/rhel-server-7.5-x86_64-dvd.iso
 iso_rhel_checksum: d0dd6ae5e001fb050dafefdfd871e7e648b147fb2d35f0e106e0b34a0163e8f5
 iso_url: http://mirrors.mit.edu/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1804.iso
+labrepo_centos_iso_url: http://isos.labrepo.lan/CentOS-7-x86_64-Minimal-1804.iso
+labrepo_rhel_iso_url: http://isos.labrepo.lan/rhel-server-7.5-x86_64-dvd.iso
+
+# If env doesnt exist it will default to false
+TFPLENUM_LABREPO: "{{ lookup('env','TFPLENUM_LABREPO')|default(false, true) }}"
 
 ...

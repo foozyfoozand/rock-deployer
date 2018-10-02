@@ -1,10 +1,20 @@
 ---
-- name: Download Elasticdump
-  npm:
-    name: elasticdump
-    path: /tmp
+- block:
+  - name: Download Elasticdump
+    npm:
+      name: elasticdump
+      path: /tmp
 
-- name: Pack node modules dir
-  archive:
-    path: "/tmp/node_modules"
-    dest: "{{ rockoffline_dir }}/elasticdump.tar.gz"
+  - name: Pack node modules dir
+    archive:
+      path: "/tmp/node_modules"
+      dest: "{{ rockoffline_dir }}/elasticdump.tar.gz"
+  when: TFPLENUM_LABREPO == false
+
+- block:
+  - name: Download elasticdump tar from labrepo
+    get_url:
+      url: http://misc.labrepo.lan/elasticdump.tar.gz
+      dest: "{{ rockoffline_dir }}/elasticdump.tar.gz"
+      mode: 0664
+  when: TFPLENUM_LABREPO

@@ -1,6 +1,10 @@
 ---
 
 - import_tasks: online.yml
+  when: TFPLENUM_LABREPO == false
+
+- import_tasks: labrepo.yml     
+  when: TFPLENUM_LABREPO
 
 - name: "Install required packages"
   yum:

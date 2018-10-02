@@ -1,25 +1,30 @@
 ---
-- name: RHEL
-  block:
+- block:
+  - block:
     - name: Check to see if controller is subscribed
       shell: "subscription-manager status | grep -i 'overall status' | awk '{ print $3 }'"
       register: sub_status
-
     - name: Errr
       fail:
         msg: "ansible controller is not subscribed.  Include rhel_activation_key and rhel_org_id to subscribe."
-      when: "'Current' not in sub_status.stdout and (rhel_activation_key is not defined or rhel_org_id is not defined)"    
-
+      when: "'Current' not in sub_status.stdout and sub_status is defined and (rhel_activation_key is not defined or rhel_org_id is not defined)"
     - name: Enable rhel repos
       rhsm_repository:
         name: "{{ item }}"
         state: enabled
       with_items:
-      - "{{ rhel_repos }}"
-
+        - "{{ rhel_repos }}"
     - name: "Mirror RHEL repositories"
       shell: "reposync --repoid={{ item }} --download_path={{ rockoffline_dir }} --download-metadata --downloadcomps"
       with_items:
-      - "{{ rhel_repos }}"
-      
+        - "{{ rhel_repos }}"
+    when: TFPLENUM_LABREPO == false
+
+
+  - block:    
+    - name: "Mirror RHEL repositories"
+      shell: "reposync --repoid={{ item }} --download_path={{ rockoffline_dir }} --download-metadata --downloadcomps"
+      with_items: "{{ rhel_repos }}"
+
+    when: TFPLENUM_LABREPO
   when: (pull_rhel_repos is defined and pull_rhel_repos)

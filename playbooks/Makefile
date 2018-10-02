@@ -40,5 +40,5 @@ bootstrap:
 	@echo $(TFPLENUM_REDHAT_SUBSCRIPTION)
 
 	$(if $(filter $(TFPLENUM_OS_TYPE),Centos),\
-	ansible-playbook $(PLAYBOOK) -i localhost -e '{ pull_centos_repos: true }' -e '{ pull_rhel_repos: false }' -e '{ server_ip: "127.0.0.1"}' -t bootstrap,\
-	ansible-playbook $(PLAYBOOK) -i localhost -e '{ pull_centos_repos: false }' -e '{ pull_rhel_repos: true }' -e '{ server_ip: "127.0.0.1"}' -t bootstrap)
+	ansible-playbook $(PLAYBOOK) -i localhost -e '{ pull_centos_repos: true }' -e '{ pull_rhel_repos: false }' -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t bootstrap,\
+	ansible-playbook $(PLAYBOOK) -i localhost -e '{ pull_centos_repos: false }' -e '{ pull_rhel_repos: true }' -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t bootstrap)

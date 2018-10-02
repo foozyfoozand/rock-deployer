@@ -16,18 +16,38 @@
     owner: root
     group: root
 
-- name: "Download all other direct download files into local repository, including dependencies"
-  get_url:
-    url: "{{ item }}" 
-    dest: "{{ rockoffline_dir }}/misc"
-  with_items:
-    - "{{ direct_download_package_names }}"
-  when: "'.rpm' in item"
+- block:
+  - name: "Download all other direct download files into local repository, including dependencies"
+    get_url:
+      url: "{{ item }}" 
+      dest: "{{ rockoffline_dir }}/misc"
+    with_items:
+      - "{{ direct_download_package_names }}"
+    when: "'.rpm' in item"
 
-- name: "Download all other direct download files into local repository, including dependencies"
-  get_url:
-    url: "{{ item }}" 
-    dest: "{{ rockoffline_dir }}"
-  with_items:
-    - "{{ direct_download_package_names }}"
-  when: "'.rpm' not in item"
+  - name: "Download all other direct download files into local repository, including dependencies"
+    get_url:
+      url: "{{ item }}" 
+      dest: "{{ rockoffline_dir }}"
+    with_items:
+      - "{{ direct_download_package_names }}"
+    when: "'.rpm' not in item"
+  when: TFPLENUM_LABREPO == false
+
+- block:
+  - name: "Download all other direct download files into local repository, including dependencies from labrepo"
+    get_url:
+      url: "{{ item }}" 
+      dest: "{{ rockoffline_dir }}/misc"
+    with_items:
+      - "{{ labrepo_direct_download_package_names }}"
+    when: "'.rpm' in item"
+
+  - name: "Download all other direct download files into local repository, including dependencies from labrepo"
+    get_url:
+      url: "{{ item }}" 
+      dest: "{{ rockoffline_dir }}"
+    with_items:
+      - "{{ labrepo_direct_download_package_names }}"
+    when: "'.rpm' not in item"
+  when: TFPLENUM_LABREPO

@@ -68,7 +68,6 @@
     path: "~/.pip"
     state: absent
 
-
 - name: Enable RHEL License
   replace:    
     path: "/etc/yum/pluginconf.d/subscription-manager.conf"

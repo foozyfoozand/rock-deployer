@@ -21,6 +21,47 @@ function run_cmd {
 	fi	
 }
 
+function check_labrepos {
+    if [ -z "$TFPLENUM_LABREPO" ]; then
+        echo "Do you want to use labrepo for downloads? (Requires Dev Network)"
+        select cr in "YES" "NO"; do
+            case $cr in
+                YES ) export TFPLENUM_LABREPO=true; break;;
+                NO ) export TFPLENUM_LABREPO=false; break;;
+            esac
+        done
+    fi
+
+    if [ "$TFPLENUM_LABREPO" == true ]; then
+        local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
+        rm -rf /etc/yum.repos.d/*offline*
+        rm -rf /etc/yum.repos.d/labrepo*
+        if [ "$os_id" == '"centos"' ]; then
+            run_cmd curl -s -o /etc/yum.repos.d/labrepo-centos.repo http://yum.labrepo.lan/labrepo-centos.repo
+        else
+            run_cmd curl -s -o /etc/yum.repos.d/labrepo-rhel.repo http://yum.labrepo.lan/labrepo-rhel.repo
+        fi    
+        yum clean all
+        rm -rf /var/cache/yum/
+    fi
+}
+
+function get_controller_ip {
+    if [ -z "$TFPLENUM_SERVER_IP" ]; then
+        while true; do
+            read -p "Enter the controller's ip address: " SERVER_IP
+            run_cmd ip a | grep $SERVER_IP
+            retVal=$?
+            if [ "$retVal" == 0 ]; then
+              export TFPLENUM_SERVER_IP=$SERVER_IP
+              break
+            else
+              echo "Error Unable to locate network interface with specified ip address. Verify the interface is configured correctly."
+            fi
+        done
+    fi
+}
+
 if [ -z "$TFPLENUM_BOOTSTRAP_TYPE" ]; then
     echo "How do you want to bootstrap your controller?"
     select cr in "REPOS" "RPMs"; do
@@ -64,7 +105,7 @@ if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
             be checked out accross all repos pulled so if the branch doe not exist in each repo pulled, 
             boostraping the system will fail."
 
-            read -s -p "Branch Name: " BRANCH_NAME
+            read -p "Branch Name: " BRANCH_NAME
             export BRANCH_NAME=$BRANCH_NAME
         fi
     fi
@@ -84,10 +125,11 @@ function clone_repos(){
 
 function bootstrap_repos(){
     clone_repos
-    run_cmd /opt/tfplenum-frontend/setup/setup.sh
+    # run_cmd /opt/tfplenum-frontend/setup/setup.sh
 }
 
 function _install_and_start_mongo40 {
+    if [ "$TFPLENUM_LABREPO" == false ]; then
 cat <<EOF > /etc/yum.repos.d/mongodb-org-4.0.repo
 [mongodb-org-4.0]
 name=MongoDB Repository
@@ -96,16 +138,21 @@ gpgcheck=1
 enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-4.0.asc
 EOF
+    fi
+
 	run_cmd yum install -y mongodb-org
 	run_cmd systemctl enable mongod
 }
 
 function bootstrap_rpms(){    
     _install_and_start_mongo40
-    run_cmd wget http://172.16.82.14/THISISCVAH-RPMS/tfplenum-3.2.1-23.x86_64.rpm
-    run_cmd wget http://172.16.82.14/THISISCVAH-RPMS/tfplenum-deployer-3.2.1-23.x86_64.rpm
-    run_cmd wget http://172.16.82.14/THISISCVAH-RPMS/tfplenum-frontend-3.2.1-23.x86_64.rpm
-    run_cmd yum -y install *.rpm
+    #run_cmd curl -o tfplenum-3.2.1-23.x86_64.rpm http://yum.labrepo.lan/tfplenum/latest/tfplenum-3.2.1-23.x86_64.rpm
+    #run_cmd curl -o tfplenum-deployer-3.2.1-23.x86_64.rpm http://yum.labrepo.lan/THISISCVAH-RPMS/tfplenum-deployer-3.2.1-23.x86_64.rpm
+    #run_cmd curl -o tfplenum-frontend-3.2.1-23.x86_64.rpm http://yum.labrepo.lan/THISISCVAH-RPMS/tfplenum-frontend-3.2.1-23.x86_64.rpm
+    if [ "$TFPLENUM_LABREPO" == true ]; then
+        run_cmd yum -y install tfplenum*
+        
+    fi
 }
 
 function execute_pre(){
@@ -118,22 +165,36 @@ function execute_pre(){
         run_cmd yum -y install $PACKAGES
     else
         echo "Bootstrapping Rhel"
-        if [ -z "$RHEL_ORGANIZATION" ]; then
-            read -p 'Please enter your RHEL org number (EX: Its the --org flag for the subscription-manager command): ' orgnumber
-            export RHEL_ORGANIZATION=$orgnumber
-        fi
-        
-        if [ -z "$RHEL_ACTIVATIONKEY" ]; then
-            read -p 'Please enter your RHEL activation key (EX: Its the --activationkey flag for the subscription-manager command):: ' activationkey
-            export RHEL_ACTIVATIONKEY=$activationkey
-        fi
+        if [ "$TFPLENUM_LABREPO" == false ]; then
 
-        subscription-manager register --activationkey=$activationkey --org=$orgnumber
-        run_cmd wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-        rpm -ivh epel-release-latest-7.noarch.rpm
+            subscription_status=`subscription-manager status | grep 'Overall Status:' | awk '{ print $3 }'`
+            
+            if [ "$subscription_status" != 'Current' ]; then
+                    
+                if [ -z "$RHEL_ORGANIZATION" ]; then
+                    read -p 'Please enter your RHEL org number (EX: Its the --org flag for the subscription-manager command): ' orgnumber
+                    export RHEL_ORGANIZATION=$orgnumber
+                fi
+                
+                if [ -z "$RHEL_ACTIVATIONKEY" ]; then
+                    read -p 'Please enter your RHEL activation key (EX: Its the --activationkey flag for the subscription-manager command): ' activationkey
+                    export RHEL_ACTIVATIONKEY=$activationkey
+                fi
+
+                subscription-manager register --activationkey=$activationkey --org=$orgnumber
+
+            fi        
+            run_cmd curl -s -o epel-release-latest-7.noarch.rpm https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+            rpm -ivh epel-release-latest-7.noarch.rpm
+        else
+            run_cmd curl -s -o epel-release-latest-7.noarch.rpm http://misc.labrepo.lan/epel-release-latest-7.noarch.rpm
+            rpm -e epel-release-latest-7.noarch.rpm
+            yum remove epel-release -y
+        fi
+                
         run_cmd yum -y update
         run_cmd yum -y install $PACKAGES
-    fi    
+    fi
 }
 
 function execute_bootstrap_playbook(){
@@ -148,6 +209,9 @@ function execute_bootstrap_playbook(){
     make bootstrap
     popd > /dev/null
 }
+
+check_labrepos
+get_controller_ip
 
 execute_pre
 

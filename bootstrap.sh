@@ -2,6 +2,9 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 PACKAGES="git vim net-tools wget ansible"
 
+# Default to repos for now
+export TFPLENUM_BOOTSTRAP_TYPE=repos
+
 pushd "/opt" > /dev/null
 
 if [ "$EUID" -ne 0 ]
@@ -62,15 +65,15 @@ function get_controller_ip {
     fi
 }
 
-if [ -z "$TFPLENUM_BOOTSTRAP_TYPE" ]; then
-    echo "How do you want to bootstrap your controller?"
-    select cr in "REPOS" "RPMs"; do
-        case $cr in
-            REPOS ) export TFPLENUM_BOOTSTRAP_TYPE=repos; break;;
-            RPMs ) export TFPLENUM_BOOTSTRAP_TYPE=rpms; break;;
-        esac
-    done
-fi
+#if [ -z "$TFPLENUM_BOOTSTRAP_TYPE" ]; then
+#    echo "How do you want to bootstrap your controller?"
+#    select cr in "REPOS" "RPMs"; do
+#        case $cr in
+#            REPOS ) export TFPLENUM_BOOTSTRAP_TYPE=repos; break;;
+#            RPMs ) export TFPLENUM_BOOTSTRAP_TYPE=rpms; break;;
+#        esac
+#    done
+#fi
 
 if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
     if [ -z "$DIEUSERNAME" ]; then
@@ -91,6 +94,7 @@ fi
 
 if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
     if [ -z "$BRANCH_NAME" ]; then
+        echo "WARNING: Any existing tfplenum directories in /opt will be removed."
         echo "Which branch do you want to checkout for all repos?"
         select cr in "Master" "Devel" "Custom"; do
             case $cr in
@@ -114,10 +118,15 @@ fi
 function clone_repos(){        
     for i in ${REPOS[@]}; do
         local directory="/opt/$i"
+        if [ -d "$directory" ]; then
+            rm -rf $directory
+        fi
         if [ ! -d "$directory" ]; then
             git clone https://$DIEUSERNAME:$PASSWORD@bitbucket.di2e.net/scm/thisiscvah/$i.git
             pushd $directory > /dev/null
             git checkout $BRANCH_NAME
+            git remote set-url origin https://bitbucket.di2e.net/scm/thisiscvah/$i.git
+            git config --global --unset credential.helper
             popd > /dev/null
         fi
     done

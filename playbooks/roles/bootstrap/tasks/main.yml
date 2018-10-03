@@ -1,5 +1,8 @@
 ---
 
+- set_fact:
+    BOOTSTRAP: true
+
 - import_tasks: online.yml
   when: TFPLENUM_LABREPO == false
 

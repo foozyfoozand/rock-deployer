@@ -3,6 +3,11 @@
 #######################################################
 ---
 
+- name: Check if ran by bootstrap
+  fail:
+    msg: 'Clonerepos role must be run using bootstrap script'
+  when: BOOTSTRAP == false
+
 - name: Import tfplenum variables
   include_vars:
     file: "{{ tfplenum_vars }}"

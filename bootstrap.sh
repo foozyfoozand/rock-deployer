@@ -24,7 +24,7 @@ function run_cmd {
 	fi	
 }
 
-function use_laprepos {
+function use_laprepos() {
     if [ -z "$TFPLENUM_LABREPO" ]; then
         echo "Do you want to use labrepo for downloads? (Requires Dev Network)"
         select cr in "YES" "NO"; do
@@ -49,7 +49,7 @@ function use_laprepos {
     fi
 }
 
-function get_controller_ip {
+function get_controller_ip() {
     if [ -z "$TFPLENUM_SERVER_IP" ]; then
         while true; do
             read -p "Enter the controller's ip address: " SERVER_IP
@@ -75,7 +75,7 @@ function get_controller_ip {
 #    done
 #fi
 
-function set_git_variables {    
+function set_git_variables() {    
     if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
         if [ -z "$DIEUSERNAME" ]; then
             read -p "DI2E Username: "  DIEUSERNAME
@@ -232,7 +232,9 @@ function prompts(){
     local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
     get_controller_ip
     use_laprepos
-    subscription_prompts
+    if [ "$os_id" == '"rhel"' ]; then
+        subscription_prompts
+    fi
     if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
         set_git_variables
     fi

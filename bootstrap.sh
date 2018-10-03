@@ -24,7 +24,7 @@ function run_cmd {
 	fi	
 }
 
-function check_labrepos {
+function use_laprepos {
     if [ -z "$TFPLENUM_LABREPO" ]; then
         echo "Do you want to use labrepo for downloads? (Requires Dev Network)"
         select cr in "YES" "NO"; do
@@ -37,15 +37,15 @@ function check_labrepos {
 
     if [ "$TFPLENUM_LABREPO" == true ]; then
         local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
-        rm -rf /etc/yum.repos.d/*offline*
-        rm -rf /etc/yum.repos.d/labrepo*
+        rm -rf /etc/yum.repos.d/*offline* > /dev/null
+        rm -rf /etc/yum.repos.d/labrepo* > /dev/null
         if [ "$os_id" == '"centos"' ]; then
             run_cmd curl -s -o /etc/yum.repos.d/labrepo-centos.repo http://yum.labrepo.lan/labrepo-centos.repo
         else
             run_cmd curl -s -o /etc/yum.repos.d/labrepo-rhel.repo http://yum.labrepo.lan/labrepo-rhel.repo
         fi    
-        yum clean all
-        rm -rf /var/cache/yum/
+        yum clean all > /dev/null
+        rm -rf /var/cache/yum/ > /dev/null
     fi
 }
 
@@ -53,7 +53,7 @@ function get_controller_ip {
     if [ -z "$TFPLENUM_SERVER_IP" ]; then
         while true; do
             read -p "Enter the controller's ip address: " SERVER_IP
-            run_cmd ip a | grep $SERVER_IP
+            run_cmd ip a | grep $SERVER_IP > /dev/null
             retVal=$?
             if [ "$retVal" == 0 ]; then
               export TFPLENUM_SERVER_IP=$SERVER_IP
@@ -75,45 +75,47 @@ function get_controller_ip {
 #    done
 #fi
 
-if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
-    if [ -z "$DIEUSERNAME" ]; then
-        read -p "DI2E Username: "  DIEUSERNAME
+function set_git_variables {    
+    if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
+        if [ -z "$DIEUSERNAME" ]; then
+            read -p "DI2E Username: "  DIEUSERNAME
+        fi
+
+        if [ -z "$PASSWORD" ]; then
+            while true; do
+                read -s -p "DI2E Password: " PASSWORD
+                echo
+                read -s -p "DI2E Password (again): " PASSWORD2
+                echo
+                [ "$PASSWORD" = "$PASSWORD2" ] && break
+                echo "The passwords do not match.  Please try again."
+            done
+        fi        
     fi
 
-    if [ -z "$PASSWORD" ]; then
-        while true; do
-            read -s -p "DI2E Password: " PASSWORD
-            echo
-            read -s -p "DI2E Password (again): " PASSWORD2
-            echo
-            [ "$PASSWORD" = "$PASSWORD2" ] && break
-            echo "The passwords do not match.  Please try again."
-        done
-    fi        
-fi
+    if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
+        if [ -z "$BRANCH_NAME" ]; then
+            echo "WARNING: Any existing tfplenum directories in /opt will be removed."
+            echo "Which branch do you want to checkout for all repos?"
+            select cr in "Master" "Devel" "Custom"; do
+                case $cr in
+                    Master ) export BRANCH_NAME=master; break;;
+                    Devel ) export BRANCH_NAME=devel; break;;
+                    Custom ) export BRANCH_NAME=custom; break;;
+                esac
+            done
 
-if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
-    if [ -z "$BRANCH_NAME" ]; then
-        echo "WARNING: Any existing tfplenum directories in /opt will be removed."
-        echo "Which branch do you want to checkout for all repos?"
-        select cr in "Master" "Devel" "Custom"; do
-            case $cr in
-                Master ) export BRANCH_NAME=master; break;;
-                Devel ) export BRANCH_NAME=devel; break;;
-                Custom ) export BRANCH_NAME=custom; break;;
-            esac
-        done
+            if [ $BRANCH_NAME == 'custom' ]; then
+                echo "Please type the name of the custom branch exactly. It is important to note that this branch will 
+                be checked out accross all repos pulled so if the branch doe not exist in each repo pulled, 
+                boostraping the system will fail."
 
-        if [ $BRANCH_NAME == 'custom' ]; then
-            echo "Please type the name of the custom branch exactly. It is important to note that this branch will 
-            be checked out accross all repos pulled so if the branch doe not exist in each repo pulled, 
-            boostraping the system will fail."
-
-            read -p "Branch Name: " BRANCH_NAME
-            export BRANCH_NAME=$BRANCH_NAME
+                read -p "Branch Name: " BRANCH_NAME
+                export BRANCH_NAME=$BRANCH_NAME
+            fi
         fi
     fi
-fi
+}
 
 function clone_repos(){        
     for i in ${REPOS[@]}; do
@@ -153,14 +155,33 @@ EOF
 	run_cmd systemctl enable mongod
 }
 
-function bootstrap_rpms(){    
-    _install_and_start_mongo40
-    #run_cmd curl -o tfplenum-3.2.1-23.x86_64.rpm http://yum.labrepo.lan/tfplenum/latest/tfplenum-3.2.1-23.x86_64.rpm
-    #run_cmd curl -o tfplenum-deployer-3.2.1-23.x86_64.rpm http://yum.labrepo.lan/THISISCVAH-RPMS/tfplenum-deployer-3.2.1-23.x86_64.rpm
-    #run_cmd curl -o tfplenum-frontend-3.2.1-23.x86_64.rpm http://yum.labrepo.lan/THISISCVAH-RPMS/tfplenum-frontend-3.2.1-23.x86_64.rpm
-    if [ "$TFPLENUM_LABREPO" == true ]; then
-        run_cmd yum -y install tfplenum*
+# function bootstrap_rpms(){    
+#     _install_and_start_mongo40
+#     #run_cmd curl -o tfplenum-3.2.1-23.x86_64.rpm http://yum.labrepo.lan/tfplenum/latest/tfplenum-3.2.1-23.x86_64.rpm
+#     #run_cmd curl -o tfplenum-deployer-3.2.1-23.x86_64.rpm http://yum.labrepo.lan/THISISCVAH-RPMS/tfplenum-deployer-3.2.1-23.x86_64.rpm
+#     #run_cmd curl -o tfplenum-frontend-3.2.1-23.x86_64.rpm http://yum.labrepo.lan/THISISCVAH-RPMS/tfplenum-frontend-3.2.1-23.x86_64.rpm
+#     if [ "$TFPLENUM_LABREPO" == true ]; then
+#         run_cmd yum -y install tfplenum*
         
+#     fi
+# }
+
+function subscription_prompts(){
+    if [ "$TFPLENUM_LABREPO" == false ]; then
+        subscription_status=`subscription-manager status | grep 'Overall Status:' | awk '{ print $3 }'`
+            
+        if [ "$subscription_status" != 'Current' ]; then
+                    
+            if [ -z "$RHEL_ORGANIZATION" ]; then
+                read -p 'Please enter your RHEL org number (EX: Its the --org flag for the subscription-manager command): ' orgnumber
+                export RHEL_ORGANIZATION=$orgnumber
+            fi
+                
+            if [ -z "$RHEL_ACTIVATIONKEY" ]; then
+                read -p 'Please enter your RHEL activation key (EX: Its the --activationkey flag for the subscription-manager command): ' activationkey
+                export RHEL_ACTIVATIONKEY=$activationkey
+            fi
+        fi
     fi
 }
 
@@ -174,25 +195,9 @@ function execute_pre(){
         run_cmd yum -y install $PACKAGES
     else
         echo "Bootstrapping Rhel"
-        if [ "$TFPLENUM_LABREPO" == false ]; then
-
-            subscription_status=`subscription-manager status | grep 'Overall Status:' | awk '{ print $3 }'`
-            
-            if [ "$subscription_status" != 'Current' ]; then
-                    
-                if [ -z "$RHEL_ORGANIZATION" ]; then
-                    read -p 'Please enter your RHEL org number (EX: Its the --org flag for the subscription-manager command): ' orgnumber
-                    export RHEL_ORGANIZATION=$orgnumber
-                fi
-                
-                if [ -z "$RHEL_ACTIVATIONKEY" ]; then
-                    read -p 'Please enter your RHEL activation key (EX: Its the --activationkey flag for the subscription-manager command): ' activationkey
-                    export RHEL_ACTIVATIONKEY=$activationkey
-                fi
-
-                subscription-manager register --activationkey=$activationkey --org=$orgnumber
-
-            fi        
+        if [ "$TFPLENUM_LABREPO" == false ]; then        
+            subscription-manager register --activationkey=$RHEL_ACTIVATIONKEY --org=$RHEL_ORGANIZATION
+        
             run_cmd curl -s -o epel-release-latest-7.noarch.rpm https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
             rpm -ivh epel-release-latest-7.noarch.rpm
         else
@@ -219,17 +224,31 @@ function execute_bootstrap_playbook(){
     popd > /dev/null
 }
 
-check_labrepos
-get_controller_ip
+function prompts(){
+    clear
+    echo "---------------------------"
+    echo "TFPLENUM DEPLOYER BOOTSTRAP"
+    echo "---------------------------"
+    local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
+    get_controller_ip
+    use_laprepos
+    subscription_prompts
+    if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
+        set_git_variables
+    fi
 
+}
+
+prompts
+clear
 execute_pre
 
-if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
+if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then    
     bootstrap_repos
-else
-    bootstrap_rpms
+# else
+#     bootstrap_rpms
 fi
-
+clear
 execute_bootstrap_playbook
 
 popd > /dev/null

@@ -35,6 +35,9 @@ harbor-online-sync:
 generate-profiles:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,kickstart,profiles
 
+pull-docker-images:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t pull-docker-images
+
 bootstrap:		
 	@echo $(TFPLENUM_OS_TYPE)
 	@echo $(TFPLENUM_REDHAT_SUBSCRIPTION)

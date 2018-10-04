@@ -11,6 +11,7 @@
 - name: Import tfplenum variables
   include_vars:
     file: "{{ tfplenum_vars }}"
+  tags: pull-docker-images
 
 - name: "Create directory for harbor"
   file:
@@ -167,6 +168,7 @@
         with_items:
           - "{{ kube_images }}"
       when: TFPLENUM_LABREPO == false
+      tags: pull-docker-images
     
     - block:
       - name: 'Download docker container images from labrepo'
@@ -180,6 +182,7 @@
         with_items:
           - "{{ kube_images }}"
       when: TFPLENUM_LABREPO
+      tags: pull-docker-images
 
     - name: 'Upload local images to harbor'
       docker_image:
@@ -187,6 +190,7 @@
         push: yes
         pull: no
       with_items:
-        - "{{ kube_images }}"  
+        - "{{ kube_images }}"
+      tags: pull-docker-images
 
 ...

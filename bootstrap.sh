@@ -40,9 +40,9 @@ function use_laprepos() {
         rm -rf /etc/yum.repos.d/*offline* > /dev/null
         rm -rf /etc/yum.repos.d/labrepo* > /dev/null
         if [ "$os_id" == '"centos"' ]; then
-            run_cmd curl -s -o /etc/yum.repos.d/labrepo-centos.repo http://yum.labrepo.lan/labrepo-centos.repo
+            run_cmd curl -m 10 -s -o /etc/yum.repos.d/labrepo-centos.repo http://yum.labrepo.lan/labrepo-centos.repo
         else
-            run_cmd curl -s -o /etc/yum.repos.d/labrepo-rhel.repo http://yum.labrepo.lan/labrepo-rhel.repo
+            run_cmd curl -m 10 -s -o /etc/yum.repos.d/labrepo-rhel.repo http://yum.labrepo.lan/labrepo-rhel.repo
         fi    
         yum clean all > /dev/null
         rm -rf /var/cache/yum/ > /dev/null

@@ -30,6 +30,22 @@ function use_laprepos() {
     fi
 }
 
+function get_controller_ip() {
+    if [ -z "$TFPLENUM_SERVER_IP" ]; then
+        while true; do
+            read -p "Enter the controller's ip address: " SERVER_IP
+            run_cmd ip a | grep $SERVER_IP > /dev/null
+            retVal=$?
+            if [ "$retVal" == 0 ]; then
+              export TFPLENUM_SERVER_IP=$SERVER_IP
+              break
+            else
+              echo "Error Unable to locate network interface with specified ip address. Verify the interface is configured correctly."
+            fi
+        done
+    fi
+}
+
 function execute_playbook(){
     pushd "/opt/tfplenum-deployer/playbooks" > /dev/null
     local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
@@ -44,4 +60,5 @@ function execute_playbook(){
 }
 
 use_laprepos
+get_controller_ip
 execute_playbook

@@ -136,7 +136,7 @@ function clone_repos(){
 
 function bootstrap_repos(){
     clone_repos
-    # run_cmd /opt/tfplenum-frontend/setup/setup.sh
+    run_cmd /opt/tfplenum-frontend/setup/setup.sh
 }
 
 function _install_and_start_mongo40 {

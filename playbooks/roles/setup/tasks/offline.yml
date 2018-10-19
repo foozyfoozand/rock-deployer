@@ -24,6 +24,7 @@
     state: disabled
   with_items: "{{ rhel_repos }}"
   when: "ansible_distribution == 'RedHat'"
+  ignore_errors: yes
 
 - name: RedHat Yum Repos
   template:

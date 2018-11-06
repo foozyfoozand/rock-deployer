@@ -23,5 +23,3 @@
 - name: Execute harbor role.  
   include_role: 
     name: harbor
-
-- import_tasks: offline.yml

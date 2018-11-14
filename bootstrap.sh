@@ -169,9 +169,15 @@ function subscription_prompts(){
 
 function setup_git(){
   if ! rpm -q git > /dev/null 2>&1 ; then
-    yum install git -y
+    yum install git -y > /dev/null 2>&1
   fi
   git config --global credential.helper cache
+}
+
+function check_ansible(){
+  if rpm -q ansible > /dev/null 2>&1 ; then
+    yum remove ansible -y > /dev/null 2>&1
+  fi
 }
 
 function execute_pre(){
@@ -179,7 +185,13 @@ function execute_pre(){
 
     if [ "$os_id" == '"centos"' ]; then
         echo "Bootstrapping Centos"
-        run_cmd yum -y install epel-release
+        if [ "$TFPLENUM_LABREPO" == false ]; then
+            run_cmd yum -y install epel-release
+          else
+            run_cmd curl -s -o epel-release-latest-7.noarch.rpm http://misc.labrepo.lan/epel-release-latest-7.noarch.rpm
+            rpm -e epel-release-latest-7.noarch.rpm
+            yum remove epel-release -y
+        fi
         run_cmd yum -y update
         run_cmd yum -y install $PACKAGES
     else
@@ -233,7 +245,9 @@ function prompts(){
 prompts
 echo "Please Wait..."
 setup_git
+check_ansible
 clone_repos
+git config --global --unset credential.helper
 clear
 execute_pre
 setup_frontend
@@ -241,4 +255,3 @@ clear
 execute_bootstrap_playbook
 
 popd > /dev/null
-git config --global --unset credential.helper

@@ -1,6 +1,6 @@
 #!/bin/bash
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-PACKAGES="git vim net-tools wget ansible"
+PACKAGES="vim net-tools wget ansible-2.6.2-1.el7"
 
 # Default to repos for now
 export TFPLENUM_BOOTSTRAP_TYPE=repos
@@ -15,13 +15,13 @@ fi
 REPOS=("tfplenum-frontend" "tfplenum" "tfplenum-deployer" "tfplenum-integration-testing")
 
 function run_cmd {
-	local command="$@"
-	eval $command
-	local ret_val=$?
-	if [ $ret_val -ne 0 ]; then
-		echo "$command returned error code $ret_val"
+        local command="$@"
+        eval $command
+        local ret_val=$?
+        if [ $ret_val -ne 0 ]; then
+                echo "$command returned error code $ret_val"
         exit 1
-	fi	
+        fi
 }
 
 function use_laprepos() {
@@ -43,7 +43,7 @@ function use_laprepos() {
             run_cmd curl -m 10 -s -o /etc/yum.repos.d/labrepo-centos.repo http://yum.labrepo.lan/labrepo-centos.repo
         else
             run_cmd curl -m 10 -s -o /etc/yum.repos.d/labrepo-rhel.repo http://yum.labrepo.lan/labrepo-rhel.repo
-        fi    
+        fi
         yum clean all > /dev/null
         rm -rf /var/cache/yum/ > /dev/null
     fi
@@ -75,24 +75,7 @@ function get_controller_ip() {
 #    done
 #fi
 
-function set_git_variables() {    
-    if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
-        if [ -z "$DIEUSERNAME" ]; then
-            read -p "DI2E Username: "  DIEUSERNAME
-        fi
-
-        if [ -z "$PASSWORD" ]; then
-            while true; do
-                read -s -p "DI2E Password: " PASSWORD
-                echo
-                read -s -p "DI2E Password (again): " PASSWORD2
-                echo
-                [ "$PASSWORD" = "$PASSWORD2" ] && break
-                echo "The passwords do not match.  Please try again."
-            done
-        fi        
-    fi
-
+function set_git_variables() {
     if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
         if [ -z "$BRANCH_NAME" ]; then
             echo "WARNING: Any existing tfplenum directories in /opt will be removed."
@@ -106,8 +89,8 @@ function set_git_variables() {
             done
 
             if [ $BRANCH_NAME == 'custom' ]; then
-                echo "Please type the name of the custom branch exactly. It is important to note that this branch will 
-                be checked out accross all repos pulled so if the branch doe not exist in each repo pulled, 
+                echo "Please type the name of the custom branch exactly. It is important to note that this branch will
+                be checked out accross all repos pulled so if the branch doe not exist in each repo pulled,
                 boostraping the system will fail."
 
                 read -p "Branch Name: " BRANCH_NAME
@@ -117,25 +100,24 @@ function set_git_variables() {
     fi
 }
 
-function clone_repos(){        
+function clone_repos(){
     for i in ${REPOS[@]}; do
         local directory="/opt/$i"
         if [ -d "$directory" ]; then
             rm -rf $directory
         fi
         if [ ! -d "$directory" ]; then
-            git clone https://$DIEUSERNAME:$PASSWORD@bitbucket.di2e.net/scm/thisiscvah/$i.git
+            git clone https://bitbucket.di2e.net/scm/thisiscvah/$i.git
             pushd $directory > /dev/null
             git checkout $BRANCH_NAME
             git remote set-url origin https://bitbucket.di2e.net/scm/thisiscvah/$i.git
-            git config --global --unset credential.helper
+
             popd > /dev/null
         fi
     done
 }
 
-function bootstrap_repos(){
-    clone_repos
+function setup_frontend(){
     run_cmd /opt/tfplenum-frontend/setup/setup.sh
 }
 
@@ -151,32 +133,32 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.0.asc
 EOF
     fi
 
-	run_cmd yum install -y mongodb-org
-	run_cmd systemctl enable mongod
+        run_cmd yum install -y mongodb-org
+        run_cmd systemctl enable mongod
 }
 
-# function bootstrap_rpms(){    
+# function bootstrap_rpms(){
 #     _install_and_start_mongo40
 #     #run_cmd curl -o tfplenum-3.2.1-23.x86_64.rpm http://yum.labrepo.lan/tfplenum/latest/tfplenum-3.2.1-23.x86_64.rpm
 #     #run_cmd curl -o tfplenum-deployer-3.2.1-23.x86_64.rpm http://yum.labrepo.lan/THISISCVAH-RPMS/tfplenum-deployer-3.2.1-23.x86_64.rpm
 #     #run_cmd curl -o tfplenum-frontend-3.2.1-23.x86_64.rpm http://yum.labrepo.lan/THISISCVAH-RPMS/tfplenum-frontend-3.2.1-23.x86_64.rpm
 #     if [ "$TFPLENUM_LABREPO" == true ]; then
 #         run_cmd yum -y install tfplenum*
-        
+
 #     fi
 # }
 
 function subscription_prompts(){
     if [ "$TFPLENUM_LABREPO" == false ]; then
         subscription_status=`subscription-manager status | grep 'Overall Status:' | awk '{ print $3 }'`
-            
+
         if [ "$subscription_status" != 'Current' ]; then
-                    
+
             if [ -z "$RHEL_ORGANIZATION" ]; then
                 read -p 'Please enter your RHEL org number (EX: Its the --org flag for the subscription-manager command): ' orgnumber
                 export RHEL_ORGANIZATION=$orgnumber
             fi
-                
+
             if [ -z "$RHEL_ACTIVATIONKEY" ]; then
                 read -p 'Please enter your RHEL activation key (EX: Its the --activationkey flag for the subscription-manager command): ' activationkey
                 export RHEL_ACTIVATIONKEY=$activationkey
@@ -185,8 +167,15 @@ function subscription_prompts(){
     fi
 }
 
+function setup_git(){
+  if ! rpm -q git > /dev/null 2>&1 ; then
+    yum install git -y
+  fi
+  git config --global credential.helper cache
+}
+
 function execute_pre(){
-    local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)    
+    local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
 
     if [ "$os_id" == '"centos"' ]; then
         echo "Bootstrapping Centos"
@@ -195,9 +184,9 @@ function execute_pre(){
         run_cmd yum -y install $PACKAGES
     else
         echo "Bootstrapping Rhel"
-        if [ "$TFPLENUM_LABREPO" == false ]; then        
+        if [ "$TFPLENUM_LABREPO" == false ]; then
             subscription-manager register --activationkey=$RHEL_ACTIVATIONKEY --org=$RHEL_ORGANIZATION
-        
+
             run_cmd curl -s -o epel-release-latest-7.noarch.rpm https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
             rpm -ivh epel-release-latest-7.noarch.rpm
         else
@@ -205,7 +194,7 @@ function execute_pre(){
             rpm -e epel-release-latest-7.noarch.rpm
             yum remove epel-release -y
         fi
-                
+
         run_cmd yum -y update
         run_cmd yum -y install $PACKAGES
     fi
@@ -218,7 +207,7 @@ function execute_bootstrap_playbook(){
         export TFPLENUM_OS_TYPE=Centos
     else
         export TFPLENUM_OS_TYPE=RedHat
-    fi 
+    fi
 
     make bootstrap
     popd > /dev/null
@@ -242,15 +231,14 @@ function prompts(){
 }
 
 prompts
+echo "Please Wait..."
+setup_git
+clone_repos
 clear
 execute_pre
-
-if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then    
-    bootstrap_repos
-# else
-#     bootstrap_rpms
-fi
+setup_frontend
 clear
 execute_bootstrap_playbook
 
 popd > /dev/null
+git config --global --unset credential.helper

@@ -1,7 +1,7 @@
 ---
 
 - set_fact:
-    BOOTSTRAP: true
+    BOOTSTRAP: "{{ lookup('env','BOOTSTRAP') }}"
 
 - import_tasks: online.yml
   when: TFPLENUM_LABREPO == false

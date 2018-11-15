@@ -36,7 +36,7 @@
 - name: CentOS Yum Repos
   get_url:
     url: http://yum.labrepo.lan/labrepo-centos.repo
-    dest: /etc/yum.repos.d/labrepo-rhel.repo
+    dest: /etc/yum.repos.d/labrepo-centos.repo
     mode: 0664  
   when: "ansible_distribution == 'CentOS'"
 

@@ -3,6 +3,9 @@
 #######################################################
 ---
 
+- set_fact:
+    BOOTSTRAP: "{{ lookup('env','BOOTSTRAP') }}"
+
 - name: Check if ran by bootstrap
   fail:
     msg: 'Harbor role must be run using bootstrap script'
@@ -144,7 +147,7 @@
     url: http://{{ server_ip }}:{{ harbor_firewall_port }}
   register: harborwebresult
   until: harborwebresult.status == 200
-  retries: 15
+  retries: 30
   delay: 1
 
 - name: 'Login to harbor'

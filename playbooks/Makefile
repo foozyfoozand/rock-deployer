@@ -27,7 +27,7 @@ setup:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,setup
 
 harbor:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,harbor
+	ansible-playbook $(PLAYBOOK) -i localhost -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t harbor
 
 harbor-online-sync:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,harbor

@@ -2,9 +2,6 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 PACKAGES="vim net-tools wget ansible-2.6.2-1.el7"
 
-# Default to repos for now
-export TFPLENUM_BOOTSTRAP_TYPE=repos
-
 pushd "/opt" > /dev/null
 
 if [ "$EUID" -ne 0 ]
@@ -15,13 +12,31 @@ fi
 REPOS=("tfplenum-frontend" "tfplenum" "tfplenum-deployer" "tfplenum-integration-testing")
 
 function run_cmd {
-        local command="$@"
-        eval $command
-        local ret_val=$?
-        if [ $ret_val -ne 0 ]; then
-                echo "$command returned error code $ret_val"
+    local command="$@"
+    eval $command
+    local ret_val=$?
+    if [ $ret_val -ne 0 ]; then
+        echo "$command returned error code $ret_val"
         exit 1
-        fi
+    fi	
+}
+
+function prompt_runtype() {
+    echo "What type of run you do want to do?"
+    echo "A full run will blow away the /opt folder reclone everything and rerun everything."
+    echo "A bootstrap run will only run bootstrap role and harbor role."
+    echo "A harbor run will only run harbor role."
+    echo "A dockker images run will only update the docker images on to the controller."
+    if [ -z "$RUN_TYPE" ]; then
+        select cr in "Full" "Bootstrap" "Harbor" "DockerImages"; do
+            case $cr in
+                Full ) export RUN_TYPE=full; break;;
+                Bootstrap ) export RUN_TYPE=bootstrap; break;;
+                Harbor ) export RUN_TYPE=harbor; break;;
+                DockerImages ) export RUN_TYPE=dockerimages; break;;
+            esac
+        done
+    fi
 }
 
 function use_laprepos() {
@@ -43,7 +58,7 @@ function use_laprepos() {
             run_cmd curl -m 10 -s -o /etc/yum.repos.d/labrepo-centos.repo http://yum.labrepo.lan/labrepo-centos.repo
         else
             run_cmd curl -m 10 -s -o /etc/yum.repos.d/labrepo-rhel.repo http://yum.labrepo.lan/labrepo-rhel.repo
-        fi
+        fi    
         yum clean all > /dev/null
         rm -rf /var/cache/yum/ > /dev/null
     fi
@@ -65,58 +80,45 @@ function get_controller_ip() {
     fi
 }
 
-#if [ -z "$TFPLENUM_BOOTSTRAP_TYPE" ]; then
-#    echo "How do you want to bootstrap your controller?"
-#    select cr in "REPOS" "RPMs"; do
-#        case $cr in
-#            REPOS ) export TFPLENUM_BOOTSTRAP_TYPE=repos; break;;
-#            RPMs ) export TFPLENUM_BOOTSTRAP_TYPE=rpms; break;;
-#        esac
-#    done
-#fi
-
 function set_git_variables() {
-    if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
-        if [ -z "$DIEUSERNAME" ]; then
-            read -p "DI2E Username: "  DIEUSERNAME
-            export GIT_USERNAME=$DIEUSERNAME
-        fi
-
-        if [ -z "$PASSWORD" ]; then
-            while true; do
-                read -s -p "DI2E Password: " PASSWORD
-                echo
-                read -s -p "DI2E Password (again): " PASSWORD2
-                echo
-                [ "$PASSWORD" = "$PASSWORD2" ] && break
-                echo "The passwords do not match.  Please try again."
-            done
-            export GIT_PASSWORD=$PASSWORD
-        fi
+    if [ -z "$DIEUSERNAME" ]; then
+        read -p "DI2E Username: "  DIEUSERNAME
+        export GIT_USERNAME=$DIEUSERNAME
     fi
 
-    if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
-        if [ -z "$BRANCH_NAME" ]; then
-            echo "WARNING: Any existing tfplenum directories in /opt will be removed."
-            echo "Which branch do you want to checkout for all repos?"
-            select cr in "Master" "Devel" "Custom"; do
-                case $cr in
-                    Master ) export BRANCH_NAME=master; break;;
-                    Devel ) export BRANCH_NAME=devel; break;;
-                    Custom ) export BRANCH_NAME=custom; break;;
-                esac
-            done
+    if [ -z "$PASSWORD" ]; then
+        while true; do
+            read -s -p "DI2E Password: " PASSWORD
+            echo
+            read -s -p "DI2E Password (again): " PASSWORD2
+            echo
+            [ "$PASSWORD" = "$PASSWORD2" ] && break
+            echo "The passwords do not match.  Please try again."
+        done
+        export GIT_PASSWORD=$PASSWORD
+    fi            
 
-            if [ $BRANCH_NAME == 'custom' ]; then
-                echo "Please type the name of the custom branch exactly. It is important to note that this branch will
-                be checked out accross all repos pulled so if the branch doe not exist in each repo pulled,
-                boostraping the system will fail."
 
-                read -p "Branch Name: " BRANCH_NAME
-                export BRANCH_NAME=$BRANCH_NAME
-            fi
+    if [ -z "$BRANCH_NAME" ]; then
+        echo "WARNING: Any existing tfplenum directories in /opt will be removed."
+        echo "Which branch do you want to checkout for all repos?"
+        select cr in "Master" "Devel" "Custom"; do
+            case $cr in
+                Master ) export BRANCH_NAME=master; break;;
+                Devel ) export BRANCH_NAME=devel; break;;
+                Custom ) export BRANCH_NAME=custom; break;;
+            esac
+        done
+
+        if [ $BRANCH_NAME == 'custom' ]; then
+            echo "Please type the name of the custom branch exactly. It is important to note that this branch will 
+            be checked out accross all repos pulled so if the branch doe not exist in each repo pulled, 
+            boostraping the system will fail."
+
+            read -p "Branch Name: " BRANCH_NAME
+            export BRANCH_NAME=$BRANCH_NAME
         fi
-    fi
+    fi    
 }
 
 function clone_repos(){
@@ -152,32 +154,21 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.0.asc
 EOF
     fi
 
-        run_cmd yum install -y mongodb-org
-        run_cmd systemctl enable mongod
+    run_cmd yum install -y mongodb-org
+    run_cmd systemctl enable mongod
 }
-
-# function bootstrap_rpms(){
-#     _install_and_start_mongo40
-#     #run_cmd curl -o tfplenum-3.2.1-23.x86_64.rpm http://yum.labrepo.lan/tfplenum/latest/tfplenum-3.2.1-23.x86_64.rpm
-#     #run_cmd curl -o tfplenum-deployer-3.2.1-23.x86_64.rpm http://yum.labrepo.lan/THISISCVAH-RPMS/tfplenum-deployer-3.2.1-23.x86_64.rpm
-#     #run_cmd curl -o tfplenum-frontend-3.2.1-23.x86_64.rpm http://yum.labrepo.lan/THISISCVAH-RPMS/tfplenum-frontend-3.2.1-23.x86_64.rpm
-#     if [ "$TFPLENUM_LABREPO" == true ]; then
-#         run_cmd yum -y install tfplenum*
-
-#     fi
-# }
 
 function subscription_prompts(){
     if [ "$TFPLENUM_LABREPO" == false ]; then
         subscription_status=`subscription-manager status | grep 'Overall Status:' | awk '{ print $3 }'`
-
+            
         if [ "$subscription_status" != 'Current' ]; then
-
+                    
             if [ -z "$RHEL_ORGANIZATION" ]; then
                 read -p 'Please enter your RHEL org number (EX: Its the --org flag for the subscription-manager command): ' orgnumber
                 export RHEL_ORGANIZATION=$orgnumber
             fi
-
+                
             if [ -z "$RHEL_ACTIVATIONKEY" ]; then
                 read -p 'Please enter your RHEL activation key (EX: Its the --activationkey flag for the subscription-manager command): ' activationkey
                 export RHEL_ACTIVATIONKEY=$activationkey
@@ -237,16 +228,30 @@ function execute_pre(){
     fi
 }
 
-function execute_bootstrap_playbook(){
-    pushd "/opt/tfplenum-deployer/playbooks" > /dev/null
+function set_os_type(){
     local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
     if [ "$os_id" == '"centos"' ]; then
         export TFPLENUM_OS_TYPE=Centos
     else
         export TFPLENUM_OS_TYPE=RedHat
-    fi
+    fi 
+}
 
+function execute_bootstrap_playbook(){
+    pushd "/opt/tfplenum-deployer/playbooks" > /dev/null    
     make bootstrap
+    popd > /dev/null
+}
+
+function execute_harbor_playbook(){
+    pushd "/opt/tfplenum-deployer/playbooks" > /dev/null    
+    make harbor
+    popd > /dev/null
+}
+
+function execute_pull_docker_images_playbook(){
+    pushd "/opt/tfplenum-deployer/playbooks" > /dev/null
+    make pull-docker-images
     popd > /dev/null
 }
 
@@ -256,27 +261,41 @@ function prompts(){
     echo "TFPLENUM DEPLOYER BOOTSTRAP"
     echo "---------------------------"
     local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
+    prompt_runtype
     get_controller_ip
     use_laprepos
     if [ "$os_id" == '"rhel"' ]; then
         subscription_prompts
     fi
-    if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
+    if [ $RUN_TYPE == 'full' ]; then
         set_git_variables
     fi
 
 }
 
+export BOOTSTRAP=true
 prompts
-echo "Please Wait..."
-setup_git
-check_ansible
-clone_repos
-git config --global --unset credential.helper
-clear
-execute_pre
-setup_frontend
-clear
-execute_bootstrap_playbook
+set_os_type
+
+if [ $RUN_TYPE == 'full' ]; then
+    setup_git
+    check_ansible
+    clone_repos
+    git config --global --unset credential.helper
+    execute_pre    
+    setup_frontend
+fi
+
+if [ $RUN_TYPE == 'bootstrap' ] || [ $RUN_TYPE == 'full' ]; then
+    execute_bootstrap_playbook
+fi
+
+if [ $RUN_TYPE == 'harbor' ]; then
+    execute_harbor_playbook
+fi
+
+if [ $RUN_TYPE == 'dockerimages' ]; then
+    execute_pull_docker_images_playbook
+fi
 
 popd > /dev/null

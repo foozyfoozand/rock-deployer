@@ -77,6 +77,25 @@ function get_controller_ip() {
 
 function set_git_variables() {
     if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
+        if [ -z "$DIEUSERNAME" ]; then
+            read -p "DI2E Username: "  DIEUSERNAME
+            export GIT_USERNAME=$DIEUSERNAME
+        fi
+
+        if [ -z "$PASSWORD" ]; then
+            while true; do
+                read -s -p "DI2E Password: " PASSWORD
+                echo
+                read -s -p "DI2E Password (again): " PASSWORD2
+                echo
+                [ "$PASSWORD" = "$PASSWORD2" ] && break
+                echo "The passwords do not match.  Please try again."
+            done
+            export GIT_PASSWORD=$PASSWORD
+        fi
+    fi
+
+    if [ $TFPLENUM_BOOTSTRAP_TYPE == 'repos' ]; then
         if [ -z "$BRANCH_NAME" ]; then
             echo "WARNING: Any existing tfplenum directories in /opt will be removed."
             echo "Which branch do you want to checkout for all repos?"
@@ -171,7 +190,13 @@ function setup_git(){
   if ! rpm -q git > /dev/null 2>&1 ; then
     yum install git -y > /dev/null 2>&1
   fi
-  git config --global credential.helper cache
+git config --global --unset credential.helper
+cat <<EOF > ~/credential-helper.sh
+#!/bin/bash
+echo username="\$GIT_USERNAME"
+echo password="\$GIT_PASSWORD"
+EOF
+  git config --global credential.helper "/bin/bash ~/credential-helper.sh"
 }
 
 function check_ansible(){

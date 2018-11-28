@@ -23,16 +23,13 @@ function run_cmd {
 
 function prompt_runtype() {
     echo "What type of run you do want to do?"
-    echo "A full run will blow away the /opt folder reclone everything and rerun everything."
-    echo "A bootstrap run will only run bootstrap role and harbor role."
-    echo "A harbor run will only run harbor role."
-    echo "A dockker images run will only update the docker images on to the controller."
+    echo "A full run will blow away the /opt folder reclone everything and rerun everything."    
+    echo "A docker images run will only update the docker images on to the controller."
     if [ -z "$RUN_TYPE" ]; then
-        select cr in "Full" "Bootstrap" "Harbor" "DockerImages"; do
+        select cr in "Full" "Bootstrap" "DockerImages"; do
             case $cr in
                 Full ) export RUN_TYPE=full; break;;
                 Bootstrap ) export RUN_TYPE=bootstrap; break;;
-                Harbor ) export RUN_TYPE=harbor; break;;
                 DockerImages ) export RUN_TYPE=dockerimages; break;;
             esac
         done
@@ -243,12 +240,6 @@ function execute_bootstrap_playbook(){
     popd > /dev/null
 }
 
-function execute_harbor_playbook(){
-    pushd "/opt/tfplenum-deployer/playbooks" > /dev/null    
-    make harbor
-    popd > /dev/null
-}
-
 function execute_pull_docker_images_playbook(){
     pushd "/opt/tfplenum-deployer/playbooks" > /dev/null
     make pull-docker-images
@@ -288,10 +279,6 @@ fi
 
 if [ $RUN_TYPE == 'bootstrap' ] || [ $RUN_TYPE == 'full' ]; then
     execute_bootstrap_playbook
-fi
-
-if [ $RUN_TYPE == 'harbor' ]; then
-    execute_harbor_playbook
 fi
 
 if [ $RUN_TYPE == 'dockerimages' ]; then

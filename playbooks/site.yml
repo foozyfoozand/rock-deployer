@@ -52,10 +52,10 @@
     - clonerepo
   tags: clonerepo
 
-- name: Install and run Harbor
+- name: Install and run registry
   hosts: localhost
   roles:
-    - harbor
-  tags: harbor
+    - registry
+  tags: registry
 
 ...

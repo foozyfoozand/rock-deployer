@@ -1,0 +1,107 @@
+#######################################################
+###########  Install Docker Distribution ##############
+#######################################################
+---
+- name: Import tfplenum variables
+  include_vars:
+    file: "{{ tfplenum_vars }}"
+
+- name: "Install Docker"
+  yum:
+    name: "{{item}}"
+    state: installed
+  with_items:
+    - docker-distribution    
+
+- name: "Registry Firewall Port"
+  firewalld: 
+    port: "{{ firewall_port }}/tcp"
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: 'Enable docker distribution service'
+  systemd:
+    name: docker-distribution
+    enabled: yes
+    state: started
+    daemon_reload: yes
+
+- name: "Install Docker"
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+  - python-pip
+  - docker
+
+- name: Ensure Pip Version is 8.1.2
+  shell: |
+    pip install pip==8.1.2
+
+- name: install docker-py pip module 
+  pip:  
+    name: "{{ item }}" 
+    state: forcereinstall 
+  with_items: 
+  - "requests"  
+  - "urllib3" 
+  - "docker-py"
+  - "junit-xml==1.8"
+
+- name: 'docker daemon conf'
+  template:
+    backup: yes
+    src: 'daemon.json.j2'
+    dest: '/etc/docker/daemon.json'
+    owner: root
+    group: root
+    mode: 0644
+  register: docker_config_result
+
+- name: "Restart Docker"
+  systemd:
+    name: docker
+    enabled: yes
+    state: restarted
+
+- name: Get docker images
+  block:
+    - block:
+      - name: 'Download docker container images from internet'
+        docker_image:
+          name: "{{item}}"
+        with_items:
+          - "{{ kube_images }}"
+        
+      - name: 'Tag local images for upload to harbor'
+        shell: "docker tag {{ item }} {{ server_ip }}:{{ firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
+        with_items:
+          - "{{ kube_images }}"
+      when: TFPLENUM_LABREPO == false
+      tags: pull-docker-images
+    
+    - block:
+      - name: 'Download docker container images from labrepo'
+        docker_image:
+          name: "docker.labrepo.lan/{{ item }}"
+        with_items:
+          - "{{ kube_images }}"       
+
+      - name: 'Tag local images for upload to harbor'
+        shell: "docker tag docker.labrepo.lan/{{ item }} {{ server_ip }}:{{ firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
+        with_items:
+          - "{{ kube_images }}"
+      when: TFPLENUM_LABREPO
+      tags: pull-docker-images
+
+    - name: 'Upload local images to harbor'
+      docker_image:
+        name: "{{ server_ip }}:{{ firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
+        push: yes
+        pull: no
+      with_items:
+        - "{{ kube_images }}"
+      tags: pull-docker-images
+
+...

@@ -5,7 +5,7 @@ CHECK := $(shell command -v ansible-playbook 2> /dev/null)
 INVENTORY ?= 'inventory.yml'
 PLAYBOOK ?= 'site.yml'
 
-.PHONY: kickstart profiles setup harbor harbor-online-sync dnsmasq generate-profiles clonerepos-centos clonerepos-rhel
+.PHONY: kickstart profiles setup registry dnsmasq generate-profiles clonerepos-centos clonerepos-rhel
 
 # Default target, build *and* run tests
 all:
@@ -26,11 +26,8 @@ profiles:
 setup:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,setup
 
-harbor:
-	ansible-playbook $(PLAYBOOK) -i localhost -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t harbor
-
-harbor-online-sync:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,harbor
+registry:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,registry
 
 generate-profiles:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,kickstart,profiles

@@ -20,6 +20,6 @@
   include_role: 
     name: clonerepo
 
-- name: Execute harbor role.  
+- name: Execute docker registry role.  
   include_role: 
-    name: harbor
+    name: registry

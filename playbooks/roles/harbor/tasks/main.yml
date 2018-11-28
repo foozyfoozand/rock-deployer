@@ -42,6 +42,7 @@
   - "requests"  
   - "urllib3" 
   - "docker-py"
+  - "junit-xml==1.8"
 
 - name: 'docker daemon conf'
   template:

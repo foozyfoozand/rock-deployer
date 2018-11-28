@@ -99,6 +99,7 @@ labrepo_gpg_keys:
 bootstrap_package_names:
   - yum-utils
   - createrepo
+  - bash-completion
 
 gpg_keys:
   - "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"

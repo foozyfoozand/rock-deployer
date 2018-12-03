@@ -6,28 +6,43 @@
   include_vars:
     file: "{{ tfplenum_vars }}"
 
-- name: "Install Docker"
+- name: Install Docker Dist
   yum:
-    name: "{{item}}"
+    name: docker-distribution
     state: installed
-  with_items:
-    - docker-distribution    
 
-- name: "Registry Firewall Port"
+- name: docker-dist config template
+  template:
+    backup: yes
+    src: config.yml.j2
+    dest: /etc/docker-distribution/registry/config.yml
+    owner: root
+    group: root
+    mode: 0644
+  register: docker_dist_config_result
+
+- name: Registry Firewall Port
   firewalld: 
     port: "{{ firewall_port }}/tcp"
     permanent: true
     immediate: true
     state: enabled
 
-- name: 'Enable docker distribution service'
+- name: Enable docker distribution service
   systemd:
     name: docker-distribution
     enabled: yes
     state: started
     daemon_reload: yes
 
-- name: "Install Docker"
+- name: Restart docker-dist
+  service: 
+    name: docker-distribution
+    state: restarted
+    enabled: yes
+  when: docker_dist_config_result.changed
+
+- name: Install Docker
   yum:
     name: "{{ item }}"
     state: installed
@@ -49,17 +64,17 @@
   - "docker-py"
   - "junit-xml==1.8"
 
-- name: 'docker daemon conf'
+- name: docker daemon conf
   template:
     backup: yes
-    src: 'daemon.json.j2'
-    dest: '/etc/docker/daemon.json'
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
     owner: root
     group: root
     mode: 0644
   register: docker_config_result
 
-- name: "Restart Docker"
+- name: Restart Docker
   systemd:
     name: docker
     enabled: yes
@@ -68,13 +83,13 @@
 - name: Get docker images
   block:
     - block:
-      - name: 'Download docker container images from internet'
+      - name: Download docker container images from internet
         docker_image:
           name: "{{item}}"
         with_items:
           - "{{ kube_images }}"
         
-      - name: 'Tag local images for upload to harbor'
+      - name: Tag local images for upload to harbor
         shell: "docker tag {{ item }} {{ server_ip }}:{{ firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
         with_items:
           - "{{ kube_images }}"
@@ -82,20 +97,20 @@
       tags: pull-docker-images
     
     - block:
-      - name: 'Download docker container images from labrepo'
+      - name: Download docker container images from labrepo
         docker_image:
           name: "docker.labrepo.lan/{{ item }}"
         with_items:
           - "{{ kube_images }}"       
 
-      - name: 'Tag local images for upload to harbor'
+      - name: Tag local images for upload to harbor
         shell: "docker tag docker.labrepo.lan/{{ item }} {{ server_ip }}:{{ firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
         with_items:
           - "{{ kube_images }}"
       when: TFPLENUM_LABREPO
       tags: pull-docker-images
 
-    - name: 'Upload local images to harbor'
+    - name: Upload local images to harbor
       docker_image:
         name: "{{ server_ip }}:{{ firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
         push: yes

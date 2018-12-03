@@ -1,84 +1,86 @@
 ---
-- name: Additional Repos
-  block:
-    - name: "Configure epel repo"
-      yum_repository:    
-        name: "{{ epel_repo.name }}"
-        description: "{{ epel_repo.name }} repo"
-        failovermethod: "{{ epel_repo.failovermethod }}"
-        metalink: "{{ epel_repo.metalink }}"
-        enabled: true 
-        gpgcheck: "{{ epel_repo.gpgcheck}}"
-        gpgkey: "{{ epel_repo.gpgkey}}"
+- block:
+  - name: Additional Repos
+    block:
+      - name: "Configure epel repo"
+        yum_repository:    
+          name: "{{ epel_repo.name }}"
+          description: "{{ epel_repo.name }} repo"
+          failovermethod: "{{ epel_repo.failovermethod }}"
+          metalink: "{{ epel_repo.metalink }}"
+          enabled: true 
+          gpgcheck: "{{ epel_repo.gpgcheck}}"
+          gpgkey: "{{ epel_repo.gpgkey}}"
 
-    - name: Setup Repos
-      yum_repository:
-        baseurl: "{{ item.value.baseurl }}"
-        description: "{{ item.value.description }}"
-        gpgcheck: false
-        enabled: true
-        name: "{{ item.value.name }}"        
-      loop: "{{ lookup('dict', additional_repo_info) }}"
+      - name: Setup Repos
+        yum_repository:
+          baseurl: "{{ item.value.baseurl }}"
+          description: "{{ item.value.description }}"
+          gpgcheck: false
+          enabled: true
+          name: "{{ item.value.name }}"        
+        loop: "{{ lookup('dict', additional_repo_info) }}"
 
-    - name: "Mirror Additional repositories from internet"
-      shell: "reposync --repoid={{ item.value.name }} --download_path={{ item.value.download_path }} --download-metadata --downloadcomps --allow-path-traversal"
-      loop: "{{ lookup('dict', additional_repo_info) }}"
-    
-    - name: "Mirror Epel repositories from internet"
-      shell: "reposync --repoid={{ epel_repo.name }} --download_path={{ epel_repo.download_path }} --download-metadata --downloadcomps"
+      - name: "Mirror Additional repositories from internet"
+        shell: "reposync --repoid={{ item.value.name }} --download_path={{ item.value.download_path }} --download-metadata --downloadcomps --allow-path-traversal"
+        loop: "{{ lookup('dict', additional_repo_info) }}"
+      
+      - name: "Mirror Epel repositories from internet"
+        shell: "reposync --repoid={{ epel_repo.name }} --download_path={{ epel_repo.download_path }} --download-metadata --downloadcomps"
 
-    - name: move pool to kubernetes dir
-      file:
-        path: "{{ rockoffline_dir }}/{{ additional_repo_info['kube']['name'] }}"
-        state: "absent"
+      - name: move pool to kubernetes dir
+        file:
+          path: "{{ rockoffline_dir }}/{{ additional_repo_info['kube']['name'] }}"
+          state: "absent"
 
-    - name: Force Symlink to k8s directory
-      file: 
-        path: "{{ rockoffline_dir }}/{{ additional_repo_info['kube']['name'] }}" 
-        src: "{{ rockoffline_dir }}/pool"
-        state: link 
-        force: yes
+      - name: Force Symlink to k8s directory
+        file: 
+          path: "{{ rockoffline_dir }}/{{ additional_repo_info['kube']['name'] }}" 
+          src: "{{ rockoffline_dir }}/pool"
+          state: link 
+          force: yes
 
-    - name: get gpgkeys
-      get_url:
-        url: "{{ item.value.gpgkeyurl }}"
-        dest: "{{ rockoffline_dir }}/{{ item.value.name }}"
-        mode: 0644
-      loop: "{{ lookup('dict', additional_repo_info) }}"
-    
-    - name: get epel gpgkeys
-      get_url:
-        url: "{{ epel_repo.gpgkeyurl }}"
-        dest: "{{ rockoffline_dir }}/{{ epel_repo.name }}"
-        mode: 0644
-  when: TFPLENUM_LABREPO == false
+      - name: get gpgkeys
+        get_url:
+          url: "{{ item.value.gpgkeyurl }}"
+          dest: "{{ rockoffline_dir }}/{{ item.value.name }}"
+          mode: 0644
+        loop: "{{ lookup('dict', additional_repo_info) }}"
+      
+      - name: get epel gpgkeys
+        get_url:
+          url: "{{ epel_repo.gpgkeyurl }}"
+          dest: "{{ rockoffline_dir }}/{{ epel_repo.name }}"
+          mode: 0644
+    when: TFPLENUM_LABREPO == false
 
-- name: Additional Repos 
-  block:
-    - name: "Mirror Additional repositories from labrepo"
-      shell: "reposync --repoid={{ item.value.name }} --download_path={{ item.value.download_path }} --download-metadata --downloadcomps --allow-path-traversal"
-      loop: "{{ lookup('dict', additional_repo_info) }}"
-    
-    - name: "Mirror Epel repositories from labrepo"
-      shell: "reposync --repoid={{ epel_repo.name }} --download_path={{ epel_repo.download_path }} --download-metadata --downloadcomps"
+  - name: Additional Repos 
+    block:
+      - name: "Mirror Additional repositories from labrepo"
+        shell: "reposync --repoid={{ item.value.name }} --download_path={{ item.value.download_path }} --download-metadata --downloadcomps --allow-path-traversal"
+        loop: "{{ lookup('dict', additional_repo_info) }}"
+      
+      - name: "Mirror Epel repositories from labrepo"
+        shell: "reposync --repoid={{ epel_repo.name }} --download_path={{ epel_repo.download_path }} --download-metadata --downloadcomps"
 
-    - name: move pool to kubernetes dir
-      file:
-        path: "{{ rockoffline_dir }}/{{ additional_repo_info['kube']['name'] }}"
-        state: "absent"
+      - name: move pool to kubernetes dir
+        file:
+          path: "{{ rockoffline_dir }}/{{ additional_repo_info['kube']['name'] }}"
+          state: "absent"
 
-    - name: Force Symlink to k8s directory
-      file: 
-        path: "{{ rockoffline_dir }}/{{ additional_repo_info['kube']['name'] }}" 
-        src: "{{ rockoffline_dir }}/tmp/kubernetes"
-        state: link 
-        force: yes
+      - name: Force Symlink to k8s directory
+        file: 
+          path: "{{ rockoffline_dir }}/{{ additional_repo_info['kube']['name'] }}" 
+          src: "{{ rockoffline_dir }}/tmp/kubernetes"
+          state: link 
+          force: yes
 
-    # - name: get gpgkeys
-    #   get_url:
-    #     url: "{{ item.value.gpgkeyurl }}"
-    #     dest: "{{ rockoffline_dir }}/{{ item.value.name }}"
-    #     mode: 0644
-    #   loop: "{{ lookup('dict', labrepo_gpg_keys) }}"
-
-  when: TFPLENUM_LABREPO
+      # - name: get gpgkeys
+      #   get_url:
+      #     url: "{{ item.value.gpgkeyurl }}"
+      #     dest: "{{ rockoffline_dir }}/{{ item.value.name }}"
+      #     mode: 0644
+      #   loop: "{{ lookup('dict', labrepo_gpg_keys) }}"
+      
+    when: TFPLENUM_LABREPO
+  when: (clone_repos is defined and clone_repos)

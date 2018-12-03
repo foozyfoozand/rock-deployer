@@ -47,6 +47,18 @@ function use_laprepos() {
         done
     fi
 
+    if [ -z "$CLONE_REPOS" ]; then
+        echo "Do you want to sync yum repositories to your controller? (Requires Dev)"
+        echo "***WARNING: Syncing the yum reposities can take about 1-2 hours and requires 200GBs of storage***"
+        select cr in "YES" "NO"; do
+            case $cr in
+                YES ) export CLONE_REPOS=true; break;;
+                NO ) export CLONE_REPOS=false; break;;
+            esac
+        done
+    fi
+
+
     if [ "$TFPLENUM_LABREPO" == true ]; then
         local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
         rm -rf /etc/yum.repos.d/*offline* > /dev/null
@@ -228,9 +240,9 @@ function execute_pre(){
 function set_os_type(){
     local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
     if [ "$os_id" == '"centos"' ]; then
-        export TFPLENUM_OS_TYPE=Centos
+        export TFPLENUM_OS_TYPE=Centos        
     else
-        export TFPLENUM_OS_TYPE=RedHat
+        export TFPLENUM_OS_TYPE=RedHat        
     fi 
 }
 

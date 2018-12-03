@@ -27,4 +27,5 @@
   tags: additional  
 - import_tasks: 35_createrepo.yml
   tags: createrepo
+  when: (clone_repos is defined and clone_repos)
 ...

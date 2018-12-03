@@ -4,6 +4,21 @@
     name: httpd
     state: present
 
+- name: "Start httpd"
+  service: 
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: Copy httpd conf to proxy yum repos
+  copy:
+    src: yum_proxy.conf
+    dest: /etc/httpd/conf.d/yum_proxy.conf
+    mode: 0644
+    owner: root
+    group: root
+  register: yum_proxy_conf
+
 - name: "Open up port 80 to allow access"
   firewalld: 
     service: "{{ item }}"
@@ -18,5 +33,7 @@
 - name: "Start httpd"
   service: 
     name: httpd
-    state: started
+    state: restarted
     enabled: yes
+  when: yum_proxy_conf.changed
+  

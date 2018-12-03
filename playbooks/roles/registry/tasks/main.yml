@@ -89,7 +89,7 @@
         with_items:
           - "{{ kube_images }}"
         
-      - name: Tag local images for upload to harbor
+      - name: Tag local images for upload to registry
         shell: "docker tag {{ item }} {{ server_ip }}:{{ firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
         with_items:
           - "{{ kube_images }}"
@@ -103,14 +103,14 @@
         with_items:
           - "{{ kube_images }}"       
 
-      - name: Tag local images for upload to harbor
+      - name: Tag local images for upload to registry
         shell: "docker tag docker.labrepo.lan/{{ item }} {{ server_ip }}:{{ firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
         with_items:
           - "{{ kube_images }}"
       when: TFPLENUM_LABREPO
       tags: pull-docker-images
 
-    - name: Upload local images to harbor
+    - name: Upload local images to registry
       docker_image:
         name: "{{ server_ip }}:{{ firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
         push: yes

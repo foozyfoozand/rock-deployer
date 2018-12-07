@@ -10,3 +10,5 @@ package_list:
   - nodejs
   - npm
   - python-netaddr
+  - tcpreplay
+  - tcpdump

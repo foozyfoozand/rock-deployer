@@ -8,24 +8,28 @@
 
 - name: Bootstrap Controller
   hosts: localhost
+  any_errors_fatal: true
   roles:
     - bootstrap
   tags: bootstrap
 
 - name: Setup Controller
   hosts: localhost
+  any_errors_fatal: true
   roles:
     - setup
   tags: setup
 
 - name: Preflight
   hosts: localhost
+  any_errors_fatal: true
   roles:
     - preflight
   tags: preflight
 
 - name: Setup DNS Server
   hosts: localhost
+  any_errors_fatal: true
   roles:
     - dnsmasq
   tags: 
@@ -34,12 +38,14 @@
 
 - name: Setup Kickstart server
   hosts: localhost
+  any_errors_fatal: true
   roles:
     - kickstart
   tags: kickstart
 
 - name: Generate Profiles
   hosts: localhost
+  any_errors_fatal: true
   roles:
     - profiles
   tags: 
@@ -48,12 +54,14 @@
 
 - name: Clone and create repositories
   hosts: localhost
+  any_errors_fatal: true
   roles:
     - clonerepo
   tags: clonerepo
 
 - name: Install and run registry
   hosts: localhost
+  any_errors_fatal: true
   roles:
     - registry
   tags: registry

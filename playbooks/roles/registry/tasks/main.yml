@@ -5,6 +5,7 @@
 - name: Import tfplenum variables
   include_vars:
     file: "{{ tfplenum_vars }}"
+  tags: pull-docker-images
 
 - name: Install Docker Dist
   yum:

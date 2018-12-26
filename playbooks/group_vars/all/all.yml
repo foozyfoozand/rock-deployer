@@ -116,6 +116,7 @@ pip_downloads:
   - junit-xml
   - elasticsearch
   - restresponse
+  - kafka
 
 iso_centos_pth: /root/CentOS-7-x86_64-Minimal-1804.iso
 iso_centos_checksum: 714acc0aefb32b7d51b515e25546835e55a90da9fb00417fbee2d03a62801efd

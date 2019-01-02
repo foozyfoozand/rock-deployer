@@ -1,1 +1,0 @@
-This task predownloads any necessary packages for a full RockNSM install so that they can be pushed out to servers and sensors in an offline install environment.

@@ -8,7 +8,7 @@
 - name: delete all repos matching the below regex
   find:
     paths: /etc/yum.repos.d
-    patterns: "^(CentOS|epel|rocknsm|ceph|kuber|ansible|mongodb).*repo$"
+    patterns: "^(CentOS|epel|ceph|kuber|ansible|mongodb).*repo$"
     use_regex: true
   register: wildcard_files_to_delete
 

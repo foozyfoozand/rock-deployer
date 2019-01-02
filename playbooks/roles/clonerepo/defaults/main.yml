@@ -13,7 +13,6 @@ centos_repos:
 
 gpg_keys:
   - "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
-  - "https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/pubkey.gpg"
   - "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
   - "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
 

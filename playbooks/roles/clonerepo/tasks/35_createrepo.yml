@@ -34,7 +34,7 @@
 
 - name: Remove Repodata
   file:
-    path: "{{ rockoffline_dir }}/repodata"
+    path: "{{ tfplenumoffline_dir }}/repodata"
     state: absent
 
 - name: Setup RepoData

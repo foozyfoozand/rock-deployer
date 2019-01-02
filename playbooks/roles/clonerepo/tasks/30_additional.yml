@@ -30,27 +30,27 @@
 
       - name: move pool to kubernetes dir
         file:
-          path: "{{ rockoffline_dir }}/{{ additional_repo_info['kube']['name'] }}"
+          path: "{{ tfplenumoffline_dir }}/{{ additional_repo_info['kube']['name'] }}"
           state: "absent"
 
       - name: Force Symlink to k8s directory
         file: 
-          path: "{{ rockoffline_dir }}/{{ additional_repo_info['kube']['name'] }}" 
-          src: "{{ rockoffline_dir }}/pool"
+          path: "{{ tfplenumoffline_dir }}/{{ additional_repo_info['kube']['name'] }}" 
+          src: "{{ tfplenumoffline_dir }}/pool"
           state: link 
           force: yes
 
       - name: get gpgkeys
         get_url:
           url: "{{ item.value.gpgkeyurl }}"
-          dest: "{{ rockoffline_dir }}/{{ item.value.name }}"
+          dest: "{{ tfplenumoffline_dir }}/{{ item.value.name }}"
           mode: 0644
         loop: "{{ lookup('dict', additional_repo_info) }}"
       
       - name: get epel gpgkeys
         get_url:
           url: "{{ epel_repo.gpgkeyurl }}"
-          dest: "{{ rockoffline_dir }}/{{ epel_repo.name }}"
+          dest: "{{ tfplenumoffline_dir }}/{{ epel_repo.name }}"
           mode: 0644
     when: TFPLENUM_LABREPO == false
 
@@ -65,20 +65,20 @@
 
       - name: move pool to kubernetes dir
         file:
-          path: "{{ rockoffline_dir }}/{{ additional_repo_info['kube']['name'] }}"
+          path: "{{ tfplenumoffline_dir }}/{{ additional_repo_info['kube']['name'] }}"
           state: "absent"
 
       - name: Force Symlink to k8s directory
         file: 
-          path: "{{ rockoffline_dir }}/{{ additional_repo_info['kube']['name'] }}" 
-          src: "{{ rockoffline_dir }}/tmp/kubernetes"
+          path: "{{ tfplenumoffline_dir }}/{{ additional_repo_info['kube']['name'] }}" 
+          src: "{{ tfplenumoffline_dir }}/tmp/kubernetes"
           state: link 
           force: yes
 
       # - name: get gpgkeys
       #   get_url:
       #     url: "{{ item.value.gpgkeyurl }}"
-      #     dest: "{{ rockoffline_dir }}/{{ item.value.name }}"
+      #     dest: "{{ tfplenumoffline_dir }}/{{ item.value.name }}"
       #     mode: 0644
       #   loop: "{{ lookup('dict', labrepo_gpg_keys) }}"
       

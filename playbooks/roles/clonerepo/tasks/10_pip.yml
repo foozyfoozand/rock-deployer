@@ -9,10 +9,10 @@
     name: pip2pi
 
 - name: "Download pip packages to the custom install repo"
-  shell: "pip download -d {{ rockoffline_dir }}/pip {{ item }}"
+  shell: "pip download -d {{ tfplenumoffline_dir }}/pip {{ item }}"
   with_items:
   - "{{ pip_downloads }}"
 
 - name: create pip repo
-  shell: "dir2pi {{ rockoffline_dir }}/pip"
+  shell: "dir2pi {{ tfplenumoffline_dir }}/pip"
   

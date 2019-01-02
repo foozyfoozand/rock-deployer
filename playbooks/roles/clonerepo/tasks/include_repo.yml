@@ -1,19 +1,19 @@
 - name: Remove Repodata from {{ repo }}
   file:
-    path: "{{ rockoffline_dir }}/{{ repo }}/repodata"
+    path: "{{ tfplenumoffline_dir }}/{{ repo }}/repodata"
     state: absent
 
 - name: Validate if comps.xml exists in {{ repo }}
   stat:
-    path: "{{ rockoffline_dir }}/{{ repo }}/comps.xml"
+    path: "{{ tfplenumoffline_dir }}/{{ repo }}/comps.xml"
   register: comps_result
 
 - set_fact:
-    createrepo_cmd: "createrepo -g  {{ rockoffline_dir }}/{{ repo }}/comps.xml --workers=4 {{ rockoffline_dir }}/{{ repo }} "
+    createrepo_cmd: "createrepo -g  {{ tfplenumoffline_dir }}/{{ repo }}/comps.xml --workers=4 {{ tfplenumoffline_dir }}/{{ repo }} "
   when: comps_result.stat.exists
 
 - set_fact:
-    createrepo_cmd: "createrepo --workers=4 {{ rockoffline_dir }}/{{ repo }}"
+    createrepo_cmd: "createrepo --workers=4 {{ tfplenumoffline_dir }}/{{ repo }}"
   when: comps_result.stat.exists == false
 
 - name: "Create {{ repo }} repo"

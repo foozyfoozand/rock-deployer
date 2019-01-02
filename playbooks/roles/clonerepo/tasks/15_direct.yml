@@ -2,7 +2,7 @@
 
 - name: "Create directory for misc"
   file:
-    path: "{{ rockoffline_dir }}/misc"
+    path: "{{ tfplenumoffline_dir }}/misc"
     state: directory
     mode: 0755
     owner: root
@@ -10,7 +10,7 @@
 
 - name: "Create directory for misc"
   file:
-    path: "{{ rockoffline_dir }}/misc"
+    path: "{{ tfplenumoffline_dir }}/misc"
     state: directory
     mode: 0755
     owner: root
@@ -20,7 +20,7 @@
   - name: "Download all other direct download files into local repository, including dependencies"
     get_url:
       url: "{{ item }}" 
-      dest: "{{ rockoffline_dir }}/misc"
+      dest: "{{ tfplenumoffline_dir }}/misc"
     with_items:
       - "{{ direct_download_package_names }}"
     when: "'.rpm' in item"
@@ -28,7 +28,7 @@
   - name: "Download all other direct download files into local repository, including dependencies"
     get_url:
       url: "{{ item }}" 
-      dest: "{{ rockoffline_dir }}"
+      dest: "{{ tfplenumoffline_dir }}"
     with_items:
       - "{{ direct_download_package_names }}"
     when: "'.rpm' not in item"
@@ -38,7 +38,7 @@
   - name: "Download all other direct download files into local repository, including dependencies from labrepo"
     get_url:
       url: "{{ item }}" 
-      dest: "{{ rockoffline_dir }}/misc"
+      dest: "{{ tfplenumoffline_dir }}/misc"
     with_items:
       - "{{ labrepo_direct_download_package_names }}"
     when: "'.rpm' in item"
@@ -46,7 +46,7 @@
   - name: "Download all other direct download files into local repository, including dependencies from labrepo"
     get_url:
       url: "{{ item }}" 
-      dest: "{{ rockoffline_dir }}"
+      dest: "{{ tfplenumoffline_dir }}"
     with_items:
       - "{{ labrepo_direct_download_package_names }}"
     when: "'.rpm' not in item"

@@ -1,7 +1,7 @@
 ---
 - name: "Create directory for offline repos"
   file:
-    path: "{{ rockoffline_dir }}"
+    path: "{{ tfplenumoffline_dir }}"
     state: directory
     mode: 0755
     owner: root

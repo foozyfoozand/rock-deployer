@@ -2,7 +2,7 @@
 kick_cfg: ks.cfg
 tftp_dir: /var/lib/tftpboot
 web_root: /var/www/html
-rockoffline_dir: "{{ web_root }}/offlinerepo"
+tfplenumoffline_dir: "{{ web_root }}/offlinerepo"
 install_dir: /opt/tfplenum
 tfplenum_vars: "{{ install_dir }}/playbooks/group_vars/all/versions.yml"
 
@@ -11,6 +11,7 @@ rhel_repos:
   - rhel-7-server-extras-rpms
   - rhel-7-server-optional-rpms
 
+# 
 additional_repo_info:
   kube:
     name: "kubernetes"
@@ -19,42 +20,35 @@ additional_repo_info:
     gpgkeyname: "yum-key.gpg"
     description: "kubernetes repo"
     # Required because kube public repo uses relative path so this is a hack to fix it
-    download_path: "{{ rockoffline_dir }}/tmp"
-  rocknsm:
-    name: "rocknsm"
-    baseurl: "https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/epel-7-$basearch/"
-    gpgkeyurl: "https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/pubkey.gpg"
-    gpgkeyname: "pubkey.gpg"
-    description: "rocknsm repo"
-    download_path: "{{ rockoffline_dir }}"
+    download_path: "{{ tfplenumoffline_dir }}/tmp"
   ceph_base:
     name: "ceph_base"
     baseurl: "https://download.ceph.com/rpm-luminous/el7/$basearch"
     gpgkeyurl: "https://download.ceph.com/keys/release.asc"
     gpgkeyname: "release.asc"
     description: "ceph base repo"
-    download_path: "{{ rockoffline_dir }}"
+    download_path: "{{ tfplenumoffline_dir }}"
   ceph_noarch:
     name: "ceph_noarch"
     baseurl: "https://download.ceph.com/rpm-luminous/el7/$basearch"
     gpgkeyurl: "https://download.ceph.com/keys/release.asc"
     gpgkeyname: "release.asc"
     description: "ceph base repo"
-    download_path: "{{ rockoffline_dir }}"
+    download_path: "{{ tfplenumoffline_dir }}"
   ceph_srpms:
     name: "ceph_srpms"
     baseurl: "https://download.ceph.com/rpm-luminous/el7/SRPMS"
     gpgkeyurl: "https://download.ceph.com/keys/release.asc"
     gpgkeyname: "release.asc"
     description: "ceph srpms repo"
-    download_path: "{{ rockoffline_dir }}"
+    download_path: "{{ tfplenumoffline_dir }}"
   mongo:
     name: "mongodb-org-4.0"
     baseurl: "https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.0/x86_64/"
     gpgkeyurl: "https://www.mongodb.org/static/pgp/server-4.0.asc"
     gpgkeyname: "server-4.0.asc"
     description: "MongoDB Repository"
-    download_path: "{{ rockoffline_dir }}"
+    download_path: "{{ tfplenumoffline_dir }}"
 
 epel_repo:
     metalink: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"
@@ -64,7 +58,7 @@ epel_repo:
     name: "epel"
     description: "epel repo"
     failovermethod: "priority"
-    download_path: "{{ rockoffline_dir }}"
+    download_path: "{{ tfplenumoffline_dir }}"
 
 labrepo_gpg_keys:
   epel:

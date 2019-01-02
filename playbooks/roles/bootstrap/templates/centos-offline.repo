@@ -5,13 +5,6 @@ gpgcheck=0
 gpgkey=http://{{server_ip}}/offlinerepo/epel/RPM-GPG-KEY-EPEL-7
 name=offline-epelrepo
 
-[offline-rocknsm]
-baseurl=http://{{server_ip}}/offlinerepo/rocknsm
-enabled=1
-gpgcheck=0
-gpgkey=
-name=offline-rocknsmrepo
-
 [offline-misc]
 baseurl=http://{{server_ip}}/offlinerepo/misc
 enabled=1

@@ -21,76 +21,101 @@ function run_cmd {
     fi	
 }
 
+function labrepo_available() {
+    echo "-------"
+    echo "Checking if labrepo is available..."    
+    labrepo_check=`curl -m 10 -s http://labrepo.lan/check.html`    
+    if [ "$labrepo_check" != true ]; then
+      echo "Warning: Labrepo not found. Defaulting to public repos."
+      echo "Labrepo requires Dev Network.  This is not a fatal error and can be ignored."
+      labrepo_check=false
+    fi    
+}
+
 function prompt_runtype() {
     echo "What type of run you do want to do?"
-    echo "A full run will blow away the /opt folder reclone everything and rerun everything."    
-    echo "A docker images run will only update the docker images on to the controller."
+    echo "Full: A full run will remove tfplenum directories in /opt, reclone tfplenum git repos and runs boostrap ansible role."    
+    echo "Boostrap: Only runs boostrap ansible role."
+    echo "Docker Images: Repull docker images to controller and upload to controllers docker registry."
     if [ -z "$RUN_TYPE" ]; then
-        select cr in "Full" "Bootstrap" "DockerImages"; do
+        select cr in "Full" "Bootstrap" "Docker Images"; do
             case $cr in
                 Full ) export RUN_TYPE=full; break;;
                 Bootstrap ) export RUN_TYPE=bootstrap; break;;
-                DockerImages ) export RUN_TYPE=dockerimages; break;;
+                "Docker Images" ) export RUN_TYPE=dockerimages; break;;
             esac
         done
     fi
 }
 
 function use_laprepos() {
-    if [ -z "$TFPLENUM_LABREPO" ]; then
-        echo "Do you want to use labrepo for downloads? (Requires Dev Network)"
-        select cr in "YES" "NO"; do
-            case $cr in
-                YES ) export TFPLENUM_LABREPO=true; break;;
-                NO ) export TFPLENUM_LABREPO=false; break;;
-            esac
-        done
-    fi
-
-    if [ -z "$CLONE_REPOS" ]; then
-        echo "Do you want to sync yum repositories to your controller? (Requires Dev)"
-        echo "***WARNING: Syncing the yum reposities can take about 1-2 hours and requires 200GBs of storage***"
-        select cr in "YES" "NO"; do
-            case $cr in
-                YES ) export CLONE_REPOS=true; break;;
-                NO ) export CLONE_REPOS=false; break;;
-            esac
-        done
-    fi
-
-
-    if [ "$TFPLENUM_LABREPO" == true ]; then
-        local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
-        rm -rf /etc/yum.repos.d/*offline* > /dev/null
-        rm -rf /etc/yum.repos.d/labrepo* > /dev/null
-        if [ "$os_id" == '"centos"' ]; then
+    labrepo_available
+    if [ "$labrepo_check" == true ]; then
+        if [ -z "$TFPLENUM_LABREPO" ]; then
+            echo "-------"
+            echo "Do you want to use labrepo for downloads? (Requires Dev Network)"
+            select cr in "YES" "NO"; do
+                case $cr in
+                    YES ) export TFPLENUM_LABREPO=true; break;;
+                    NO ) export TFPLENUM_LABREPO=false; break;;
+                esac
+            done
+        fi
+        if [ "$TFPLENUM_LABREPO" == true ]; then
+          sync_repos
+          local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
+          rm -rf /etc/yum.repos.d/*offline* > /dev/null
+          rm -rf /etc/yum.repos.d/labrepo* > /dev/null
+          if [ "$os_id" == '"centos"' ]; then
             run_cmd curl -m 10 -s -o /etc/yum.repos.d/labrepo-centos.repo http://yum.labrepo.lan/labrepo-centos.repo
-        else
+          else
             run_cmd curl -m 10 -s -o /etc/yum.repos.d/labrepo-rhel.repo http://yum.labrepo.lan/labrepo-rhel.repo
-        fi    
-        yum clean all > /dev/null
-        rm -rf /var/cache/yum/ > /dev/null
+          fi    
+          yum clean all > /dev/null
+          rm -rf /var/cache/yum/ > /dev/null
+        fi
+    else
+      echo "-------"
+      echo "Warning: Labrepo not found. Defaulting to public repos."
+      echo "Labrepo requires Dev Network.  This is not a fatal error and can be ignored."
+      export TFPLENUM_LABREPO=false
+    fi
+}
+
+function sync_repos() {        
+    if [ -z "$CLONE_REPOS" ]; then
+        echo "-------"
+        echo "Do you want to sync or proxy the yum repositories?"
+        echo "Sync: Downloading the yum reposities can take about 1-2 hours and requires 200GBs of storage."
+        echo "Proxy: Yum reposities will be proxied to labrepo.  The rpms will not be downloaded to the controller."
+        
+        select cr in "Sync" "Proxy"; do
+            case $cr in
+                Sync ) export CLONE_REPOS=true; break;;
+                Proxy ) export CLONE_REPOS=false; break;;
+            esac
+        done
     fi
 }
 
 function get_controller_ip() {
     if [ -z "$TFPLENUM_SERVER_IP" ]; then
-        while true; do
-            read -p "Enter the controller's ip address: " SERVER_IP
-            run_cmd ip a | grep $SERVER_IP > /dev/null
-            retVal=$?
-            if [ "$retVal" == 0 ]; then
-              export TFPLENUM_SERVER_IP=$SERVER_IP
-              break
-            else
-              echo "Error Unable to locate network interface with specified ip address. Verify the interface is configured correctly."
-            fi
+        controller_ips=`ip -o addr | awk '!/^[0-9]*: ?lo|inet6|docker|link\/ether/ {gsub("/", " "); print $4}'`
+        choices=( $controller_ips )
+        echo "-------"
+        echo "Select your controllers ip address:"
+        select cr in "${choices[@]}"; do
+            case $cr in
+                $cr ) export TFPLENUM_SERVER_IP=$cr; break;;
+            esac
         done
     fi
 }
 
 function set_git_variables() {
     if [ -z "$DIEUSERNAME" ]; then
+        echo "-------"
+        echo "Bootstrapping a controller requires DI2E credentials."
         read -p "DI2E Username: "  DIEUSERNAME
         export GIT_USERNAME=$DIEUSERNAME
     fi
@@ -105,8 +130,7 @@ function set_git_variables() {
             echo "The passwords do not match.  Please try again."
         done
         export GIT_PASSWORD=$PASSWORD
-    fi            
-
+    fi
 
     if [ -z "$BRANCH_NAME" ]; then
         echo "WARNING: Any existing tfplenum directories in /opt will be removed."
@@ -127,7 +151,7 @@ function set_git_variables() {
             read -p "Branch Name: " BRANCH_NAME
             export BRANCH_NAME=$BRANCH_NAME
         fi
-    fi    
+    fi
 }
 
 function clone_repos(){
@@ -169,6 +193,10 @@ EOF
 
 function subscription_prompts(){
     if [ "$TFPLENUM_LABREPO" == false ]; then
+        echo "-------"
+        echo "Since you are running a RHEL controller outside the Dev Network and/or not using Labrepo, "
+        echo "You will need to subscribe to RHEL repositories."
+        echo "-------"
         subscription_status=`subscription-manager status | grep 'Overall Status:' | awk '{ print $3 }'`
             
         if [ "$subscription_status" != 'Current' ]; then
@@ -258,8 +286,7 @@ function execute_pull_docker_images_playbook(){
     popd > /dev/null
 }
 
-function prompts(){
-    clear
+function prompts(){    
     echo "---------------------------"
     echo "TFPLENUM DEPLOYER BOOTSTRAP"
     echo "---------------------------"
@@ -287,6 +314,11 @@ if [ $RUN_TYPE == 'full' ]; then
     git config --global --unset credential.helper
     execute_pre    
     setup_frontend
+fi
+
+if [ $RUN_TYPE == 'bootstrap' ]; then
+    check_ansible
+    execute_pre
 fi
 
 if [ $RUN_TYPE == 'bootstrap' ] || [ $RUN_TYPE == 'full' ]; then

@@ -1,0 +1,22 @@
+---
+- name: Add Redhat local yum repos
+  template:
+    src: templates/rhel-offline.repo
+    dest: "/etc/yum.repos.d/rhel-offline.repo"
+  when: "ansible_distribution == 'RedHat'"
+
+- name: Add CentOs local yum repos
+  template:
+    src: templates/centos-offline.repo
+    dest: "/etc/yum.repos.d/centos-offline.repo"
+  when: "ansible_distribution == 'CentOS'"
+
+- name: Clean repo cache
+  shell: yum clean all
+  args:
+    warn: false
+
+- name: Add pip config
+  template:
+    src: templates/pip.conf.j2
+    dest: "~/.pip/pip.conf"

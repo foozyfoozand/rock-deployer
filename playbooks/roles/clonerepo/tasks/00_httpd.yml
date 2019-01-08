@@ -18,6 +18,13 @@
     owner: root
     group: root
   register: yum_proxy_conf
+  when: (clone_repos is defined and clone_repos == false)
+
+- name: Remove yum proxy
+  file:
+    path: /etc/httpd/conf.d/yum_proxy.conf
+    state: absent  
+  when: (clone_repos is defined and clone_repos)
 
 - name: "Open up port 80 to allow access"
   firewalld: 
@@ -35,5 +42,5 @@
     name: httpd
     state: restarted
     enabled: yes
-  when: yum_proxy_conf.changed
+  when: yum_proxy_conf is defined and yum_proxy_conf.changed
   

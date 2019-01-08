@@ -5,19 +5,6 @@
     name: epel-release
     state: absent
 
-- name: delete all repos matching the below regex
-  find:
-    paths: /etc/yum.repos.d
-    patterns: "^(CentOS|epel|ceph|kuber|ansible|mongodb).*repo$"
-    use_regex: true
-  register: wildcard_files_to_delete
-
-- name: remove matched repos
-  file:
-    path: "{{ item.path }}"
-    state: absent
-  with_items: "{{ wildcard_files_to_delete.files }}"
-
 - name: Disable Red Hat repos...
   rhsm_repository:
     name: "{{ item }}"

@@ -24,15 +24,6 @@
     - "ansible_distribution == 'RedHat'"
   register: mounted
 
-- name: Create repo from local media
-  yum_repository:
-    baseurl: "file://{{ mnt_pth }}"
-    description: Local Media Repo
-    name: "{{ reponame }}"
-    enabled: yes
-    gpgcheck: no
-  when: mounted is succeeded
-
 - name: Install extra_packages
   yum:
     name: "{{ xtras }}"

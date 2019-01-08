@@ -1,9 +1,11 @@
 ---
 
+- import_tasks: cleanup.yml
+
 - set_fact:
     BOOTSTRAP: "{{ lookup('env','BOOTSTRAP') }}"
 
-- import_tasks: online.yml
+- import_tasks: public_repos.yml
   when: TFPLENUM_LABREPO == false
 
 - import_tasks: labrepo.yml     
@@ -23,3 +25,6 @@
 - name: Execute docker registry role.  
   include_role: 
     name: registry
+
+- import_tasks: cleanup.yml
+- import_tasks: local_repos.yml

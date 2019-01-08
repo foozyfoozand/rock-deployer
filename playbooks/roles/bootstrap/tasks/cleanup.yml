@@ -1,0 +1,19 @@
+---
+- name: cleanup temp repos
+  find:
+    paths: /etc/yum.repos.d
+    patterns: ".*repo$"
+    use_regex: true
+  register: wildcard_files_to_delete
+
+- name: remove matched repos
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ wildcard_files_to_delete.files }}"
+
+- name: Clean repo cache
+  shell: |
+    rm -rf /var/cache/yum
+  args:
+    warn: false

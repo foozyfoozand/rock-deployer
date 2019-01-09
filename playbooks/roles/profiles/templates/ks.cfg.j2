@@ -46,9 +46,9 @@ bootloader --append="rhgb quiet crashkernel=auto" --location=mbr --boot-drive={{
 zerombr
 clearpart --all
 {% if uefi %}
-part /boot/efi --fstype=efi --grow --maxsize=200 --size=20
+part /boot/efi --fstype=efi --grow --maxsize=200 --size=20 --ondrive={{ boot_drive }}
 {% endif %}
-part /boot --fstype="xfs" --size=500
+part /boot --fstype="xfs" --size=500 --ondrive={{ boot_drive }}
 part pv.01 --size=1 --grow --ondrive={{ boot_drive }}
 volgroup vg01 pv.01
 logvol /  --fstype="xfs" --size=1 --name=root --vgname=vg01 --grow

@@ -1,11 +1,6 @@
 ---
 - name: Configure dns server
-  block:
-    - name: Install packages
-      yum:
-        name: "dnsmasq"
-        state: latest
-    
+  block:    
     - name: Create /etc/hosts
       template:
         src: "hosts.j2"
@@ -16,6 +11,12 @@
       register: dnsmasq_result
       notify: "Restart Network Services"
     
+    - meta: flush_handlers
+
+    - name: Install packages
+      yum:
+        name: "dnsmasq"
+        state: latest
     - name: DNS Services
       service:
         name: "dnsmasq"

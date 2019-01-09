@@ -37,9 +37,10 @@
     enabled: yes
     state: restarted
   when: sshd_config.changed
-  
-- name: Clean repo cache
-  shell: yum clean all
-  args:
-    warn: false 
-  
+
+- name: Recreate Local Yum Repos
+  import_role:
+    name: bootstrap
+    tasks_from: local_repos
+
+...

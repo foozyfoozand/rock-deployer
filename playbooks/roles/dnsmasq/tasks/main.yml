@@ -17,12 +17,12 @@
       yum:
         name: "dnsmasq"
         state: latest
+
     - name: DNS Services
       service:
         name: "dnsmasq"
         state: started
-        enabled: yes
-      when: dnsmasq_result.changed
+        enabled: yes      
 
     - name: DNS Firewall
       firewalld:

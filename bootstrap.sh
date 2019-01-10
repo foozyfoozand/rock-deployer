@@ -61,19 +61,19 @@ function use_laprepos() {
                 esac
             done
         fi
-        if [ "$TFPLENUM_LABREPO" == true ]; then
-          sync_repos
-          local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
-          rm -rf /etc/yum.repos.d/*offline* > /dev/null
-          rm -rf /etc/yum.repos.d/labrepo* > /dev/null
-          if [ "$os_id" == '"centos"' ]; then
-            run_cmd curl -m 10 -s -o /etc/yum.repos.d/labrepo-centos.repo http://yum.labrepo.lan/labrepo-centos.repo
-          else
-            run_cmd curl -m 10 -s -o /etc/yum.repos.d/labrepo-rhel.repo http://yum.labrepo.lan/labrepo-rhel.repo
-          fi    
-          yum clean all > /dev/null
-          rm -rf /var/cache/yum/ > /dev/null
-        fi
+        if [[ "$TFPLENUM_LABREPO" == true && ("$RUN_TYPE" == "full" || "$RUN_TYPE" == "bootstrap") ]]; then
+            sync_repos
+            local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
+            rm -rf /etc/yum.repos.d/*offline* > /dev/null
+            rm -rf /etc/yum.repos.d/labrepo* > /dev/null
+            if [ "$os_id" == '"centos"' ]; then
+                run_cmd curl -m 10 -s -o /etc/yum.repos.d/labrepo-centos.repo http://yum.labrepo.lan/labrepo-centos.repo
+            else
+                run_cmd curl -m 10 -s -o /etc/yum.repos.d/labrepo-rhel.repo http://yum.labrepo.lan/labrepo-rhel.repo
+            fi    
+            yum clean all > /dev/null
+            rm -rf /var/cache/yum/ > /dev/null
+        fi        
     else
       echo "-------"
       echo "Warning: Labrepo not found. Defaulting to public repos."

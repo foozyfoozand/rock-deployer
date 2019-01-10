@@ -13,12 +13,6 @@
     state: restarted
   listen: "Restart Network Services"
 
-- name: DNS Services
-  service:
-    name: dnsmasq
-    state: restarted
-  listen: "Restart Network Services"
-
 - name: check if docker installed
   stat:
     path: "/usr/bin/docker"

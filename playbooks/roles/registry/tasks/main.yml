@@ -23,7 +23,7 @@
   register: docker_dist_config_result
 
 - name: Registry Firewall Port
-  firewalld: 
+  firewalld:
     port: "{{ firewall_port }}/tcp"
     permanent: true
     immediate: true
@@ -37,7 +37,7 @@
     daemon_reload: yes
 
 - name: Restart docker-dist
-  service: 
+  service:
     name: docker-distribution
     state: restarted
     enabled: yes
@@ -45,25 +45,23 @@
 
 - name: Install Docker
   yum:
-    name: "{{ item }}"
+    name:
+      - python-pip
+      - docker
     state: installed
-  with_items:
-  - python-pip
-  - docker
 
 - name: Ensure Pip Version is 8.1.2
   shell: |
     pip install pip==8.1.2
 
-- name: install docker-py pip module 
-  pip:  
-    name: "{{ item }}" 
-    state: forcereinstall 
-  with_items: 
-  - "requests"  
-  - "urllib3" 
-  - "docker-py"
-  - "junit-xml==1.8"
+- name: install docker-py pip module
+  pip:
+    name:
+      - "requests"
+      - "urllib3"
+      - "docker-py"
+      - "junit-xml==1.8"
+    state: forcereinstall
 
 - name: docker daemon conf
   template:
@@ -89,20 +87,20 @@
           name: "{{item}}"
         with_items:
           - "{{ kube_images }}"
-        
+
       - name: Tag local images for upload to registry
         shell: "docker tag {{ item }} {{ server_ip }}:{{ firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
         with_items:
           - "{{ kube_images }}"
       when: TFPLENUM_LABREPO == false
       tags: pull-docker-images
-    
+
     - block:
       - name: Download docker container images from labrepo
         docker_image:
           name: "docker.labrepo.lan/{{ item }}"
         with_items:
-          - "{{ kube_images }}"       
+          - "{{ kube_images }}"
 
       - name: Tag local images for upload to registry
         shell: "docker tag docker.labrepo.lan/{{ item }} {{ server_ip }}:{{ firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"

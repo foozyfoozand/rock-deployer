@@ -1,6 +1,6 @@
 #!/bin/bash
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-PACKAGES="vim net-tools wget ansible-2.6.2-1.el7"
+PACKAGES="vim net-tools wget ansible"
 
 pushd "/opt" > /dev/null
 
@@ -18,23 +18,23 @@ function run_cmd {
     if [ $ret_val -ne 0 ]; then
         echo "$command returned error code $ret_val"
         exit 1
-    fi	
+    fi
 }
 
 function labrepo_available() {
     echo "-------"
-    echo "Checking if labrepo is available..."    
-    labrepo_check=`curl -m 10 -s http://labrepo.lan/check.html`    
+    echo "Checking if labrepo is available..."
+    labrepo_check=`curl -m 10 -s http://labrepo.lan/check.html`
     if [ "$labrepo_check" != true ]; then
       echo "Warning: Labrepo not found. Defaulting to public repos."
       echo "Labrepo requires Dev Network.  This is not a fatal error and can be ignored."
       labrepo_check=false
-    fi    
+    fi
 }
 
 function prompt_runtype() {
     echo "What type of run you do want to do?"
-    echo "Full: A full run will remove tfplenum directories in /opt, reclone tfplenum git repos and runs boostrap ansible role."    
+    echo "Full: A full run will remove tfplenum directories in /opt, reclone tfplenum git repos and runs boostrap ansible role."
     echo "Boostrap: Only runs boostrap ansible role."
     echo "Docker Images: Repull docker images to controller and upload to controllers docker registry."
     if [ -z "$RUN_TYPE" ]; then
@@ -70,10 +70,10 @@ function use_laprepos() {
                 run_cmd curl -m 10 -s -o /etc/yum.repos.d/labrepo-centos.repo http://yum.labrepo.lan/labrepo-centos.repo
             else
                 run_cmd curl -m 10 -s -o /etc/yum.repos.d/labrepo-rhel.repo http://yum.labrepo.lan/labrepo-rhel.repo
-            fi    
+            fi
             yum clean all > /dev/null
             rm -rf /var/cache/yum/ > /dev/null
-        fi        
+        fi
     else
       echo "-------"
       echo "Warning: Labrepo not found. Defaulting to public repos."
@@ -82,13 +82,13 @@ function use_laprepos() {
     fi
 }
 
-function sync_repos() {        
+function sync_repos() {
     if [ -z "$CLONE_REPOS" ]; then
         echo "-------"
         echo "Do you want to sync or proxy the yum repositories?"
         echo "Sync: Downloading the yum reposities can take about 1-2 hours and requires 200GBs of storage."
         echo "Proxy: Yum reposities will be proxied to labrepo.  The rpms will not be downloaded to the controller."
-        
+
         select cr in "Sync" "Proxy"; do
             case $cr in
                 Sync ) export CLONE_REPOS=true; break;;
@@ -144,8 +144,8 @@ function set_git_variables() {
         done
 
         if [ $BRANCH_NAME == 'custom' ]; then
-            echo "Please type the name of the custom branch exactly. It is important to note that this branch will 
-            be checked out accross all repos pulled so if the branch doe not exist in each repo pulled, 
+            echo "Please type the name of the custom branch exactly. It is important to note that this branch will
+            be checked out accross all repos pulled so if the branch doe not exist in each repo pulled,
             boostraping the system will fail."
 
             read -p "Branch Name: " BRANCH_NAME
@@ -198,14 +198,14 @@ function subscription_prompts(){
         echo "You will need to subscribe to RHEL repositories."
         echo "-------"
         subscription_status=`subscription-manager status | grep 'Overall Status:' | awk '{ print $3 }'`
-            
+
         if [ "$subscription_status" != 'Current' ]; then
-                    
+
             if [ -z "$RHEL_ORGANIZATION" ]; then
                 read -p 'Please enter your RHEL org number (EX: Its the --org flag for the subscription-manager command): ' orgnumber
                 export RHEL_ORGANIZATION=$orgnumber
             fi
-                
+
             if [ -z "$RHEL_ACTIVATIONKEY" ]; then
                 read -p 'Please enter your RHEL activation key (EX: Its the --activationkey flag for the subscription-manager command): ' activationkey
                 export RHEL_ACTIVATIONKEY=$activationkey
@@ -268,14 +268,14 @@ function execute_pre(){
 function set_os_type(){
     local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
     if [ "$os_id" == '"centos"' ]; then
-        export TFPLENUM_OS_TYPE=Centos        
+        export TFPLENUM_OS_TYPE=Centos
     else
-        export TFPLENUM_OS_TYPE=RedHat        
-    fi 
+        export TFPLENUM_OS_TYPE=RedHat
+    fi
 }
 
 function execute_bootstrap_playbook(){
-    pushd "/opt/tfplenum-deployer/playbooks" > /dev/null    
+    pushd "/opt/tfplenum-deployer/playbooks" > /dev/null
     make bootstrap
     popd > /dev/null
 }
@@ -286,7 +286,7 @@ function execute_pull_docker_images_playbook(){
     popd > /dev/null
 }
 
-function prompts(){    
+function prompts(){
     echo "---------------------------"
     echo "TFPLENUM DEPLOYER BOOTSTRAP"
     echo "---------------------------"
@@ -312,7 +312,7 @@ if [ $RUN_TYPE == 'full' ]; then
     check_ansible
     clone_repos
     git config --global --unset credential.helper
-    execute_pre    
+    execute_pre
     setup_frontend
 fi
 

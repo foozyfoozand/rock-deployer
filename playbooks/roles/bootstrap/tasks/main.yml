@@ -8,22 +8,20 @@
 - import_tasks: public_repos.yml
   when: TFPLENUM_LABREPO == false
 
-- import_tasks: labrepo.yml     
+- import_tasks: labrepo.yml
   when: TFPLENUM_LABREPO
 
 - name: "Install required packages"
   yum:
-    name: "{{ item }}"
+    name: "{{ package_list }}"
     state: latest
-  with_items:
-    - "{{ package_list }}"
 
 - name: Execute clone repo role.
-  include_role: 
+  include_role:
     name: clonerepo
 
-- name: Execute docker registry role.  
-  include_role: 
+- name: Execute docker registry role.
+  include_role:
     name: registry
 
 - import_tasks: cleanup.yml

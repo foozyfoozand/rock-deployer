@@ -8,29 +8,29 @@
 
 - name: setup repo list
   set_fact:
-    repos: "{{ repos }} + [ 'misc' ]" 
+    repos: "{{ repos }} + [ 'misc' ]"
 
 - name: setup repo list
   set_fact:
-    repos: "{{ repos }} + [ '{{ item }}' ]" 
-  when: (pull_rhel_repos is defined and pull_rhel_repos) 
+    repos: "{{ repos }} + [ '{{ item }}' ]"
+  when: (pull_rhel_repos is defined and pull_rhel_repos)
   with_items: "{{ rhel_repos }}"
 
 - name: setup repo list
   set_fact:
-    repos: "{{ repos }} + [ '{{ item }}' ]" 
-  when: (pull_centos_repos is defined and pull_centos_repos) 
-  with_items: 
+    repos: "{{ repos }} + [ '{{ item }}' ]"
+  when: (pull_centos_repos is defined and pull_centos_repos)
+  with_items:
   - "{{ centos_repos }}"
 
 - name: setup repo list
   set_fact:
-    repos: "{{ repos }} + [ '{{ item.value.name }}' ]"   
+    repos: "{{ repos }} + [ '{{ item.value.name }}' ]"
   loop: "{{ lookup('dict', additional_repo_info) }}"
 
 - name: setup repo list
   set_fact:
-    repos: "{{ repos }} + [ 'epel' ]"  
+    repos: "{{ repos }} + [ 'epel' ]"
 
 - name: Remove Repodata
   file:
@@ -38,7 +38,9 @@
     state: absent
 
 - name: Setup RepoData
-  include_tasks: include_repo.yml repo="{{ item }}"
+  include_tasks: include_repo.yml
+  vars:
+    repo: "{{ item }}"
   with_items: "{{ repos }}"
 
 

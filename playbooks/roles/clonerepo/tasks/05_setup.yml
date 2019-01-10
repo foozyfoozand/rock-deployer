@@ -10,10 +10,8 @@
 
 - name: "Install bootstrap packages"
   yum:
-    name: "{{ item }}"
+    name: "{{ bootstrap_package_names }}"
     state: present
-  with_items:
-    - "{{ bootstrap_package_names }}"
 
 - name: Enable Firewalld Service
   service:

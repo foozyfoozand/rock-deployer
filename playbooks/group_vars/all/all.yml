@@ -106,16 +106,19 @@ pip_downloads:
   - restresponse
   - kafka
 
-iso_centos_pth: /root/CentOS-7-x86_64-Minimal-1804.iso
-iso_centos_checksum: 714acc0aefb32b7d51b515e25546835e55a90da9fb00417fbee2d03a62801efd
-iso_rhel_pth: /root/rhel-server-7.5-x86_64-dvd.iso
+iso_centos_version: 1810
+iso_centos_url_online: "http://mirrors.mit.edu/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-{{ iso_centos_version }}.iso"
+iso_centos_url_labrepo: "http://isos.labrepo.lan/CentOS-7-x86_64-Minimal-{{ iso_centos_version }}.iso"
+iso_centos_pth: "/root/CentOS-7-x86_64-Minimal-{{ iso_centos_version }}.iso"
+iso_centos_checksum: 38d5d51d9d100fd73df031ffd6bd8b1297ce24660dc8c13a3b8b4534a4bd291c
+
+iso_rhel_version: "7.5"
+iso_rhel_pth: "/root/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"
+iso_rhel_url_labrepo: "http://isos.labrepo.lan/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"
 iso_rhel_checksum: d0dd6ae5e001fb050dafefdfd871e7e648b147fb2d35f0e106e0b34a0163e8f5
-iso_url: http://mirrors.mit.edu/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1804.iso
-labrepo_centos_iso_url: http://isos.labrepo.lan/CentOS-7-x86_64-Minimal-1804.iso
-labrepo_rhel_iso_url: http://isos.labrepo.lan/rhel-server-7.5-x86_64-dvd.iso
 
 # If env doesnt exist it will default to false
-TFPLENUM_LABREPO: "{{ lookup('env','TFPLENUM_LABREPO')|default(false, true) }}"
+TFPLENUM_LABREPO: "{{ lookup('env','TFPLENUM_LABREPO') | default(false) | bool }}"
 
 BOOTSTRAP: false
 

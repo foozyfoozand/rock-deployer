@@ -1,35 +1,18 @@
 ---
-- name: Download ISO
+- name: Download CentOS ISO
   get_url:
-    checksum: "sha256:714acc0aefb32b7d51b515e25546835e55a90da9fb00417fbee2d03a62801efd"
-    url: "{{ item }}" 
+    checksum: "sha256:{{ iso_centos_checksum }}"
+    url: "{{ iso_centos_url_labrepo if TFPLENUM_LABREPO else iso_centos_url_online }}"
     dest: "{{ iso_centos_pth }}"
-  with_items:
-    - "{{ iso_url }}"
   when:
     - "ansible_distribution == 'CentOS'"
-    - TFPLENUM_LABREPO == false
-
-- name: Download CentOS ISO from labrepo
-  get_url:
-    checksum: "sha256:714acc0aefb32b7d51b515e25546835e55a90da9fb00417fbee2d03a62801efd"
-    url: "{{ item }}" 
-    dest: "{{ iso_centos_pth }}"
-  with_items:
-    - "{{ labrepo_centos_iso_url }}"
-  when: 
-    - "ansible_distribution == 'CentOS'"
-    - TFPLENUM_LABREPO
-
-- name: Download RHEL ISO from labrepo
-  get_url:
-    checksum: "sha256:d0dd6ae5e001fb050dafefdfd871e7e648b147fb2d35f0e106e0b34a0163e8f5"
-    url: "{{ item }}" 
-    dest: "{{ iso_rhel_pth }}"
-  with_items:
-    - "{{ labrepo_rhel_iso_url }}"
-  when: 
-    - "ansible_distribution == 'RedHat'"
-    - TFPLENUM_LABREPO
 
 # TODO we need a way to pull down RHEL ISO image.
+- name: Download RHEL ISO
+  get_url:
+    checksum: "sha256:{{ iso_rhel_checksum }}"
+    url: "{{ iso_rhel_url_labrepo }}"
+    dest: "{{ iso_rhel_pth }}"
+  when:
+    - "ansible_distribution == 'RedHat'"
+    - TFPLENUM_LABREPO

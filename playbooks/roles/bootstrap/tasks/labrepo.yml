@@ -1,10 +1,4 @@
 ---
-
-- name: remove epel rpm
-  yum:
-    name: epel-release
-    state: absent
-
 - name: Disable Red Hat repos...
   rhsm_repository:
     name: "{{ item }}"
@@ -13,7 +7,7 @@
   ignore_errors: yes
   when: "ansible_distribution == 'RedHat'"
 
-- name: Download labrepo file  
+- name: Download labrepo file
   get_url:
     url: http://yum.labrepo.lan/labrepo-rhel.repo
     dest: /etc/yum.repos.d/labrepo-rhel.repo
@@ -24,7 +18,7 @@
   get_url:
     url: http://yum.labrepo.lan/labrepo-centos.repo
     dest: /etc/yum.repos.d/labrepo-centos.repo
-    mode: 0664  
+    mode: 0664
   when: "ansible_distribution == 'CentOS'"
 
 - name: create pip dir
@@ -38,7 +32,7 @@
     dest: "~/.pip/pip.conf"
 
 - name: Disable RHEL License
-  replace:    
+  replace:
     path: "/etc/yum/pluginconf.d/subscription-manager.conf"
     regexp: 'enabled=1'
     replace: 'enabled=0'

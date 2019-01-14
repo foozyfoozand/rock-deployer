@@ -5,7 +5,7 @@
     dest: "/etc/yum.repos.d/rhel-offline.repo"
   when: "ansible_distribution == 'RedHat'"
 
-- name: Add CentOs local yum repos
+- name: Add CentOS local yum repos
   template:
     src: templates/centos-offline.repo
     dest: "/etc/yum.repos.d/centos-offline.repo"
@@ -15,6 +15,11 @@
   shell: yum clean all
   args:
     warn: false
+
+- name: create pip dir
+  file:
+    path: "~/.pip"
+    state: directory
 
 - name: Add pip config
   template:

@@ -17,3 +17,8 @@
     rm -rf /var/cache/yum
   args:
     warn: false
+
+- name: remove epel rpm
+  yum:
+    name: epel-release
+    state: absent

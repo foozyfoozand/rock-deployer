@@ -7,8 +7,6 @@ tfplenum_repos:
 
 package_list:
   - git
-  - nodejs
-  - npm
   - python-netaddr
   - tcpreplay
   - tcpdump

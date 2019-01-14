@@ -79,6 +79,7 @@ function use_laprepos() {
       echo "Warning: Labrepo not found. Defaulting to public repos."
       echo "Labrepo requires Dev Network.  This is not a fatal error and can be ignored."
       export TFPLENUM_LABREPO=false
+      export CLONE_REPOS=true
     fi
 }
 

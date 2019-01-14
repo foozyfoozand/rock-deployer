@@ -56,6 +56,12 @@
         name: "{{ item }}"
         state: enabled
       with_items: "{{ rhel_repos }}"
+
+    - name: Enable RHEL License
+      replace:    
+        path: "/etc/yum/pluginconf.d/subscription-manager.conf"
+        regexp: 'enabled=0'
+        replace: 'enabled=1'
   when: "ansible_distribution == 'RedHat'"
 
 - name: install epel repo
@@ -67,10 +73,3 @@
   file:
     path: "~/.pip"
     state: absent
-
-- name: Enable RHEL License
-  replace:    
-    path: "/etc/yum/pluginconf.d/subscription-manager.conf"
-    regexp: 'enabled=0'
-    replace: 'enabled=1'
-  when: "ansible_distribution == 'RedHat'"    

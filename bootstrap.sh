@@ -278,12 +278,6 @@ EOF
   git config --global credential.helper "/bin/bash ~/credential-helper.sh"
 }
 
-function check_ansible(){
-  if rpm -q ansible > /dev/null 2>&1 ; then
-    yum remove ansible -y > /dev/null 2>&1
-  fi
-}
-
 function execute_pre(){
     local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
 
@@ -359,16 +353,14 @@ prompts
 set_os_type
 
 if [ $RUN_TYPE == 'full' ]; then
-    setup_git
-    check_ansible
+    setup_git    
     clone_repos
     git config --global --unset credential.helper
     execute_pre
     setup_frontend
 fi
 
-if [ $RUN_TYPE == 'bootstrap' ]; then
-    check_ansible
+if [ $RUN_TYPE == 'bootstrap' ]; then    
     execute_pre
 fi
 

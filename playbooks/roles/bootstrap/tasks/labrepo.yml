@@ -1,17 +1,18 @@
 ---
-- name: Disable Red Hat repos...
-  rhsm_repository:
-    name: "{{ item }}"
-    state: disabled
-  with_items: "{{ rhel_repos }}"
-  ignore_errors: yes
-  when: "ansible_distribution == 'RedHat'"
-
-- name: Download labrepo file
-  get_url:
-    url: http://yum.labrepo.lan/labrepo-rhel.repo
-    dest: /etc/yum.repos.d/labrepo-rhel.repo
-    mode: 0664
+- block:
+  - name: Unregister controller RHEL
+    redhat_subscription:
+      state: absent
+  - name: Download labrepo file
+    get_url:
+      url: http://yum.labrepo.lan/labrepo-rhel.repo
+      dest: /etc/yum.repos.d/labrepo-rhel.repo
+      mode: 0664
+  - name: Disable RHEL License
+    replace:    
+      path: "/etc/yum/pluginconf.d/subscription-manager.conf"
+      regexp: 'enabled=1'
+      replace: 'enabled=0'
   when: "ansible_distribution == 'RedHat'"
 
 - name: CentOS Yum Repos
@@ -30,10 +31,3 @@
   template:
     src: templates/labrepo-pip.conf.j2
     dest: "~/.pip/pip.conf"
-
-- name: Disable RHEL License
-  replace:
-    path: "/etc/yum/pluginconf.d/subscription-manager.conf"
-    regexp: 'enabled=1'
-    replace: 'enabled=0'
-  when: "ansible_distribution == 'RedHat'"

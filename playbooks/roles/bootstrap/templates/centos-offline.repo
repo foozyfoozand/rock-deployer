@@ -1,26 +1,26 @@
 [offline-epel]
-baseurl=http://{{ansible_fqdn}}/offlinerepo/epel
+baseurl=http://{{ansible_controller_hostname}}/offlinerepo/epel
 enabled=1
 gpgcheck=0
-gpgkey=http://{{ansible_fqdn}}/offlinerepo/epel/RPM-GPG-KEY-EPEL-7
+gpgkey=http://{{ansible_controller_hostname}}/offlinerepo/epel/RPM-GPG-KEY-EPEL-7
 name=offline-epelrepo
 
 [offline-misc]
-baseurl=http://{{ansible_fqdn}}/offlinerepo/misc
+baseurl=http://{{ansible_controller_hostname}}/offlinerepo/misc
 enabled=1
 gpgcheck=0
 gpgkey=
 name=offline-miscrepo
 
 [offline-kubernetes]
-baseurl=http://{{ansible_fqdn}}/offlinerepo/kubernetes
+baseurl=http://{{ansible_controller_hostname}}/offlinerepo/kubernetes
 enabled=1
 gpgcheck=0
-gpgkey=http://{{ansible_fqdn}}/offlinerepo/kubernetes/yum-key.gpg
+gpgkey=http://{{ansible_controller_hostname}}/offlinerepo/kubernetes/yum-key.gpg
 name=kubeofflinerepo
 
 [offline-ceph]
-baseurl=http://{{ansible_fqdn}}/offlinerepo/ceph_base
+baseurl=http://{{ansible_controller_hostname}}/offlinerepo/ceph_base
 enabled=1
 gpgcheck=0
 gpgkey=
@@ -28,21 +28,21 @@ name=cephofflinerepo
 priority=2
 
 [offline-base]
-baseurl=http://{{ansible_fqdn}}/offlinerepo/base
+baseurl=http://{{ansible_controller_hostname}}/offlinerepo/base
 enabled=1
 gpgcheck=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 name=offline-baserepo
 
 [offline-updates]
-baseurl=http://{{ansible_fqdn}}/offlinerepo/updates
+baseurl=http://{{ansible_controller_hostname}}/offlinerepo/updates
 enabled=1
 gpgcheck=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 name=offline-updatesrepo
 
 [offline-extras]
-baseurl=http://{{ansible_fqdn}}/offlinerepo/extras
+baseurl=http://{{ansible_controller_hostname}}/offlinerepo/extras
 enabled=1
 gpgcheck=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7

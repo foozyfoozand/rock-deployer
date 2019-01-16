@@ -122,4 +122,6 @@ TFPLENUM_LABREPO: "{{ lookup('env','TFPLENUM_LABREPO') | default(false) | bool }
 
 BOOTSTRAP: false
 
+ansible_controller_hostname: "controller.lan"
+
 ...

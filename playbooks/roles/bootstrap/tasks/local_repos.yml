@@ -1,14 +1,24 @@
 ---
-- name: Add Redhat local yum repos
-  template:
-    src: templates/rhel-offline.repo
-    dest: "/etc/yum.repos.d/rhel-offline.repo"
+- block:
+    - name: offline repo file
+      template:
+        src: templates/rhel-offline.repo
+        dest: "{{ tfplenumoffline_dir }}/offline.repo"
+    - name: Add Redhat local yum repos
+      template:
+        src: templates/rhel-offline.repo
+        dest: "/etc/yum.repos.d/rhel-offline.repo"
   when: "ansible_distribution == 'RedHat'"
 
-- name: Add CentOS local yum repos
-  template:
-    src: templates/centos-offline.repo
-    dest: "/etc/yum.repos.d/centos-offline.repo"
+- block:
+    - name: Add CentOS local yum repos
+      template:
+        src: templates/centos-offline.repo
+        dest: "/etc/yum.repos.d/centos-offline.repo"
+    - name: offline repo file
+      template:
+        src: templates/centos-offline.repo
+        dest: "{{ tfplenumoffline_dir }}/offline.repo"
   when: "ansible_distribution == 'CentOS'"
 
 - name: Clean repo cache

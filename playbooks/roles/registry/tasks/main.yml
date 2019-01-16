@@ -89,7 +89,7 @@
           - "{{ kube_images }}"
 
       - name: Tag local images for upload to registry
-        shell: "docker tag {{ item }} {{ server_ip }}:{{ firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
+        shell: "docker tag {{ item }} {{ server_ip }}:{{ firewall_port }}/{{ item }}"
         with_items:
           - "{{ kube_images }}"
       when: TFPLENUM_LABREPO == false
@@ -103,7 +103,7 @@
           - "{{ kube_images }}"
 
       - name: Tag local images for upload to registry
-        shell: "docker tag docker.labrepo.lan/{{ item }} {{ server_ip }}:{{ firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
+        shell: "docker tag docker.labrepo.lan/{{ item }} {{ server_ip }}:{{ firewall_port }}/{{ item }}"
         with_items:
           - "{{ kube_images }}"
       when: TFPLENUM_LABREPO
@@ -111,7 +111,7 @@
 
     - name: Upload local images to registry
       docker_image:
-        name: "{{ server_ip }}:{{ firewall_port }}/library/{{ item[item.rfind('/')+1:] }}"
+        name: "{{ server_ip }}:{{ firewall_port }}/{{ item }}"
         push: yes
         pull: no
       with_items:

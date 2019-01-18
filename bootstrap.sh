@@ -33,8 +33,8 @@ function labrepo_available() {
 }
 
 function prompt_runtype() {
-    echo "What type of run you do want to do?"
-    echo "Full: A full run will remove tfplenum directories in /opt, reclone tfplenum git repos and runs boostrap ansible role."
+    echo "Select a run type:"
+    echo "Full: Fresh Builds, Home Builds, A full run will remove tfplenum directories in /opt, reclone tfplenum git repos and runs boostrap ansible role."
     echo "Boostrap: Only runs boostrap ansible role."
     echo "Docker Images: Repull docker images to controller and upload to controllers docker registry."
     if [ -z "$RUN_TYPE" ]; then
@@ -57,7 +57,7 @@ function use_laprepos() {
             select cr in "YES" "NO"; do
                 case $cr in
                     YES ) export TFPLENUM_LABREPO=true; break;;
-                    NO ) export TFPLENUM_LABREPO=false; break;;
+                    NO ) export TFPLENUM_LABREPO=false; export CLONE_REPOS=true; break;;
                 esac
             done
         fi
@@ -86,7 +86,7 @@ function use_laprepos() {
 function sync_repos() {
     if [ -z "$CLONE_REPOS" ]; then
         echo "-------"
-        echo "Do you want to sync or proxy the yum repositories?"
+        echo "Select a yum repos method - sync or proxy:"
         echo "Sync: Downloading the yum reposities can take about 1-2 hours and requires 200GBs of storage."
         echo "Proxy: Yum reposities will be proxied to labrepo.  The rpms will not be downloaded to the controller."
 
@@ -104,7 +104,7 @@ function get_controller_ip() {
         controller_ips=`ip -o addr | awk '!/^[0-9]*: ?lo|inet6|docker|link\/ether/ {gsub("/", " "); print $4}'`
         choices=( $controller_ips )
         echo "-------"
-        echo "Select your controllers ip address:"
+        echo "Select the controllers ip address:"
         select cr in "${choices[@]}"; do
             case $cr in
                 $cr ) export TFPLENUM_SERVER_IP=$cr; break;;
@@ -284,6 +284,55 @@ function execute_pre(){
     if [ "$os_id" == '"centos"' ]; then
         echo "Bootstrapping Centos"
         if [ "$TFPLENUM_LABREPO" == false ]; then
+
+cat <<EOF > /etc/yum.repos.d/CentOS-Base.repo
+# CentOS-Base.repo
+#
+# The mirror system uses the connecting IP address of the client and the
+# update status of each mirror to pick mirrors that are updated to and
+# geographically close to the client.  You should use this for CentOS updates
+# unless you are manually picking other mirrors.
+#
+# If the mirrorlist= does not work for you, as a fall back you can try the
+# remarked out baseurl= line instead.
+#
+#
+
+[base]
+name=CentOS-\$releasever - Base
+mirrorlist=http://mirrorlist.centos.org/?release=\$releasever&arch=\$basearch&repo=os&infra=\$infra
+#baseurl=http://mirror.centos.org/centos/\$releasever/os/\$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+#released updates
+[updates]
+name=CentOS-\$releasever - Updates
+mirrorlist=http://mirrorlist.centos.org/?release=\$releasever&arch=\$basearch&repo=updates&infra=\$infra
+#baseurl=http://mirror.centos.org/centos/\$releasever/updates/\$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+#additional packages that may be useful
+[extras]
+name=CentOS-\$releasever - Extras
+mirrorlist=http://mirrorlist.centos.org/?release=\$releasever&arch=\$basearch&repo=extras&infra=\$infra
+#baseurl=http://mirror.centos.org/centos/\$releasever/extras/\$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+#additional packages that extend functionality of existing packages
+[centosplus]
+name=CentOS-\$releasever - Plus
+mirrorlist=http://mirrorlist.centos.org/?release=\$releasever&arch=\$basearch&repo=centosplus&infra=\$infra
+#baseurl=http://mirror.centos.org/centos/\$releasever/centosplus/\$basearch/
+gpgcheck=1
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+EOF
+            
+            rm -rf /etc/yum.repos.d/*offline*
+            yum clean all
             run_cmd yum -y install epel-release
           else
             run_cmd curl -s -o epel-release-latest-7.noarch.rpm http://misc.labrepo.lan/epel-release-latest-7.noarch.rpm

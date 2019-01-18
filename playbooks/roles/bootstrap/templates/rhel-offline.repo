@@ -48,3 +48,9 @@ gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
 name=offline-rhel-7-server-extras-rpmsrepo
 
+[offline-docker-ce]
+baseurl:http://{{ansible_controller_hostname}}/offlinerepo/docker-ce
+enabled:1
+gpgcheck=0
+gpgkey=
+name=dockerofflinerepo

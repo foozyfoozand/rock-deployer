@@ -48,7 +48,13 @@ additional_repo_info:
     gpgkeyname: "server-4.0.asc"
     description: "MongoDB Repository"
     download_path: "{{ tfplenumoffline_dir }}"
-
+  docker_ce:
+    name: "docker-ce"
+    baseurl: "https://download.docker.com/linux/centos/7/$basearch/stable"
+    gpgkeyurl: "https://download.docker.com/linux/centos/gpg"
+    gpgkeyname: "gpg"
+    description: "Docker CE repo"
+    download_path: "{{ tfplenumoffline_dir }}"
 epel_repo:
     metalink: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"
     gpgkeyurl: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7"

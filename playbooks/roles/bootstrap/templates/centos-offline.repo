@@ -47,3 +47,10 @@ enabled=1
 gpgcheck=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 name=offline-extrasrepo
+
+[offline-docker-ce]
+baseurl:http://{{ansible_controller_hostname}}/offlinerepo/docker-ce
+enabled:1
+gpgcheck=0
+gpgkey=
+name=dockerofflinerepo

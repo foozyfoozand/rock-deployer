@@ -339,19 +339,17 @@ function set_git_variables() {
     if [ -z "$BRANCH_NAME" ]; then
         echo "WARNING: Any existing tfplenum directories in /opt will be removed."
         echo "Which branch do you want to checkout for all repos?"
-        select cr in "Master" "Devel" "Fork" "Custom"; do
+        select cr in "Master" "Devel" "Custom"; do
             case $cr in
                 Master ) export BRANCH_NAME=master; export USE_FORK=no; break;;
                 Devel ) export BRANCH_NAME=devel; export USE_FORK=no; break;;
-                Fork ) export BRANCH_NAME=fork; export USE_FORK=yes; break;;
-                Custom ) export BRANCH_NAME=custom; export USE_FORK=no; break;;
+                Custom ) export BRANCH_NAME=custom; export USE_FORK=yes; break;;
             esac
         done
 
-        if [ "$BRANCH_NAME" == "fork" ]; then
-            echo "Please type the name of the branch on your fork exactly. Make sure that you use the
-            right branch name with each of your forks if the fork doesnt not exist then bootstrap will fail
-            you need to go make one for each repo"
+        if [ "$BRANCH_NAME" == "custom" ]; then
+            echo "Please type the name of the branch on the repo exactly. Make sure that you use the
+            right branch name with each of your repos"
 
             read -p "tfplenum Branch Name: " TFPLENUM_BRANCH_NAME
             export TFPLENUM_BRANCH_NAME=$TFPLENUM_BRANCH_NAME
@@ -361,15 +359,6 @@ function set_git_variables() {
 
             read -p "tfplenum-frontend Branch Name: " FRONTEND_BRANCH_NAME
             export FRONTEND_BRANCH_NAME=$FRONTEND_BRANCH_NAME
-        fi
-
-        if [ "$BRANCH_NAME" == "custom" ]; then
-            echo "Please type the name of the custom branch exactly. It is important to note that this branch will
-            be checked out accross all repos pulled so if the branch doe not exist in each repo pulled,
-            boostraping the system will fail."
-
-            read -p "Branch Name: " BRANCH_NAME
-            export BRANCH_NAME=$BRANCH_NAME
         fi
     fi
 }
@@ -384,12 +373,11 @@ function clone_repos(){
             git clone https://bitbucket.di2e.net/scm/thisiscvah/$i.git
             pushd $directory > /dev/null
             git checkout $BRANCH_NAME
-            git remote set-url upstream https://bitbucket.di2e.net/scm/thisiscvah/$i.git
-
+            git remote set-url origin https://bitbucket.di2e.net/scm/thisiscvah/$i.
             popd > /dev/null
         fi
         if [[ ! -d "$directory" && ("$USE_FORK" == "yes") ]]; then
-            git clone https://bitbucket.di2e.net/scm/~$DIEUSERNAME/$i.git
+            git clone https://bitbucket.di2e.net/scm/thisiscvah/$i.git
             pushd $directory > /dev/null
             case "$i" in
             "tfplenum" )
@@ -401,17 +389,15 @@ function clone_repos(){
             "tfplenum-frontend" )
                 test_branch_name "$FRONTEND_BRANCH_NAME" "$i" ;;
             esac
-            git remote set-url origin https://bitbucket.di2e.net/scm/~$DIEUSERNAME/$i.git
-            git remote add upstream https://bitbucket.di2e.net/scm/thisiscvah/$i.git
-
+            git remote set-url origin https://bitbucket.di2e.net/scm/thisiscvah/$i.
             popd > /dev/null
         fi
     done
 }
 
 function test_branch_name() {
-    echo "Branch $1 is not found in your fork please reenter you branch name or create one with that name"
     if [[ ! $(git checkout $1) ]]; then
+        echo "Branch $1 is not found in your repo please reenter you branch name or create one with that name"
         enter_branch_name "$1" "$2"
     else
         git checkout $1

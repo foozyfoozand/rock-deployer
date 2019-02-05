@@ -84,16 +84,17 @@
     name: "{{item}}"
   with_items:
     - "{{ kube_images }}"
+  tags: pull-docker-images
 
 - name: Tag local images for upload to registry
-  shell: "docker tag {{ item }} {{ server_ip }}:{{ firewall_port }}/{{ item }}"
+  shell: "docker tag {{ item }} localhost:{{ firewall_port }}/{{ item }}"
   with_items:
     - "{{ kube_images }}"       
   tags: pull-docker-images    
 
 - name: Upload local images to registry
   docker_image:
-    name: "{{ server_ip }}:{{ firewall_port }}/{{ item }}"
+    name: "localhost:{{ firewall_port }}/{{ item }}"
     push: yes
     pull: no
   with_items:

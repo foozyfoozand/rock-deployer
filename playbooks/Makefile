@@ -33,7 +33,7 @@ generate-profiles:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,kickstart,profiles
 
 pull-docker-images:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t pull-docker-images
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t pull-docker-images
 
 bootstrap:		
 	@echo $(TFPLENUM_OS_TYPE)	

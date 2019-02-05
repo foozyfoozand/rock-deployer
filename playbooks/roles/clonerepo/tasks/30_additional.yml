@@ -52,7 +52,7 @@
           url: "{{ epel_repo.gpgkeyurl }}"
           dest: "{{ tfplenumoffline_dir }}/{{ epel_repo.name }}"
           mode: 0644
-    when: TFPLENUM_LABREPO == false
+    when: SOURCE_REPO == "public" 
 
   - name: Additional Repos 
     block:
@@ -73,14 +73,5 @@
           path: "{{ tfplenumoffline_dir }}/{{ additional_repo_info['kube']['name'] }}" 
           src: "{{ tfplenumoffline_dir }}/tmp/kubernetes"
           state: link 
-          force: yes
-
-      # - name: get gpgkeys
-      #   get_url:
-      #     url: "{{ item.value.gpgkeyurl }}"
-      #     dest: "{{ tfplenumoffline_dir }}/{{ item.value.name }}"
-      #     mode: 0644
-      #   loop: "{{ lookup('dict', labrepo_gpg_keys) }}"
-      
-    when: TFPLENUM_LABREPO
-  when: (clone_repos is defined and clone_repos)
+          force: yes      
+    when: SOURCE_REPO == "labrepo"

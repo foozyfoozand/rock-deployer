@@ -38,9 +38,13 @@
     state: restarted
   when: sshd_config.changed
 
+- name: Import bootstrap vars
+  include_vars:
+    file: "{{ BOOTSTRAP_VARS }}"  
+
 - name: Recreate Local Yum Repos
   import_role:
     name: bootstrap
-    tasks_from: local_repos
+    tasks_from: offline_repos
 
 ...

@@ -4,12 +4,14 @@
 
 - set_fact:
     BOOTSTRAP: "{{ lookup('env','BOOTSTRAP') }}"
+    GIT_USERNAME: "{{ lookup('env','GIT_USERNAME') }}"
+    GIT_PASSWORD: "{{ lookup('env','GIT_PASSWORD') }}"    
 
-- import_tasks: public_repos.yml
-  when: TFPLENUM_LABREPO == false
-
-- import_tasks: labrepo.yml
-  when: TFPLENUM_LABREPO
+- import_tasks: rhel_repos.yml
+  when: TFPLENUM_OS_TYPE == "rhel"
+- import_tasks: centos_repos.yml
+  when: TFPLENUM_OS_TYPE == "centos"
+- import_tasks: additional_repos.yml
 
 - name: "Install required packages"
   yum:
@@ -25,4 +27,14 @@
     name: registry
 
 - import_tasks: cleanup.yml
-- import_tasks: local_repos.yml
+- import_tasks: offline_repos.yml
+
+- name: Add controller lan to hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: "^{{ server_ip }} {{ ansible_controller_hostname }}"
+    line: "{{ server_ip }} {{ ansible_controller_hostname }}"
+    state: present
+  notify: "Restart Network Services"
+
+- import_tasks: finish.yml

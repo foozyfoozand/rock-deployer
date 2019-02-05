@@ -16,13 +16,5 @@ gpg_keys:
   - "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
   - "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
 
-direct_download_package_names:
-  - 'https://download.ceph.com/rpm-luminous/el7/noarch/ceph-deploy-1.5.39-0.noarch.rpm'
-  - 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm'  
-  - 'https://github.com/docker/compose/releases/download/1.21.0/docker-compose-Linux-x86_64'
-
-
-labrepo_direct_download_package_names:
-  - 'http://misc.labrepo.lan/ceph-deploy-1.5.39-0.noarch.rpm'
-  - 'http://misc.labrepo.lan/epel-release-latest-7.noarch.rpm'   
-  - 'http://misc.labrepo.lan/docker-compose-Linux-x86_64'
+#Path where iso is to be mounted ex: /mnt
+mnt_pth: /mnt

@@ -22,3 +22,8 @@
   yum:
     name: epel-release
     state: absent
+
+- name: remove pip dir if its there
+  file:
+    path: "~/.pip"
+    state: absent

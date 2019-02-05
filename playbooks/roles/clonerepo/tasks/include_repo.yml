@@ -9,11 +9,11 @@
   register: comps_result
 
 - set_fact:
-    createrepo_cmd: "createrepo -g  {{ tfplenumoffline_dir }}/{{ repo }}/comps.xml --workers=4 {{ tfplenumoffline_dir }}/{{ repo }} "
+    createrepo_cmd: "createrepo -g  {{ tfplenumoffline_dir }}/{{ repo }}/comps.xml {{ tfplenumoffline_dir }}/{{ repo }} "
   when: comps_result.stat.exists
 
 - set_fact:
-    createrepo_cmd: "createrepo --workers=4 {{ tfplenumoffline_dir }}/{{ repo }}"
+    createrepo_cmd: "createrepo {{ tfplenumoffline_dir }}/{{ repo }}"
   when: comps_result.stat.exists == false
 
 - name: "Create {{ repo }} repo"

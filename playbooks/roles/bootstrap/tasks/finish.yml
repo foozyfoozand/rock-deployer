@@ -1,0 +1,5 @@
+---
+- name: write out bootstrap vars
+  template:
+    src: templates/bootstrap_vars.yml
+    dest: "{{ BOOTSTRAP_VARS }}"

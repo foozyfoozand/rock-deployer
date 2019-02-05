@@ -9,12 +9,3 @@
     archive:
       path: "/tmp/node_modules"
       dest: "{{ tfplenumoffline_dir }}/elasticdump.tar.gz"
-  when: TFPLENUM_LABREPO == false
-
-- block:
-  - name: Download elasticdump tar from labrepo
-    get_url:
-      url: http://misc.labrepo.lan/elasticdump.tar.gz
-      dest: "{{ tfplenumoffline_dir }}/elasticdump.tar.gz"
-      mode: 0664
-  when: TFPLENUM_LABREPO

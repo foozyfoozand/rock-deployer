@@ -6,7 +6,6 @@
 auth --enableshadow --passalgo=sha512
 # Use CDROM installation media
 url --url http://{{ server_ip }}/{{ ansible_distribution }}
-repo --name=offline-epel --baseurl=http://{{server_ip}}/offlinerepo/epel/
 text
 # Run the Setup Agent on first boot
 firstboot --disable
@@ -68,7 +67,7 @@ done
 @core
 kexec-tools
 pciutils
-openvpn
+-NetworkManager-wifi
 
 %end
 

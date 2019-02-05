@@ -36,9 +36,10 @@ pull-docker-images:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t pull-docker-images
 
 bootstrap:		
-	@echo $(TFPLENUM_OS_TYPE)
-	@echo $(TFPLENUM_REDHAT_SUBSCRIPTION)
+	@echo $(TFPLENUM_OS_TYPE)	
+	@echo $(TFPLENUM_SERVER_IP)
+	@echo $(RHEL_SOURCE_REPO)
 
 	$(if $(filter $(TFPLENUM_OS_TYPE),Centos),\
-	ansible-playbook $(PLAYBOOK) -i localhost -e '{ clone_repos: $(CLONE_REPOS) }' -e '{ pull_centos_repos: $(CLONE_REPOS) }' -e '{ pull_rhel_repos: false }' -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t bootstrap,\
-	ansible-playbook $(PLAYBOOK) -i localhost -e '{ clone_repos: $(CLONE_REPOS) }' -e '{ pull_centos_repos: false }' -e '{ pull_rhel_repos: $(CLONE_REPOS) }' -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t bootstrap)
+	ansible-playbook $(PLAYBOOK) -i localhost -e '{ RHEL_SOURCE_REPO: "None" }' -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t bootstrap,\
+	ansible-playbook $(PLAYBOOK) -i localhost -e '{ RHEL_SOURCE_REPO: "$(RHEL_SOURCE_REPO)" }' -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t bootstrap)

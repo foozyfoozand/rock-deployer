@@ -1,0 +1,79 @@
+---
+
+ansible_ver: "2.7.5"
+kube_ver: "1.9.7"
+docker_ver: "1.13.1"
+ceph_deploy_ver: "1.5.39-0"
+
+group_packages:
+  - base
+  - core
+
+direct_download_package_names:
+  - "https://download.ceph.com/rpm-luminous/el7/noarch/ceph-deploy-{{ceph_deploy_ver}}.noarch.rpm"
+  - "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"  
+  - 'https://github.com/docker/compose/releases/download/1.21.0/docker-compose-Linux-x86_64'
+
+packages:
+  - "ansible-{{ ansible_ver }}"
+  - audit
+  - bash-completion
+  - bind-utils
+  - bridge-utils
+  - ceph
+  - ceph-mds
+  - ceph-mon
+  - ceph-osd
+  - ceph-radosgw
+  - chrony
+  - cockpit
+  - createrepo
+  - dhcp
+  - dnsmasq
+  - "docker-{{ docker_ver }}"
+  - docker-distribution
+  - easy-rsa
+  - gcc
+  - git
+  - grub2
+  - httpd
+  - inotify-tools
+  - iperf  
+  - "kubelet-{{ kube_ver }}"
+  - mod_ssl
+  - mongodb-org
+  - net-tools
+  - NetworkManager
+  - NetworkManager-libnm
+  - NetworkManager-tui
+  - NetworkManager-glib
+  - NetworkManager-team
+  - nload
+  - nmap
+  - nodejs
+  - openvpn
+  - perl
+  - policycoreutils-python
+  - python2-pip
+  - python36
+  - python36-devel
+  - python-docker-py.noarch
+  - python-gobject
+  - python-netaddr
+  - rsync
+  - sshpass
+  - syslinux
+  - tcpdump
+  - tcpreplay
+  - tftp-server
+  - vim-enhanced
+  - wget
+  - yum-utils
+  - xinetd
+
+packages_without_deps:
+  - "kubeadm-{{ kube_ver }}"
+  - "kubectl-{{ kube_ver }}"
+  - kubernetes-cni-0.6.0
+
+...

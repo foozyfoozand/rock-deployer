@@ -1,0 +1,11 @@
+[offline-tfplenum]
+baseurl=http://{{ansible_controller_hostname}}/offlinerepo/tfplenum
+enabled=1
+gpgcheck=0
+name=offline-tfplenum
+
+[offline-tfplenum-{{ ansible_distribution }}]
+baseurl=http://{{ansible_controller_hostname}}/{{ ansible_distribution }}
+enabled=1
+gpgcheck=0
+name=offline-tfplenum-{{ ansible_distribution }}

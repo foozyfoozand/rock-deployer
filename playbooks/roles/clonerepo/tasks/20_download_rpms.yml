@@ -1,0 +1,44 @@
+---
+
+- name: "Create tfplenum repo directory"
+  file:  
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ TFPLENUM_REPO_DIR }}"
+    - "{{ TFPLENUM_REPO_DIR }}/Packages"
+
+- name: Download Packages
+  shell: |
+    yumdownloader --installroot=/tmp/ --releasever=/ --destdir={{ TFPLENUM_REPO_DIR }}/Packages --resolve  --archlist=x86_64 {{ item }}
+  with_items: "{{ packages }}"
+
+- name: Download Packages
+  shell: |
+    yumdownloader --installroot=/tmp/ --releasever=/ --destdir={{ TFPLENUM_REPO_DIR }}/Packages --archlist=x86_64 {{ item }}
+  with_items: "{{ packages_without_deps }}"
+
+- name: Remove Repodata
+  file:
+    path: "{{ TFPLENUM_REPO_DIR }}/repodata"
+    state: absent
+
+- name: create repodata
+  shell: "createrepo {{ TFPLENUM_REPO_DIR }}"
+
+- name: get list of directories with wrong permissions
+  shell: |
+    # change all directories permissions that are not 755 to 755
+    find {{ web_root }} -type d -not -perm 755 -exec chmod 755 {} \;
+  register: dir_list
+
+- name: fix files with wrong permissions
+  shell: |
+    find {{ web_root }} -type f -not -perm 644 -exec chmod 644 {} \;
+  register: file_list
+
+- name: restorecon for web root
+  shell: |
+    restorecon -Rv {{ web_root }}
+
+...

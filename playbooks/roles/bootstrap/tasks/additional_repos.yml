@@ -1,0 +1,27 @@
+---
+
+- name: setup additional repos
+  yum_repository:
+    baseurl: "{{ item.value.baseurl }}"
+    description: "{{ item.value.description }}"
+    gpgcheck: false
+    enabled: true
+    name: "{{ item.value.name }}"        
+  loop: "{{ lookup('dict', additional_repo_info) }}"
+
+- name: "Configure epel repo"
+  yum_repository:    
+    name: "{{ epel_repo.name }}"
+    description: "{{ epel_repo.name }} repo"
+    failovermethod: "{{ epel_repo.failovermethod }}"
+    metalink: "{{ epel_repo.metalink }}"
+    enabled: true 
+    gpgcheck: "{{ epel_repo.gpgcheck}}"
+    gpgkey: "{{ epel_repo.gpgkey}}"
+
+# - name: install epel repo
+#   yum:
+#     name: http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+#     state: present
+
+...

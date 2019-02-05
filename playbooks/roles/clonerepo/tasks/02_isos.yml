@@ -1,0 +1,66 @@
+---
+- name: Download CentOS ISO
+  get_url:
+    checksum: "sha256:{{ iso_centos_checksum }}"
+    url: "{{ iso_centos_url_online }}"
+    dest: "{{ iso_centos_pth }}"
+  when:
+    - "ansible_distribution == 'CentOS'"
+
+# TODO we need a way to pull down RHEL ISO image.
+- name: Download RHEL ISO
+  get_url:
+    checksum: "sha256:{{ iso_rhel_checksum }}"
+    url: "{{ iso_rhel_url_labrepo }}"
+    dest: "{{ iso_rhel_pth }}"
+  when:
+    - "ansible_distribution == 'RedHat'"
+    - RHEL_SOURCE_REPO == 'labrepo'
+
+- name: Mount content to {{ mnt_pth }}
+  mount:
+    fstype: iso9660
+    state: mounted
+    opts: loop
+    path: "{{ mnt_pth }}"
+    src: "{{ iso_centos_pth }}"
+  when:
+    - mnt_pth != ""
+    - "ansible_distribution == 'CentOS'"
+  register: mounted
+
+- name: Mount content to {{ mnt_pth }}
+  mount:
+    fstype: iso9660
+    state: mounted
+    opts: loop
+    path: "{{ mnt_pth }}"
+    src: "{{ iso_rhel_pth }}"
+  when:
+    - mnt_pth != ""
+    - "ansible_distribution == 'RedHat'"
+  register: mounted
+
+- name: Create directory for {{ ansible_distribution }}
+  file:
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+    setype: httpd_sys_content_t
+    path: "{{ item }}"
+  with_items:
+  - "{{ web_root }}/{{ ansible_distribution }}"
+
+- name: Copy content to {{ web_root }}/{{ ansible_distribution }}
+  delegate_to: "{{ inventory_hostname }}"
+  synchronize:
+    dest: "{{ item }}"
+    src:  "{{ mnt_pth }}/"
+    recursive: yes
+  with_items: 
+  - "{{ web_root }}/{{ ansible_distribution }}/"
+
+- name: Remove unnecessary media from system
+  shell: |
+    umount -f {{ mnt_pth }}

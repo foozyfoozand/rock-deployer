@@ -5,20 +5,17 @@ tftp_pkgs: tftp-server,syslinux,xinetd
 tftp_pxe: 
  - /usr/share/syslinux/pxelinux.0 
  - /usr/share/syslinux/vesamenu.c32
- - /mnt/isolinux/initrd.img
- - /mnt/isolinux/vmlinuz
+ - /{{ web_root }}/{{ ansible_distribution }}/isolinux/initrd.img
+ - /{{ web_root }}/{{ ansible_distribution }}/isolinux/vmlinuz
 
 tftp_uefi:
- - /mnt/EFI/BOOT/BOOTX64.EFI
- - /mnt/EFI/BOOT/grubx64.efi
+ - /{{ web_root }}/{{ ansible_distribution }}/EFI/BOOT/BOOTX64.EFI
+ - /{{ web_root }}/{{ ansible_distribution }}/EFI/BOOT/grubx64.efi
 
 apache: httpd
 reponame: localrepo
 
 #Settable variables
-#Path where iso is to be mounted ex: /mnt
-mnt_pth: /mnt
-
 #Remove the iso from the system? Override to "true" to keep.
 keep_iso: true
 
@@ -27,9 +24,6 @@ keep_repo: true
 
 #Keep iso mounted? Override to "true" to keep.
 keep_mnt: true
-
-#Comma separated list of packages to install
-xtras: rsync,policycoreutils-python
 
 # Set to "true" to enable DHCP.
 dhcp: true

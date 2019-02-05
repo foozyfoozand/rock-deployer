@@ -8,6 +8,14 @@
     group: root
     setype: httpd_sys_content_t
 
+- name: "Create tfplenum repo directory"
+  file:  
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ TFPLENUM_REPO_DIR }}"
+    - "{{ TFPLENUM_REPO_DIR }}/Packages"
+
 - name: "Install bootstrap packages"
   yum:
     name: "{{ bootstrap_package_names }}"

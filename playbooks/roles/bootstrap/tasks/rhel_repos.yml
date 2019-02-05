@@ -1,0 +1,40 @@
+---
+- name: Setup RHEL Repos
+  block:
+    - name: Check to see if controller is subscribed
+      shell: "subscription-manager status | grep -i 'overall status' | awk '{ print $3 }'"
+      register: sub_status
+
+    - name: Errr
+      fail:
+        msg: "ansible controller is not subscribed.  Include rhel_activation_key and rhel_org_id to subscribe."
+      when: "'Current' not in sub_status.stdout and (rhel_activation_key is not defined or rhel_org_id is not defined)"
+
+    - name: Enabling Red Hat repos...
+      rhsm_repository:
+        name: "{{ item }}"
+        state: enabled
+      with_items: "{{ rhel_repos }}"
+
+    - name: Enable RHEL License
+      replace:    
+        path: "/etc/yum/pluginconf.d/subscription-manager.conf"
+        regexp: 'enabled=0'
+        replace: 'enabled=1'
+  when: RHEL_SOURCE_REPO == "public"
+
+- name: Setup RHEL Repos
+  block:
+    - name: Place centos & rhel pxe files
+      copy:
+        src: "labrepo-rhel.repo"
+        dest: "/etc/yum.repos.d/labrepo-rhel.repo"
+
+    - name: Disable RHEL License
+      replace:
+        path: "/etc/yum/pluginconf.d/subscription-manager.conf"
+        regexp: 'enabled=1'
+        replace: 'enabled=0'
+  when: RHEL_SOURCE_REPO == "labrepo"
+
+...

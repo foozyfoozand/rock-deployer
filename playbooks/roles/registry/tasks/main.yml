@@ -79,43 +79,25 @@
     enabled: yes
     state: restarted
 
-- name: Get docker images
-  block:
-    - block:
-      - name: Download docker container images from internet
-        docker_image:
-          name: "{{item}}"
-        with_items:
-          - "{{ kube_images }}"
+- name: Download docker container images from internet
+  docker_image:
+    name: "{{item}}"
+  with_items:
+    - "{{ kube_images }}"
 
-      - name: Tag local images for upload to registry
-        shell: "docker tag {{ item }} {{ server_ip }}:{{ firewall_port }}/{{ item }}"
-        with_items:
-          - "{{ kube_images }}"
-      when: TFPLENUM_LABREPO == false
-      tags: pull-docker-images
+- name: Tag local images for upload to registry
+  shell: "docker tag {{ item }} {{ server_ip }}:{{ firewall_port }}/{{ item }}"
+  with_items:
+    - "{{ kube_images }}"       
+  tags: pull-docker-images    
 
-    - block:
-      - name: Download docker container images from labrepo
-        docker_image:
-          name: "docker.labrepo.lan/{{ item }}"
-        with_items:
-          - "{{ kube_images }}"
-
-      - name: Tag local images for upload to registry
-        shell: "docker tag docker.labrepo.lan/{{ item }} {{ server_ip }}:{{ firewall_port }}/{{ item }}"
-        with_items:
-          - "{{ kube_images }}"
-      when: TFPLENUM_LABREPO
-      tags: pull-docker-images
-
-    - name: Upload local images to registry
-      docker_image:
-        name: "{{ server_ip }}:{{ firewall_port }}/{{ item }}"
-        push: yes
-        pull: no
-      with_items:
-        - "{{ kube_images }}"
-      tags: pull-docker-images
+- name: Upload local images to registry
+  docker_image:
+    name: "{{ server_ip }}:{{ firewall_port }}/{{ item }}"
+    push: yes
+    pull: no
+  with_items:
+    - "{{ kube_images }}"
+  tags: pull-docker-images
 
 ...

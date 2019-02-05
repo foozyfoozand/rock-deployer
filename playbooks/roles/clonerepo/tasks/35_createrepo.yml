@@ -13,13 +13,13 @@
 - name: setup repo list
   set_fact:
     repos: "{{ repos }} + [ '{{ item }}' ]"
-  when: (pull_rhel_repos is defined and pull_rhel_repos)
+  when: TFPLENUM_OS_TYPE == "rhel"
   with_items: "{{ rhel_repos }}"
 
 - name: setup repo list
   set_fact:
     repos: "{{ repos }} + [ '{{ item }}' ]"
-  when: (pull_centos_repos is defined and pull_centos_repos)
+  when: TFPLENUM_OS_TYPE == "centos"
   with_items:
   - "{{ centos_repos }}"
 

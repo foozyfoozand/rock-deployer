@@ -1,4 +1,0 @@
----
-- name: Remove unnecessary media from system
-  shell: |
-    umount -f {{ mnt_pth }}

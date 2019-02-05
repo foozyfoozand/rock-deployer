@@ -10,3 +10,5 @@ package_list:
   - python-netaddr
   - tcpreplay
   - tcpdump
+  - rsync
+  - policycoreutils-python

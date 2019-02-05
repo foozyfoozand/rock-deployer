@@ -55,6 +55,14 @@ additional_repo_info:
     gpgkeyname: "gpg"
     description: "Docker CE repo"
     download_path: "{{ tfplenumoffline_dir }}"
+  ansible:
+    name: "ansible"
+    baseurl: "https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/"
+    gpgkeyurl: "https://releases.ansible.com/keys/RPM-GPG-KEY-ansible-release.pub"
+    gpgkeyname: "RPM-GPG-KEY-ansible-release.pub"
+    description: "Ansible Repo"
+    download_path: "{{ tfplenumoffline_dir }}"
+    
 epel_repo:
     metalink: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"
     gpgkeyurl: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7"
@@ -100,6 +108,7 @@ gpg_keys:
   - "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
   - "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
   - "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
+  - "https://releases.ansible.com/keys/RPM-GPG-KEY-ansible-release.pub"
 
 pip_downloads:
   - docker-py
@@ -123,11 +132,13 @@ iso_rhel_pth: "/root/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"
 iso_rhel_url_labrepo: "http://isos.labrepo.lan/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"
 iso_rhel_checksum: d0dd6ae5e001fb050dafefdfd871e7e648b147fb2d35f0e106e0b34a0163e8f5
 
-# If env doesnt exist it will default to false
-TFPLENUM_LABREPO: "{{ lookup('env','TFPLENUM_LABREPO') | default(false) | bool }}"
-
 BOOTSTRAP: false
 
 ansible_controller_hostname: "controller.lan"
+
+RHEL_SOURCE_REPO: "{{ lookup('env','RHEL_SOURCE_REPO') | default('') }}"
+TFPLENUM_OS_TYPE: "{{ lookup('env','TFPLENUM_OS_TYPE') | default('') }}"
+BOOTSTRAP_VARS: "{{ web_root }}/bootstrap.yml"
+TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
 
 ...

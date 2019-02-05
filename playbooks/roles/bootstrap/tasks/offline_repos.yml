@@ -1,0 +1,35 @@
+---
+- block:
+  - name: Unregister controller RHEL
+    redhat_subscription:
+      state: absent
+  - name: Disable RHEL License
+    replace:
+      path: "/etc/yum/pluginconf.d/subscription-manager.conf"
+      regexp: 'enabled=1'
+      replace: 'enabled=0'
+  when: "ansible_distribution == 'RedHat'"
+
+- name: Add local repo
+  template:
+    src: templates/offline-tfplenum.repo
+    dest: "/etc/yum.repos.d/offline.repo"
+- name: offline repo file
+  template:
+    src: templates/offline-tfplenum.repo
+    dest: "{{ tfplenumoffline_dir }}/offline.repo"
+
+- name: Clean repo cache
+  shell: yum clean all
+  args:
+    warn: false
+
+- name: create pip dir
+  file:
+    path: "~/.pip"
+    state: directory
+
+- name: Add pip config
+  template:
+    src: templates/pip.conf.j2
+    dest: "~/.pip/pip.conf"

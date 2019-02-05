@@ -1,0 +1,34 @@
+---
+
+- name: remove old tfplenum repo
+  file:
+    path: "{{ tfplenumoffline_dir }}/tfplenum"
+    state: absent
+
+- name: "Mirror custom tfplenum repo"
+  shell: "reposync --repoid=tfplenum --download_path={{ tfplenumoffline_dir }} --download-metadata --downloadcomps"
+
+- name: Remove Repodata
+  file:
+    path: "{{ tfplenumoffline_dir }}/tfplenum/repodata"
+    state: absent
+
+- name: create repodata
+  shell: "createrepo {{ tfplenumoffline_dir }}/tfplenum"
+
+- name: get list of directories with wrong permissions
+  shell: |
+    # change all directories permissions that are not 755 to 755
+    find {{ web_root }} -type d -not -perm 755 -exec chmod 755 {} \;
+  register: dir_list
+
+- name: fix files with wrong permissions
+  shell: |
+    find {{ web_root }} -type f -not -perm 644 -exec chmod 644 {} \;
+  register: file_list
+
+- name: restorecon for web root
+  shell: |
+    restorecon -Rv {{ web_root }}
+
+...

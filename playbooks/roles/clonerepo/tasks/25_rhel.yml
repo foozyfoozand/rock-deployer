@@ -18,7 +18,7 @@
       shell: "reposync --repoid={{ item }} --download_path={{ tfplenumoffline_dir }} --download-metadata --downloadcomps"
       with_items:
         - "{{ rhel_repos }}"
-    when: TFPLENUM_LABREPO == false
+    when: SOURCE_REPO == "public"
 
 
   - block:    
@@ -26,5 +26,4 @@
       shell: "reposync --repoid={{ item }} --download_path={{ tfplenumoffline_dir }} --download-metadata --downloadcomps"
       with_items: "{{ rhel_repos }}"
 
-    when: TFPLENUM_LABREPO
-  when: (pull_rhel_repos is defined and pull_rhel_repos)
+    when: SOURCE_REPO == "labrepo"

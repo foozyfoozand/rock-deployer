@@ -1,0 +1,16 @@
+---
+# handlers file for roles/dnsmasq
+
+- name: NetworkManager Services
+  service:
+    name: NetworkManager
+    state: restarted
+  listen: "Restart Network Services"
+
+- name: Network Services
+  service:
+    name: network
+    state: restarted
+  listen: "Restart Network Services"
+
+...

@@ -373,7 +373,6 @@ function clone_repos(){
             git clone https://bitbucket.di2e.net/scm/thisiscvah/$i.git
             pushd $directory > /dev/null
             git checkout $BRANCH_NAME
-            git remote set-url origin https://bitbucket.di2e.net/scm/thisiscvah/$i.
             popd > /dev/null
         fi
         if [[ ! -d "$directory" && ("$USE_FORK" == "yes") ]]; then
@@ -389,7 +388,6 @@ function clone_repos(){
             "tfplenum-frontend" )
                 test_branch_name "$FRONTEND_BRANCH_NAME" "$i" ;;
             esac
-            git remote set-url origin https://bitbucket.di2e.net/scm/thisiscvah/$i.
             popd > /dev/null
         fi
     done

@@ -80,25 +80,25 @@ interfaces=`cat /tmp/interfaces`
 for i in $interfaces;
 do
  mac=`ethtool -P $i | awk '{ print $3 }'`
- # Get the link state using ethtool
- # The awk piece uses the colon delimiter and removes the leading space
- link=`ethtool $i | grep "Link detected" | awk -F ":" '{gsub(/ /,"",$2); print $2 }'`
  if [[ $mac != '{{ hostvars[item].mac | lower }}' ]]; then
    # This updates the non management interfaces to remove any DNS entries
    sed -i '/^DNS/ d' /etc/sysconfig/network-scripts/ifcfg-$i
    # This updates the non management interfaces to remove the NETBOOT line
    sed -i '/^NETBOOT/ d' /etc/sysconfig/network-scripts/ifcfg-$i
-   # This updates the non management interfaces to link-local   
-   sed -i 's/^\(BOOTPROTO=\).*/\1autoip/g' /etc/sysconfig/network-scripts/ifcfg-$i
+   # This updates the non management interfaces to manual  
+   sed -i 's/^\(BOOTPROTO=\).*/\1none/g' /etc/sysconfig/network-scripts/ifcfg-$i
    # This updates the non management interfaces to ignore ipv6 by default   
    sed -i 's/^\(IPV6INIT=\).*/\1no/g' /etc/sysconfig/network-scripts/ifcfg-$i
    # Remove ONBOOT line from non management interface
    sed -i '/^ONBOOT/ d' /etc/sysconfig/network-scripts/ifcfg-$i
    # Append ONBOOT option based on link status of yes or no
-   echo 'ONBOOT='$link >> /etc/sysconfig/network-scripts/ifcfg-$i
-   if [[ $link == 'no' ]]; then
-     sed -i 's/^\(BOOTPROTO=\).*/\1none/g' /etc/sysconfig/network-scripts/ifcfg-$i
-   fi
+   echo 'ONBOOT=yes' >> /etc/sysconfig/network-scripts/ifcfg-$i
+   # Add default 169 ip to monitoring interface
+   sed -i '/^NETMASK/ d' /etc/sysconfig/network-scripts/ifcfg-$i
+   echo 'NETMASK=255.255.0.0' >> /etc/sysconfig/network-scripts/ifcfg-$i
+   # Add default 169 ip to monitoring interface
+   sed -i '/^IPADDR/ d' /etc/sysconfig/network-scripts/ifcfg-$i
+   echo 'IPADDR=169.254.0.1' >> /etc/sysconfig/network-scripts/ifcfg-$i
  fi
 done
 {% endif %}

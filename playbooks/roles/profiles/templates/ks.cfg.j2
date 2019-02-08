@@ -103,3 +103,8 @@ do
 done
 {% endif %}
 %end
+
+%post
+# Disable SSHD DNS lookups
+echo "UseDNS no" >> /etc/ssh/sshd_config
+%end

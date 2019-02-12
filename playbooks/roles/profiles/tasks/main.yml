@@ -1,7 +1,7 @@
 ---
 
 - name: Generate RootPw
-  command: "openssl passwd -1 {{ root_password }}"
+  command: "openssl passwd -1 {{ root_password | b64decode }}"
   register: rootpw
 
 - name: Kick template dir

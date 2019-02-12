@@ -15,7 +15,7 @@
   register: assessor_user
 
 - name: Generate RootPw
-  command: "openssl passwd -1 {{ root_password }}"
+  command: "openssl passwd -1 {{ root_password | b64decode }}"
   register: rootpw
   when: assessor_user.changed
 

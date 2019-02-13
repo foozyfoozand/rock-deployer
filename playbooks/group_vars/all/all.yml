@@ -22,21 +22,21 @@ additional_repo_info:
     download_path: "{{ tfplenumoffline_dir }}/tmp"
   ceph_base:
     name: "ceph_base"
-    baseurl: "https://download.ceph.com/rpm-luminous/el7/$basearch"
+    baseurl: "https://download.ceph.com/rpm-mimic/el7/$basearch"
     gpgkeyurl: "https://download.ceph.com/keys/release.asc"
     gpgkeyname: "release.asc"
     description: "ceph base repo"
     download_path: "{{ tfplenumoffline_dir }}"
   ceph_noarch:
     name: "ceph_noarch"
-    baseurl: "https://download.ceph.com/rpm-luminous/el7/$basearch"
+    baseurl: "https://download.ceph.com/rpm-mimic/el7/noarch"
     gpgkeyurl: "https://download.ceph.com/keys/release.asc"
     gpgkeyname: "release.asc"
-    description: "ceph base repo"
+    description: "ceph noarch repo"
     download_path: "{{ tfplenumoffline_dir }}"
   ceph_srpms:
     name: "ceph_srpms"
-    baseurl: "https://download.ceph.com/rpm-luminous/el7/SRPMS"
+    baseurl: "https://download.ceph.com/rpm-mimic/el7/SRPMS"
     gpgkeyurl: "https://download.ceph.com/keys/release.asc"
     gpgkeyname: "release.asc"
     description: "ceph srpms repo"
@@ -62,7 +62,7 @@ additional_repo_info:
     gpgkeyname: "RPM-GPG-KEY-ansible-release.pub"
     description: "Ansible Repo"
     download_path: "{{ tfplenumoffline_dir }}"
-    
+
 epel_repo:
     metalink: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"
     gpgkeyurl: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7"

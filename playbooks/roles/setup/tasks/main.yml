@@ -47,4 +47,10 @@
     name: bootstrap
     tasks_from: offline_repos
 
+- name: Update etc hosts file
+  import_role:
+    name: bootstrap
+    tasks_from: update_etc_hosts
+
+
 ...

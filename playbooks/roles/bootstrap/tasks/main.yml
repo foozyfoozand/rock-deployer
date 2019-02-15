@@ -28,13 +28,5 @@
 
 - import_tasks: cleanup.yml
 - import_tasks: offline_repos.yml
-
-- name: Add controller lan to hosts
-  lineinfile:
-    dest: /etc/hosts
-    regexp: "^{{ server_ip }} {{ ansible_controller_hostname }}"
-    line: "{{ server_ip }} {{ ansible_controller_hostname }}"
-    state: present
-  notify: "Restart Network Services"
-
+- import_tasks: update_etc_hosts.yml
 - import_tasks: finish.yml

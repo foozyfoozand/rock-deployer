@@ -1,0 +1,15 @@
+---
+- name: Add controller lan to hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: "{{ ansible_controller_hostname }}"    
+    state: absent
+
+- name: Add controller lan to hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: "^{{ server_ip }} {{ ansible_controller_hostname }}"
+    line: "{{ server_ip }} {{ ansible_controller_hostname }}"
+    state: present
+  notify: "Restart Network Services"
+...
